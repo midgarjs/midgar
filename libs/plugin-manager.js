@@ -1,6 +1,8 @@
 const path = require('path')
-const PM = require ('@midgar/plugin-manager')
+
 const utils = require('@midgar/utils')
+const PM = require ('@midgar/plugin-manager')
+
 const Plugin = require ('../plugin')
 
 /**
@@ -61,11 +63,11 @@ class PluginManager extends PM {
    */
   async _createPluginInstance(Class, options) {
 
-    if (Class.prototype instanceof Plugin) {
+    //if (Class.prototype instanceof Plugin) {
       return new Class(this.midgar, options)
-    } else {
+    /*} else {
       throw new Error ('Invalid plugin ' + options.name + ' not valid class prototype')
-    }
+    }*/
   }
 
   /**
@@ -81,8 +83,8 @@ class PluginManager extends PM {
 
     //observe end plugin load to get the load time
     this.on('loadPluginsEnd', () => {
-      const time = utils.timer.ms('midgar-plugin-load')
-      this.midgar.debug('plugins loaded in ' + time + ' ms')
+      const time = utils.timer.getTime('midgar-plugin-load')
+      this.midgar.debug('plugins loaded in ' + time[0] + 's, ' +  time[1] + 'ms')
     })
 
     //bind logger

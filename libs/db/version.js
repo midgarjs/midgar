@@ -1,4 +1,5 @@
 const path = require('path')
+
 const utils = require('@midgar/utils')
 const DbVersion = require('@midgar/db-version')
 const pm = require('@midgar/plugin-manager')

@@ -3,10 +3,12 @@ const bodyParser = require('body-parser')
 const helmet = require('helmet')
 const url = require('url')
 const cluster = require('cluster')
-//const striptags = require('striptags')
+const htmlencode =  require('htmlencode').htmlEncode
 const EventEmitter = require('events')
-const Config = require('./libs/config')
+
 const utils = require('@midgar/utils')
+
+const Config = require('./libs/config')
 const Logger = require('./libs/logger')
 const PluginManager = require('./libs/plugin-manager')
 
@@ -140,8 +142,8 @@ class Midgar extends EventEmitter {
      */
     await this.pm.emit('afterMidgarInit')
      
-    const time = utils.timer.ms('midgar-init')
-    this.debug('midgar has init in ' + time + 'ms')
+    const time = utils.timer.getTime('midgar-init')
+    this.debug('midgar has init in ' + time[0] + 's, ' +  time[1] + 'ms')
   }
   
   /**
@@ -173,7 +175,7 @@ class Midgar extends EventEmitter {
       })
     }
 
-    //security
+    //security {xssFilter:{ reportUri: '/report-xss-violation' }}
     this.app.use(helmet())
 
     this.app.use(bodyParser.json()) // support json encoded bodies
@@ -182,20 +184,28 @@ class Midgar extends EventEmitter {
     })) // support encoded bodies
 
 
+
     /**
      * Add a function on requeste to gest post and get parameters
      */
     this.app.use((req, res, next) => {
+      req.midgar = this
       // add method to get clean request param
       req.getParam = (key, cleanParam = true) => {
+
+        if (leanParam && req.cleanParam && req.cleanParam[key])
+          return req.cleanParam[key]
+
         let value = null
         if (req.query[key] != undefined)
           value = req.query[key]
         else if (req.body[key] != undefined)
           value = req.body[key]
 
-        if (value !== null && cleanParam)
+        if (value !== null && cleanParam) {
           value = this._cleanParam(value) 
+          req.cleanParam[key] = value
+        }
 
         return value
       }
@@ -204,6 +214,7 @@ class Midgar extends EventEmitter {
 
     /**
      * initHttpServer event.
+     * Used to attach middleware on express
      *
      * @event Midgar#initHttpServer
      */
@@ -216,18 +227,12 @@ class Midgar extends EventEmitter {
      */
     await this.pm.emit('afterInitHttpServer')
     
-    //error management
-    this.app.use((req, res, next) => {
-      this.emit('error-404', req, res)
-    })
-
     this.app.use((err, req, res, next) => {
-      //console.error(err.stack);
-      this.emit('error-500', req, res, err)
+      this.error(err)
     });
     
-    const time = utils.timer.ms('midgar-init-web-serv')
-    this.debug('midgar has init web server in ' + time + 'ms')
+    const time = utils.timer.getTime('midgar-init-web-serv')
+    this.debug('midgar has init web server in ' + time[0] + 's, ' +  time[1] + 'ms')
   }
 
   /**
@@ -236,10 +241,7 @@ class Midgar extends EventEmitter {
    */
   _cleanParam(value) {
   //  console.log(value)
-    return value;
-    /*if () {
-      striptags(value)
-    }*/
+      return htmlencode(value)
   }
 
   /** 
@@ -436,11 +438,23 @@ class Midgar extends EventEmitter {
       const uncaughtExceptionHandler = (error) => {
         if (this.logger) {
           //log exception
-          this.logger.error('uncaught Exception :(')
+          this.logger.error('Uncaught Exception :(')
           this.logger.error(error)
         } else {
           console.error(error)
         }
+        process.exit()
+      }
+      //Catch uncaught Exceptions
+      const uncaughtRejectionHandler = (error) => {
+        if (this.logger) {
+          //log exception
+          this.logger.error('Uncaught Rejection :(')
+          this.logger.error(error)
+        } else {
+          console.error(error)
+        }
+
         process.exit()
       }
 
@@ -453,7 +467,7 @@ class Midgar extends EventEmitter {
       process.on('SIGUSR2', exitHandler.bind(null))
       //uncaught exceptions
       process.on('uncaughtException', uncaughtExceptionHandler.bind(null))
-      process.on('unhandledRejection', uncaughtExceptionHandler.bind(null))
+      process.on('unhandledRejection', uncaughtRejectionHandler.bind(null))
       
   }
 

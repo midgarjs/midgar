@@ -34,7 +34,7 @@ class Config {
     const mode = process.env.NODE_ENV == 'development' ? 'dev' : 'prod'
     file += '.' + mode 
 
-    const modeConfig = this.loadConfig(path.join(configDir, file), requireMode)
+    const modeConfig = await this.loadConfig(path.join(configDir, file), requireMode)
     assignRecursive(this, modeConfig)
   }
 

@@ -1,8 +1,10 @@
+
 const winston = require('winston')
-require('winston-daily-rotate-file')
-const path = require('path')
-const utils = require('@midgar/utils')
 const { format } = require('winston')
+require('winston-daily-rotate-file')
+
+const utils = require('@midgar/utils')
+
 const { combine, timestamp, label } = format;
 
 /**
@@ -84,51 +86,51 @@ class Logger {
    * Init logger
    */
   async init() {
-    return utils.asyncMap(this.options.files, file => {
+    const transports = await utils.asyncMap(this.options.files, file => {
       return this._getFileTransport(file).catch(error => {
         console.log(error);
       }) 
-    }).then(async transports => {
-      //stdout
-      if (this.options.stdout) {
-        transports.push(new winston.transports.Console({
-          format: logStdoutFormat(),
-        }))
+    })
+    
+    //stdout
+    if (this.options.stdout) {
+      transports.push(new winston.transports.Console({
+        format: logStdoutFormat(),
+      }))
+    }
+    
+    //create winston instance
+    this.winston = winston.createLogger({
+      level: this.options.level,
+      transports: transports,
+      exitOnError: false
+    })
+
+    /**
+     * Error handler
+     * Errors throw by winston are super Errors
+     * there cannot be catch and cause an uncaught exception
+     * and finaly cause a process.exit() this exception is catch 
+     * by midgar but ....
+     * 
+     * @todo: investigate on the fact to throw all exception
+     */
+    this.winston.on('error', (error) => {
+      let exit = false
+      if (!this._exit) {
+        this._exit, exit = true
       }
-      
-      //create winston instance
-      this.winston = winston.createLogger({
-        level: this.options.level,
-        transports: transports,
-        exitOnError: false
-      })
 
-      /**
-       * Error handler
-       * Errors throw by winston are super Errors
-       * there cannot be catch and cause an uncaught exception
-       * and finaly cause a process.exit() this exception is catch 
-       * by midgar but ....
-       * 
-       * @todo: investigate on the fact to throw all exception
-       */
-      this.winston.on('error', (error) => {
-        let exit = false
-        if (!this._exit) {
-          this._exit, exit = true
-        }
+      //log file cannot be acces
+      if (error.code == 'EACCES') {
+        error = 'permission denied on log file: ' + error.path
+      }
 
-        //log file cannot be acces
-        if (error.code == 'EACCES') {
-          error = 'permission denied on log file: ' + error.path
-        }
-
-        if (exit) {
-          throw new Error(error)
-        } else {
-          this.error(new Error(error))
-        }
-      })
+      if (exit) {
+        throw new Error(error)
+      } else {
+        this.error(new Error(error))
+      }
     })
   }
 
