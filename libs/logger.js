@@ -213,8 +213,8 @@ class Logger {
   async _waitWinston(wait, interval) {
     wait -= interval
     if (this.winston.transports.length && wait > 0) {
-      console.log(this.winston.transports.length)
-      console.log(wait / 1000)
+      // console.log(this.winston.transports.length)
+      // console.log(wait / 1000)
       return await this._wait(interval).then(() => {
         return this._waitWinston(wait, interval)
       })
@@ -233,7 +233,7 @@ class Logger {
     const interval = 200
     this.winston.end()
     if (this.winston.transports.length) {
-      console.log('Wait 5 seconds max for log thank you')
+      // console.log('Wait 5 seconds max for log thank you')
       return await this._waitWinston(wait, interval)
     }
     this.winston.end()

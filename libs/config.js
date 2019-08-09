@@ -39,7 +39,7 @@ class Config {
   }
 
   /**
-   * load a file, parse the json and merge it into the config object
+   * load a config file, parse the json and merge it into the config object
    * if the require flag is at true and the file not exist throw an error
    *
    * @param {string} filePath config file path

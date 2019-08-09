@@ -1,9 +1,9 @@
 const path = require('path')
 
-const utils = require('@midgar/utils')
+const {timer, asyncWriteFile} = require('@midgar/utils')
 const PM = require ('@midgar/plugin-manager')
 
-const Plugin = require ('../plugin')
+// const Plugin = require ('../plugin')
 
 /**
  * PluginMaganger class
@@ -38,6 +38,20 @@ class PluginManager extends PM {
 
     //observe events
     this._observeEvents()
+  }
+
+  async addPlugin(plugin) {
+    const plugins = await this.midgar.config.loadConfig(path.join(this.midgar.configPath, 'plugins'))
+
+    if (plugins.indexOf(plugin) == -1) {
+      plugins.push(plugin)
+      try {
+        await asyncWriteFile(path.join(this.midgar.configPath, 'plugins.js'), 'module.exports = ' + JSON.stringify(plugins))
+      } catch (error) {
+        throw error
+        // throw new Error('Error to save config file ' + filePath)
+      }
+    }
   }
 
   /**
@@ -77,13 +91,13 @@ class PluginManager extends PM {
   _observeEvents() {
     //observe start plugin load to get the load time
     this.on('loadPluginsStart', plugins => {
-      utils.timer.start('midgar-plugin-load')
+      timer.start('midgar-plugin-load')
       this.midgar.debug('start load plugins from ' + this.options.pluginsPath)
     })
 
     //observe end plugin load to get the load time
     this.on('loadPluginsEnd', () => {
-      const time = utils.timer.getTime('midgar-plugin-load')
+      const time = timer.getTime('midgar-plugin-load')
       this.midgar.debug('plugins loaded in ' + time[0] + 's, ' +  time[1] + 'ms')
     })
 

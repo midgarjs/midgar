@@ -155,6 +155,10 @@ class Midgar extends EventEmitter {
     await this.pm.init()
   }
 
+  async addPlugin(plugin) {
+    const pm = new PluginManager(this)
+    await pm.addPlugin(plugin)
+  }
 
   /**
    * Create the express app and add some middlewares
@@ -175,7 +179,6 @@ class Midgar extends EventEmitter {
       })
     }
 
-    //security {xssFilter:{ reportUri: '/report-xss-violation' }}
     this.app.use(helmet())
 
     this.app.use(bodyParser.json()) // support json encoded bodies
@@ -183,18 +186,16 @@ class Midgar extends EventEmitter {
       extended: true
     })) // support encoded bodies
 
-
-
     /**
      * Add a function on requeste to gest post and get parameters
      */
     this.app.use((req, res, next) => {
       req.midgar = this
       // add method to get clean request param
-      req.getParam = (key, cleanParam = true) => {
+      req.getParam = (key, cleanParams = true) => {
 
-        if (leanParam && req.cleanParam && req.cleanParam[key])
-          return req.cleanParam[key]
+        if (cleanParams && req.cleanParams && req.cleanParams[key])
+          return req.cleanParams[key]
 
         let value = null
         if (req.query[key] != undefined)
@@ -202,9 +203,12 @@ class Midgar extends EventEmitter {
         else if (req.body[key] != undefined)
           value = req.body[key]
 
-        if (value !== null && cleanParam) {
-          value = this._cleanParam(value) 
-          req.cleanParam[key] = value
+        if (value !== null && cleanParams) {
+          value = this._cleanParam(value)
+          if (!req.cleanParams)
+            req.cleanParams = {}
+          
+          req.cleanParams[key] = value
         }
 
         return value
@@ -240,8 +244,18 @@ class Midgar extends EventEmitter {
    * @private
    */
   _cleanParam(value) {
-  //  console.log(value)
-      return htmlencode(value)
+      if (typeof value === 'object') {
+        const obj = {}
+        const keys = Object.keys(value)
+        for (const i in keys) {
+          let key = keys[i]
+          key = htmlencode(key)
+          obj[key] = htmlencode(value[key])
+        }
+        return obj 
+      } else {
+        return htmlencode(value)
+      }
   }
 
   /** 
