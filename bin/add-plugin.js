@@ -45,5 +45,5 @@ if (configPath != null) {
     process.exit()
   })
 } else {
-  constole.log('Cannot found midgar config dir. plugin no\'t added to the plugin config file.')
+  console.log('Cannot found midgar config dir. Plugin not added to the plugin config file.')
 }
