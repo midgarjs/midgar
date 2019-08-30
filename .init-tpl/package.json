@@ -9,7 +9,7 @@
     "prod": "node src/server.js"
   },
   "dependencies": {
-    "@midgar/midgar": "^1.0.0-alpha.1.7"
+    "@midgar/midgar": "^1.0.0-alpha.1.11"
   },
   "devDependencies": {}
 }
