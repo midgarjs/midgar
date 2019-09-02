@@ -3,7 +3,13 @@ const path = require('path')
 
 module.exports = {
   port: 3000,
-   log: {
+  baseUrl: 'http://localhost:{port}',
+  public: {
+    enable: true,
+    baseUrl: 'http://localhost:{port}',
+    port: 3100
+  },
+  log: {
     stdout: true,
     level: 'error'
   },

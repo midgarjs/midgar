@@ -40,6 +40,17 @@ class PluginManager extends PM {
     this._observeEvents()
   }
 
+  /**
+   * Init plugin manager
+   * Get the plugins to load from the config
+   * and load them
+   */
+  async init() {
+    //load plugins config file
+    const plugins = await this.midgar.config.loadConfig(path.join(this.midgar.configPath, 'plugins'))
+    await this.loadPlugins(plugins)
+  }
+  
   async addPlugin(plugin) {
     const plugins = await this.midgar.config.loadConfig(path.join(this.midgar.configPath, 'plugins'))
 
@@ -53,18 +64,6 @@ class PluginManager extends PM {
       }
     }
   }
-
-  /**
-   * Init plugin manager
-   * Get the plugins to load from the config
-   * and load them
-   */
-  async init() {
-    //load plugins config file
-    const plugins = await this.midgar.config.loadConfig(path.join(this.midgar.configPath, 'plugins'))
-    await this.loadPlugins(plugins)
-  }
-
 
   /**
    * Create the plugin instance

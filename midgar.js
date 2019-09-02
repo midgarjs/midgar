@@ -95,22 +95,22 @@ class Midgar extends EventEmitter {
     await this.config.loadConfigs(dirPath, 'config', true)
 
     process.env.TZ = this.config.tz || 'Europe/Paris'
-
+    
+    // Check minimal config
+    this.config.baseUrl = this.config.baseUrl ? this.config.baseUrl : 'http://localhost:{port}'
+    this.config.port = this.config.port ? this.config.port : 3000
     this.config.baseUrl = this.config.baseUrl.replace('{port}', this.config.port)
-    this.config.publicBaseUrl = this.config.public.baseUrl.replace('{port}', this.config.public.port)
+    
+    if (!this.config.public) {
+      this.config.public = {
+        enable: true
+      }
+    }
 
-    //flag config loaded
-    this._configLoaded = true
+    this.config.public.baseUrl = this.config.public.baseUrl ? this.config.public.baseUrl : 'http://localhost:{port}'
+    this.config.public.port = this.config.public.port ? this.config.public.port : 3001
+    this.config.public.baseUrl = this.config.public.baseUrl.replace('{port}', this.config.public.port)
 
-    //create the logger instance
-    this.logger = this.config.logger ? this.config.logger(this.config.log) : new Logger(this.config.log)
-
-    await this.logger.init().catch(error => {
-      console.log(error)
-      throw error
-    })
-
-    //bad things :)
     if (!this.config.log || !this.config.log.level) {
       this.config.log.level = 'warn'
     }
@@ -118,6 +118,17 @@ class Midgar extends EventEmitter {
     if (!this.config.plugin || !this.config.plugin.dir) {
       throw new Error ('No plugin.dir')
     }
+
+    // Flag config loaded
+    this._configLoaded = true
+
+    // Create the logger instance
+    this.logger = this.config.logger ? this.config.logger(this.config.log) : new Logger(this.config.log)
+
+    await this.logger.init().catch(error => {
+      console.log(error)
+      throw error
+    })
   }
 
   /**
@@ -229,7 +240,7 @@ class Midgar extends EventEmitter {
      *
      * @event Midgar#afterInitHttpServer
      */
-    await this.pm.emit('afterInitHttpServer')
+    // await this.pm.emit('afterInitHttpServer')
     
     this.app.use((err, req, res, next) => {
       this.error(err)
@@ -272,6 +283,13 @@ class Midgar extends EventEmitter {
    * the public server start only if it enabled in the config
    */
   async startServers() {
+    /**
+     * beforeStartServers event.
+     *
+     * @event Midgar#beforeStartServers
+     */
+    await this.pm.emit('beforeStartServers')
+
     const promises = [] 
     if (this.config.public && this.config.public.enable) {
       promises.push(this.startPublicServer())
@@ -310,23 +328,30 @@ class Midgar extends EventEmitter {
    */
   async start(configPath) {
     await this.loadConfig(configPath)
-      //create cluster
-      if (this.cluster.isMaster) {
-        await this._startCluster()
-      } else {
-        //init and start servers
-        await this.init()
-        await this.initWebServer()
-        await this.startServers()
-        this.info('Worker %d running!', this.cluster.worker.id)
-      }
-  }
 
+    // Create cluster
+    if (this.config.cluster && this.cluster.isMaster) {
+      await this._startCluster()
+    } else {
+      // Init and start servers
+      await this.init()
+      await this.initWebServer()
+      await this.startServers()
+
+      if (this.config.cluster) {
+        this.info('Worker %d running !', this.cluster.worker.id)
+      }
+    }
+  }
 
   /**
    * Kill all workers
    */
   async killWorkers() {
+    if (!this.config.cluster) {
+      throw new Error('Cluster is disable !');
+    }
+
     //list workers
     for (const id in this.cluster.workers) {
       this.warn('kill worker ' + id)
@@ -375,9 +400,9 @@ class Midgar extends EventEmitter {
 
     //for dev it better to have only one server process
     //the watch file cause some isue with many process
-    if (this.getEnv() == 'development') {
+    /* if (this.getEnv() == 'development') {
       cpuCount = 1
-    }
+    } */
 
     // Create a worker for each CPU
     for (let i = 0; i < cpuCount; i += 1) {

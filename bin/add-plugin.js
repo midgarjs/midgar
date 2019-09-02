@@ -18,12 +18,14 @@ function loadRCFile() {
   if (fs.existsSync(rcFile)) {
     return require(rcFile)
   }
-  
-  rcFile = path.resolve(process.env.INIT_CWD, '.midgarrc')
-  if (fs.existsSync(rcFile)) {
-    return require(rcFile)
-  }
 
+  if (process.env.INIT_CWD) {
+    rcFile = path.resolve(process.env.INIT_CWD, '.midgarrc')
+    if (fs.existsSync(rcFile)) {
+      return require(rcFile)
+    }
+  }
+  
   return null
 }
 
