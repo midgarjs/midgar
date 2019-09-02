@@ -1,10 +1,19 @@
 module.exports = {
-  port: 3000,
-  baseUrl: 'http://localhost:{port}',
+  web: {
+    port: 3000,
+    host: 'localhost',
+    ssl: false,
+    sslCert: '',
+    sslKey: '',
+  },
   public: {
     enable: true,
-    baseUrl: 'http://localhost:{port}',
-    port: 3100
+    path: resolve('../public'),
+    port: 3100,
+    host: 'localhost',
+    ssl: false,
+    sslCert: '',
+    sslKey: '',
   },
   log: {
     stdout: true,

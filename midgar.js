@@ -5,6 +5,8 @@ const url = require('url')
 const cluster = require('cluster')
 const htmlencode =  require('htmlencode').htmlEncode
 const EventEmitter = require('events')
+const https = require('https')
+
 
 const utils = require('@midgar/utils')
 
@@ -91,25 +93,39 @@ class Midgar extends EventEmitter {
     this.configPath = dirPath
     this.config = new Config
 
-    //Load the configs
+    // Load the configs
     await this.config.loadConfigs(dirPath, 'config', true)
 
     process.env.TZ = this.config.tz || 'Europe/Paris'
     
-    // Check minimal config
-    this.config.baseUrl = this.config.baseUrl ? this.config.baseUrl : 'http://localhost:{port}'
-    this.config.port = this.config.port ? this.config.port : 3000
-    this.config.baseUrl = this.config.baseUrl.replace('{port}', this.config.port)
-    
-    if (!this.config.public) {
-      this.config.public = {
-        enable: true
-      }
+    if (!this.config.web) {
+      this.config.web = {}
     }
+    
+    // Web serveur base config
+    this.config.web = utils.assignRecursive({
+      host: 'localhost',
+      port: '80',
+      ssl: false
+    }, this.config.web || {})
 
-    this.config.public.baseUrl = this.config.public.baseUrl ? this.config.public.baseUrl : 'http://localhost:{port}'
-    this.config.public.port = this.config.public.port ? this.config.public.port : 3001
-    this.config.public.baseUrl = this.config.public.baseUrl.replace('{port}', this.config.public.port)
+    // Peublic web serveur base config
+    this.config.public = utils.assignRecursive({
+      host: 'localhost',
+      port: '81',
+      ssl: false
+    }, this.config.public || {})
+
+    // Check minimal config
+    this.config.web.baseUrl = (this.config.web.ssl ? 'https': 'http') + '://' + this.config.web.host
+    if (this.config.web.port != 80 || (this.config.web.ssl && this.config.web.port != 443)) {
+      this.config.web.baseUrl += ':' + this.config.web.port
+    }
+    
+    this.config.public.baseUrl = (this.config.public.ssl ? 'https': 'http') + '://' + this.config.public.host
+    if (this.config.public.port != 80 || (this.config.public.ssl && this.config.public.port != 443)) {
+      this.config.public.baseUrl += ':' + this.config.public.port
+    }
 
     if (!this.config.log || !this.config.log.level) {
       this.config.log.level = 'warn'
@@ -301,24 +317,6 @@ class Midgar extends EventEmitter {
   }
 
   /**
-   * Listen http requestion on a port
-   * @private
-   */
-  _startWebServer(app, port) {
-    return new Promise((resolve, reject) => {
-      try {
-        app.listen(port, () => {
-          resolve()
-        }).on('error', error => {
-          reject(error)
-        })
-      } catch (error) {
-        reject(error)
-      }
-    })
-  }
-
-  /**
    * Start Midgar
    * 
    * Load the config and start cluster for the master process
@@ -414,14 +412,29 @@ class Midgar extends EventEmitter {
    * @description Start front web serveur
    */
   async startWebServer() {
-    const port = this.config.port || 80
-    await this._startWebServer(this.app, port).catch(error => {
+    const opts = {
+      port: this.config.web.port,
+      host: this.config.web.host,
+      ssl: this.config.web.ssl ? true : false,
+      baseUrl: this.config.web.baseUrl
+    }
+
+    if (this.config.web.sslKey) {
+      opts.sslKey = this.config.web.sslKey
+    }
+
+    if (this.config.web.sslCert) {
+      opts.sslCert = this.config.web.sslCert
+    }
+
+    await this._startWebServer(this.app, opts).catch(error => {
       this.error('Cannot start the web server')
       this.error(error)
       process.exit()
     })
-    this.info('Web server live on ' + port)
-    this.info(this.config.baseUrl)
+
+    this.info('Web server live on ' + opts.port)
+    this.info(this.config.web.baseUrl)
   }
 
   /**
@@ -430,8 +443,22 @@ class Midgar extends EventEmitter {
   async startPublicServer() {
     //set the public dir
     this.publicApp.use(express.static(this.config.public.path))
+    const opts = {
+      port: this.config.public.port,
+      host: this.config.public.host,
+      ssl: this.config.public.ssl ? true : false,
+      baseUrl: this.config.public.baseUrl
+    }
 
-    await this._startWebServer(this.publicApp, this.config.public.port).catch( error => {
+    if (this.config.public.sslKey) {
+      opts.sslKey = this.config.public.sslKey
+    }
+
+    if (this.config.public.sslCert) {
+      opts.sslCert = this.config.public.sslCert
+    }
+
+    await this._startWebServer(this.publicApp, opts).catch( error => {
       this.error('Cannot start the public web server')
       this.error(error)
       process.exit()
@@ -441,8 +468,35 @@ class Midgar extends EventEmitter {
   }
 
   /**
+   * Listen http requestion on a port
+   * @private
+   */
+  _startWebServer(app, opts) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (!opts.ssl) {
+          app.listen(opts.port, () => {
+            resolve()
+          }).on('error', error => {
+            reject(error)
+          })
+        } else {
+          https.createServer({
+            key: opts.sslKey,
+            cert: opts.sslCert,
+          }, app).listen(opts.port, opts.host, () => {
+            console.log('Http server listen on '+ opts.baseUrl + "\n"); 
+          })
+        }
+      } catch (error) {
+        reject(error)
+      }
+    })
+  }
+
+  /**
    * Exit
-   * Wait for the logger gracefull exit the exit the process
+   * Wait for the logger gracefull exit the process
    */
   async exit() {  
     if (this.logger && this.logger.exit && !this._hasExitLogger) {
@@ -517,7 +571,7 @@ class Midgar extends EventEmitter {
    * @param {object} options options
    */
   url (route, options = {}) {
-    return url.resolve(this.config.baseUrl, route)
+    return url.resolve(this.config.web.baseUrl, route)
   }
 
   /**
