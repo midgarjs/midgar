@@ -1,6 +1,6 @@
 {
   "name": "@midgar/midgar",
-  "version": "1.0.0-alpha.1.16",
+  "version": "1.0.0-alpha.1.17",
   "description": "A node js framework over express",
   "main": "midgar.js",
   "scripts": {
@@ -15,16 +15,15 @@
     "url": "git+https://github.com/midgarjs/midgar.git"
   },
   "dependencies": {
-    "@midgar/plugin-manager": "~1.0.0-alpha.1.1",
+    "@midgar/plugin-manager": "~1.0.0-alpha.1.2",
     "@midgar/utils": "~1.0.0-alpha.1.3",
     "body-parser": "^1.19.0",
     "colors": "^1.3.3",
     "commander": "^3.0.1",
     "express": "^4.17.1",
     "figlet": "^1.2.4",
-    "helmet": "^3.20.1",
+    "helmet": "^3.21.0",
     "htmlencode": "0.0.4",
-    "npm": "^6.11.2",
     "save": "^2.4.0",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^3.10.0",

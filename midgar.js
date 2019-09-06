@@ -7,9 +7,7 @@ const htmlencode =  require('htmlencode').htmlEncode
 const EventEmitter = require('events')
 const https = require('https')
 
-
 const utils = require('@midgar/utils')
-
 const Config = require('./libs/config')
 const Logger = require('./libs/logger')
 const PluginManager = require('./libs/plugin-manager')
@@ -91,7 +89,7 @@ class Midgar extends EventEmitter {
   async loadConfig(dirPath) {
     //set the config dir
     this.configPath = dirPath
-    this.config = new Config
+    this.config = new Config(this)
 
     // Load the configs
     await this.config.loadConfigs(dirPath, 'config', true)
@@ -289,8 +287,8 @@ class Midgar extends EventEmitter {
    * Return the env code
    * @return {string}
    */
-  getEnv() {
-    return process.env.NODE_ENV
+  getModeEnv() {
+    return process.env.MODE_ENV
   }
 
   /**

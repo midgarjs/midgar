@@ -7,7 +7,8 @@ const {assignRecursive} = require('@midgar/utils')
  * @description Manage config files
  */
 class Config {
-  constructor(options = {}) {
+  constructor(midgar, options = {}) {
+    this.midgar = midgar
     this.options = Object.assign({
         ext: 'js'
       }, options)
@@ -30,8 +31,8 @@ class Config {
     const mainConfig = await this.loadConfig(path.join(configDir, file))
     assignRecursive(this, mainConfig)
 
-      //get the mode file
-    const mode = process.env.NODE_ENV == 'development' ? 'dev' : 'prod'
+    // Get the mode
+    const mode = this.midgar.getModeEnv() == 'development' ? 'dev' : 'prod'
     file += '.' + mode 
 
     const modeConfig = await this.loadConfig(path.join(configDir, file), requireMode)
