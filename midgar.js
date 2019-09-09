@@ -73,6 +73,11 @@ class Midgar extends EventEmitter {
     this._data = []
 
     /**
+     * Yargs instance
+     */
+    this.cli = null
+
+    /**
      * Config load flag
      * @type {boolean}
      * @private

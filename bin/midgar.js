@@ -60,7 +60,7 @@ if (configPath != null) {
   const midgar = new Midgar
   //init midgar and register cli service
   midgar.loadConfig(configPath).then(() => {
-    midgar.services.cli = yargs
+    midgar.cli = yargs
     midgar.init().then(() => {
       try {
         yargs.argv
