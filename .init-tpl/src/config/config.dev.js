@@ -1,3 +1,9 @@
+const path = require('path')
+
+const resolve = (p) => {
+  return path.join(__dirname, p)
+}
+
 module.exports = {
   web: {
     port: 3000,
@@ -18,5 +24,8 @@ module.exports = {
   log: {
     stdout: true,
     level: 'debug'
+  },
+  logger: () => {
+    return {}
   }
 }

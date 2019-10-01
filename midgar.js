@@ -60,12 +60,6 @@ class Midgar extends EventEmitter {
     this.publicApp = null
 
     /**
-     * Midgar services object
-     * @type {Object}
-     */
-    this.services = {}
-
-    /**
      * Midgar data object
      * @type {Object}
      * @private
@@ -140,30 +134,29 @@ class Midgar extends EventEmitter {
 
     // Flag config loaded
     this._configLoaded = true
+  }
 
+  async initLogger() {
     // Create the logger instance
     this.logger = this.config.logger ? this.config.logger(this.config.log) : new Logger(this.config.log)
 
-    await this.logger.init().catch(error => {
-      console.log(error)
-      throw error
-    })
+    await this.logger.init()
   }
 
   /**
-   * @description Init Midgar
+   * @description Init plugin manager
    */
-  async init () {
+  async initPluginManager () {
     utils.timer.start('midgar-init')
     this.debug('init...')
 
-    //check config is loaded
+    // Check config is loaded
     if (!this._configLoaded) {
       throw new Error('config not loaded !')
     }
 
-    //init the plugin manager
-    await this._initPlugins()
+    // Init the plugin manager
+    await this._initPluginManager()
     
     /**
      * afterMidgarInit event.
@@ -180,7 +173,7 @@ class Midgar extends EventEmitter {
    * @private
    * @description Init plugin manager
    */
-  async _initPlugins() {
+  async _initPluginManager() {
     this.pm = new PluginManager(this)
     await this.pm.init()
   }
@@ -312,8 +305,8 @@ class Midgar extends EventEmitter {
     const promises = [] 
     if (this.config.public && this.config.public.enable) {
       promises.push(this.startPublicServer())
-   
     }
+    
     promises.push(this.startWebServer())
 
     await Promise.all(promises)
@@ -329,13 +322,14 @@ class Midgar extends EventEmitter {
    */
   async start(configPath) {
     await this.loadConfig(configPath)
+    await this.initLogger()
 
     // Create cluster
     if (this.config.cluster && this.cluster.isMaster) {
       await this._startCluster()
     } else {
       // Init and start servers
-      await this.init()
+      await this.initPluginManager()
       await this.initWebServer()
       await this.startServers()
 

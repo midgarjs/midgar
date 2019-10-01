@@ -1,5 +1,4 @@
 const path = require('path')
-
 const resolve = (p) => {
   return path.join(__dirname, p)
 }
@@ -23,6 +22,6 @@ module.exports = {
   },
   log: {
     stdout: true,
-    level: 'error'
-  },
+    level: 'debug'
+  }
 }

@@ -51,6 +51,10 @@ class PluginManager extends PM {
     await this.loadPlugins(plugins)
   }
   
+  /**
+   * Add a plugin in the plugins.js cinfig file file
+   * @param {*} plugin 
+   */
   async addPlugin(plugin) {
     const plugins = await this.midgar.config.loadConfig(path.join(this.midgar.configPath, 'plugins'))
 
@@ -60,7 +64,6 @@ class PluginManager extends PM {
         await asyncWriteFile(path.join(this.midgar.configPath, 'plugins.js'), 'module.exports = ' + JSON.stringify(plugins))
       } catch (error) {
         throw error
-        // throw new Error('Error to save config file ' + filePath)
       }
     }
   }
@@ -75,12 +78,7 @@ class PluginManager extends PM {
    * @private
    */
   async _createPluginInstance(Class, options) {
-
-    //if (Class.prototype instanceof Plugin) {
-      return new Class(this.midgar, options)
-    /*} else {
-      throw new Error ('Invalid plugin ' + options.name + ' not valid class prototype')
-    }*/
+    return new Class(this.midgar, options)
   }
 
   /**

@@ -13,6 +13,7 @@ class Config {
         ext: 'js'
       }, options)
   }
+  
   /**
    * Load config files in a folder
    * load the file {prefix}.config.json
