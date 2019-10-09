@@ -1,4 +1,4 @@
-const Plugin = require('@midgar/midgar/plugin')
+const Plugin = require('../../../../plugin')
 
 /**
  * Test plugin

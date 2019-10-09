@@ -12,7 +12,7 @@ const TestPlugin = require('./fixtures/plugins/test/index')
 /**
  * @type {Midgar}
  */
-const Midgar = require ('@midgar/midgar')
+const Midgar = require ('../midgar')
 
 chai.use(chaiHttp);
 chai.should()

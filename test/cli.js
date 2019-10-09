@@ -14,7 +14,7 @@ const uid = require('uid-safe')
 /**
  * @type {Midgar}
  */
-const Midgar = require ('@midgar/midgar')
+const Midgar = require ('..')
 
 chai.use(chaiFs)
 chai.use(chaiHttp)
@@ -99,6 +99,7 @@ describe('midgar cli', function() {
   it ('init',  function (done) {
     cmd(ctx.dir, ['init'], function (err, code, stdout, stderr) {
       if (err) return done(err)
+      if (stderr) return done(stderr)
 
       const files = [
         'package.json',

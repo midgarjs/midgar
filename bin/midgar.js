@@ -28,7 +28,7 @@ yargs.command('init [path]', 'start the server', {}, (argv) => {
   })
 })
 
-const Midgar = require('@midgar/midgar')             
+const Midgar = require('../midgar')             
 function loadRCFile() {
   let rcFile = path.resolve(process.cwd(), '.midgarrc')
   if (fs.existsSync(rcFile)) {

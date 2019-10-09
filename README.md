@@ -39,6 +39,7 @@ $ npm run dev
 |---------|-------------|
 | [services](https://www.npmjs.com/package/@midgar/services) | Service loader with dependency injection |
 | [route-loader](https://www.npmjs.com/package/@midgar/route-loader) | A route loader  |
-| [db](https://www.npmjs.com/package/@midgar/db) | Sequelize for Midgar with model loader and db migration |
+| [db](https://www.npmjs.com/package/@midgar/db) | [Sequelize](https://www.npmjs.com/package/sequelize) for Midgar with model loader and db migration |
 | [cache](https://www.npmjs.com/package/@midgar/cache) | A cache service with [node-cache-manager](https://www.npmjs.com/package/cache-manager) |
-| [session](https://www.npmjs.com/package/@midgar/session) | Add sessions |
+| [session](https://www.npmjs.com/package/@midgar/session) | Add sessions with [express-session](https://www.npmjs.com/package/express-session) |
+| [cors](https://www.npmjs.com/package/@midgar/cors) | Add [cors](https://www.npmjs.com/package/cors) |
