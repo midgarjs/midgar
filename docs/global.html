@@ -33,21 +33,21 @@
 			<li class="dropdown">
 				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="Config.html">Config</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Midgar.html">Midgar</a></li><li><a href="Plugin.html">Plugin</a></li><li><a href="PluginManager.html">PluginManager</a></li>
+					<li><a href="Config.html">Config</a></li><li><a href="Dependency.html">Dependency</a></li><li><a href="Logger.html">Logger</a></li><li><a href="global.html#Midgar">Midgar</a></li><li><a href="Plugin.html">Plugin</a></li><li><a href="PluginManager.html">PluginManager</a></li><li><a href="Test.html">Test</a></li>
 				</ul>
 			</li>
 			
 			<li class="dropdown">
 				<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="Midgar.html#event:afterInitHttpServer">Midgar#event:afterInitHttpServer</a></li><li><a href="Midgar.html#event:afterMidgarInit">Midgar#event:afterMidgarInit</a></li><li><a href="Midgar.html#event:initHttpServer">Midgar#event:initHttpServer</a></li>
+					<li><a href="global.html#Midgar#event:afterInitHttpServer">Midgar#event:afterInitHttpServer</a></li><li><a href="global.html#Midgar#event:afterMidgarInit">Midgar#event:afterMidgarInit</a></li><li><a href="global.html#Midgar#event:beforeStartServers">Midgar#event:beforeStartServers</a></li><li><a href="global.html#Midgar#event:initHttpServer">Midgar#event:initHttpServer</a></li>
 				</ul>
 			</li>
 			
 			<li class="dropdown">
 				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="global.html#logFormat">logFormat</a></li>
+					<li><a href="global.html#cmd">cmd</a></li><li><a href="global.html#loadRCFile">loadRCFile</a></li><li><a href="global.html#logFormat">logFormat</a></li>
 				</ul>
 			</li>
 			
@@ -152,11 +152,403 @@
     
 
     
+        <h3 class="subsection-title">Members</h3>
+
+        <dl>
+            
+<hr>
+<dt class="name" id="Midgar">
+    <h4 id="Midgar"><span class="type-signature">&lt;constant> </span>Midgar<span class="type-signature"> :<a href="global.html#Midgar">Midgar</a></span></h4>
+
+    
+</dt>
+<dd>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type"><a href="global.html#Midgar">Midgar</a></span>
+
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="Midgar">
+    <h4 id="Midgar"><span class="type-signature">&lt;constant> </span>Midgar<span class="type-signature"> :<a href="global.html#Midgar">Midgar</a></span></h4>
+
+    
+</dt>
+<dd>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type"><a href="global.html#Midgar">Midgar</a></span>
+
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        </dl>
+    
 
     
         <h3 class="subsection-title">Methods</h3>
 
         <dl>
+            
+<hr>
+<dt>
+    <h4 class="name" id="cmd"><span class="type-signature"></span>cmd(dir, args, callback)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Execute bash command
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>dir</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>args</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>callback</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="loadRCFile"><span class="type-signature"></span>loadRCFile()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Load .midgarrc file
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
             
 <hr>
 <dt>
@@ -332,9 +724,9 @@
 
 
 <span class="jsdoc-message">
-	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a>
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a>
 	
-		on 2019-01-21T12:22:15+01:00
+		on 2019-10-24T16:48:54+02:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>

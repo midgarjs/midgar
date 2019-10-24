@@ -78,7 +78,6 @@ class PluginManager extends Emittery {
         //check if plugin is in plugin path
         pluginPath = await this._getPluginPath(pluginPath)
         const pkg = await this._getPluginPackage(pluginPath)
-
         return {key: pkg.name, value: this.loadPlugin(pkg.name, pluginPath, pkg)}
       }, true)
       
@@ -130,7 +129,7 @@ class PluginManager extends Emittery {
    * @param {*} name 
    */
   async _getPluginPackage(pluginPath) {
-    return await utils.asyncRequire(path.join(pluginPath, 'package.json'))
+    return await utils.asyncRequire(path.resolve(pluginPath, 'package.json'))
   }
 
   /**
@@ -139,8 +138,9 @@ class PluginManager extends Emittery {
    * @param {*} pluginPath
    */
   async loadPlugin (name, pluginPath, pkg) {
+    const mainFile = pkg.main ? pkg.main : 'index.js'
     //require plugin class
-    const Class = await utils.asyncRequire(path.join(pluginPath, pkg.main))
+    const Class = await utils.asyncRequire(path.join(pluginPath, mainFile))
     const plugin = await this._createPluginInstance(Class, {name, path: pluginPath, package: pkg})
     await plugin.init()
    
@@ -314,7 +314,7 @@ class PluginManager extends Emittery {
     //result array
     const pluginDependencies = []
     //get plugin dependencies from package.json
-    const pkg = await plugin.getPackage()
+    const pkg = plugin.package
 
     //if plugin have dependencies
     if (pkg.dependencies) {

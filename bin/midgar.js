@@ -1,34 +1,19 @@
 #!/usr/bin/env node
 
-const figlet = require('figlet')
 const path = require('path')
-const colors = require('colors/safe');
 const fs = require('fs')
-const yargs = require('yargs')
+const commander = require('commander')
+const colors = require('colors/safe')
 const init = require('../libs/cli-init')
 
-if (!yargs.argv.nh) {
-  console.log(colors.cyan(figlet.textSync("midgar-cli", {
-    font: "Star Wars",
-    horizontalLayout: "default",
-    verticalLayout: "default"
-  })))
-  
-  console.log('')
-  console.log('')
-}
 
-yargs.command('init [path]', 'start the server', {}, (argv) => {
-  const initPath = argv.path ? path.resolve(process.cwd(), argv.path) : process.cwd()
-  init(initPath).then(() => {
-    process.exit(1)
-  }).catch((e) => {
-    console.log(e)
-    process.exit(0)
-  })
-})
+// Header
+console.log(colors.cyan('midgar-cli'))
+console.log('')
 
-const Midgar = require('../midgar')             
+/**
+ * Load .midgarrc file
+ */
 function loadRCFile() {
   let rcFile = path.resolve(process.cwd(), '.midgarrc')
   if (fs.existsSync(rcFile)) {
@@ -46,35 +31,60 @@ function loadRCFile() {
   return null
 }
 
-const config = loadRCFile()
+const rcConfig = loadRCFile()
+
+// Path of the config dir
 let configPath = null
-if (config != null && config.configPath) {
-  configPath = config.configPath
-} else if (fs.existsSync(path.resolve(process.cwd(), 'config'))) {
-  configPath = path.resolve(process.cwd(), 'config')
-} else if (process.env.INIT_CWD && fs.existsSync(path.resolve(process.env.INIT_CWD, 'config'))) {
-  configPath = path.resolve(process.env.INIT_CWD, 'config')
+
+const Midgar = require('../midgar')
+const midgar = new Midgar
+
+// If config path is in the rc config
+if (rcConfig && rcConfig.configPath) {
+  configPath = rcConfig.configPath
 }
 
-if (configPath != null) {
-  const midgar = new Midgar
-  //init midgar and register cli service
-  midgar.loadConfig(configPath).then(() => {
-    midgar.cli = yargs
-    midgar.init().then(() => {
-      try {
-        yargs.argv
-      } catch (e) {
-        console.log(e)
-        process.exit(1)
-      }
+const program = new commander.Command()
+program.version('0.0.1')
+  .option('-c, --config <path>', 'Config path')
+
+  
+// register cli
+midgar.cli = program
+
+/**
+ * Midgar init command
+ * Create the init project
+ */
+program.command('init [path]')
+  .description('Create init project')
+  .action((initPath) => {
+    initPath = initPath ? path.resolve(process.cwd(), initPath) : process.cwd()
+    
+    init(initPath).then(() => {
+      process.exit(1)
+    }).catch((e) => {
+      console.log(e)
+      process.exit(0)
     })
   })
+
+
+program.on('command:*', function () {
+  console.log('Invalid command: %s\nSee --help for a list of available commands.')
+  process.exit(1)
+})
+
+program.parseOptions(program.normalize(process.argv.slice(2)))
+
+if (program.config.trim()) {
+  configPath = program.config.trim()
+}
+
+if (configPath) {
+  midgar.init(configPath).then(() => {
+    program.parse(process.argv)
+  })
 } else {
-  try {
-    yargs.argv
-  } catch (e) {
-    console.log(e)
-    process.exit(1)
-  }
+  program.parse(process.argv)
 }

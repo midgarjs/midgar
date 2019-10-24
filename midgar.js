@@ -313,96 +313,28 @@ class Midgar extends EventEmitter {
   }
 
   /**
-   * Start Midgar
+   * Load the config, init logger and plugin manager
    * 
-   * Load the config and start cluster for the master process
-   * Workers init Midgar, init webserver and start them
-   * 
-   * @param {sting} configPath config dir path
+   * @param {Sting} configPath 
    */
-  async start(configPath) {
+  async init(configPath) {
     await this.loadConfig(configPath)
     await this.initLogger()
-
-    // Create cluster
-    if (this.config.cluster && this.cluster.isMaster) {
-      await this._startCluster()
-    } else {
-      // Init and start servers
-      await this.initPluginManager()
-      await this.initWebServer()
-      await this.startServers()
-
-      if (this.config.cluster) {
-        this.info('Worker %d running !', this.cluster.worker.id)
-      }
-    }
+    await this.initPluginManager()
   }
 
   /**
-   * Kill all workers
+   * Start Midgar
+   * 
+   * Init Midgar, init webserver and start them
+   * 
+   * @param {Sting} configPath config dir path
    */
-  async killWorkers() {
-    if (!this.config.cluster) {
-      throw new Error('Cluster is disable !');
-    }
-
-    //list workers
-    for (const id in this.cluster.workers) {
-      this.warn('kill worker ' + id)
-      //this.cluster.workers[id].send('exit')
-      this.cluster.workers[id].kill('SIGKILL')
-    }
-  }
-
-  /**
-   * Create a worker
-   */
-  createWorker () {
-    const worker = this.cluster.fork()
-    const midgar = this
-    // Receive messages from this worker and handle them in the master process.
-    worker.on('message', function (msg) {
-      if (msg.action) {
-        if (msg.action == 'killworkers') {
-          midgar.killWorkers()
-        }
-      }
-    })
-
-    // Listen for dying workers
-    worker.on('exit', function (exitSign) {
-      midgar.createWorker()
-      // Replace the dead worker, we're not sentimental
-      midgar.debug('Worker died :( (%d)', exitSign)
-    })
-
-    worker.on('error', function (exitSign) {
-      midgar.createWorker()
-      // Replace the dead worker, we're not sentimental
-      midgar.debug('Worker %d died in error :( (%d)', exitSign)
-    })
-  }
-
-  /**
-   * Start cluster
-   * @private
-   */
-  async _startCluster() {
-    //only executed by master process
-    // Count the machine's CPUs
-    let cpuCount = require('os').cpus().length;
-
-    //for dev it better to have only one server process
-    //the watch file cause some isue with many process
-    /* if (this.getEnv() == 'development') {
-      cpuCount = 1
-    } */
-
-    // Create a worker for each CPU
-    for (let i = 0; i < cpuCount; i += 1) {
-      this.createWorker()
-    }
+  async start(configPath) {
+    await this.init(configPath)
+    // Init and start servers
+    await this.initWebServer()
+    await this.startServers()
   }
 
   /**

@@ -1,6 +1,5 @@
-var fs = require('fs')
 var path = require('path')
-const {assignRecursive} = require('@midgar/utils')
+const {assignRecursive, asyncFileExists, asyncReadFile} = require('@midgar/utils')
 
 /**
  * Config class
@@ -51,11 +50,13 @@ class Config {
    */
   async loadConfig (filePath, requireMode = true) {
     filePath += '.' + this.options.ext
-    if (fs.existsSync(filePath)) {
+
+    const exist = await asyncFileExists(filePath)
+    if (exist) {
       if (this.options.ext == 'js') {
-        return require (filePath)
+        return require(filePath)
       } else if (this.options.ext == 'json') {
-        let config = fs.readFileSync(filePath, 'utf8')
+        let config = await asyncReadFile(filePath, 'utf8')
         return JSON.parse(config)
       } else {
         throw new Error('unknow config ext !')

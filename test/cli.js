@@ -28,7 +28,9 @@ function getTmpDir () {
   return dirname
 }
 
+const configPath = path.resolve(__dirname, 'fixtures/config')
 const pkgPath = path.resolve(__dirname, '..', 'package.json')
+// Get midgar bin js file (bin/midgar.js)
 const binPath = path.resolve(path.dirname(pkgPath), require(pkgPath).bin.midgar)
 const tmpDir = getTmpDir()
 
@@ -97,7 +99,7 @@ describe('midgar cli', function() {
 
   // Test init command
   it ('init',  function (done) {
-    cmd(ctx.dir, ['init'], function (err, code, stdout, stderr) {
+    cmd(ctx.dir, ['init', '-c ' + configPath], function (err, code, stdout, stderr) {
       if (err) return done(err)
       if (stderr) return done(stderr)
 

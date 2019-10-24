@@ -33,21 +33,21 @@
 			<li class="dropdown">
 				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="Config.html">Config</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Midgar.html">Midgar</a></li><li><a href="Plugin.html">Plugin</a></li><li><a href="PluginManager.html">PluginManager</a></li>
+					<li><a href="Config.html">Config</a></li><li><a href="Dependency.html">Dependency</a></li><li><a href="Logger.html">Logger</a></li><li><a href="global.html#Midgar">Midgar</a></li><li><a href="Plugin.html">Plugin</a></li><li><a href="PluginManager.html">PluginManager</a></li><li><a href="Test.html">Test</a></li>
 				</ul>
 			</li>
 			
 			<li class="dropdown">
 				<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="Midgar.html#event:afterInitHttpServer">Midgar#event:afterInitHttpServer</a></li><li><a href="Midgar.html#event:afterMidgarInit">Midgar#event:afterMidgarInit</a></li><li><a href="Midgar.html#event:initHttpServer">Midgar#event:initHttpServer</a></li>
+					<li><a href="global.html#Midgar#event:afterInitHttpServer">Midgar#event:afterInitHttpServer</a></li><li><a href="global.html#Midgar#event:afterMidgarInit">Midgar#event:afterMidgarInit</a></li><li><a href="global.html#Midgar#event:beforeStartServers">Midgar#event:beforeStartServers</a></li><li><a href="global.html#Midgar#event:initHttpServer">Midgar#event:initHttpServer</a></li>
 				</ul>
 			</li>
 			
 			<li class="dropdown">
 				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="global.html#logFormat">logFormat</a></li>
+					<li><a href="global.html#cmd">cmd</a></li><li><a href="global.html#loadRCFile">loadRCFile</a></li><li><a href="global.html#logFormat">logFormat</a></li>
 				</ul>
 			</li>
 			
@@ -89,8 +89,7 @@
         </h2>
         
             <div class="class-description">PluginMaganger class
-Override the Plugin manager to get log
-and chack plugin type</div>
+Manage plugins</div>
         
     
 </header>
@@ -102,73 +101,19 @@ and chack plugin type</div>
         
 <hr>
 <dt>
-    <h4 class="name" id="PluginManager"><span class="type-signature"></span>new PluginManager(midgar)</h4>
+    <h4 class="name" id="PluginManager"><span class="type-signature"></span>new PluginManager()</h4>
     
     
 </dt>
 <dd>
 
     
-    <div class="description">
-        Construct
-    </div>
-    
 
     
 
     
 
     
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>midgar</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Migar</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Midgar instance</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
     
 
     
@@ -246,7 +191,7 @@ and chack plugin type</div>
             
 <hr>
 <dt class="name" id="midgar">
-    <h4 id="midgar"><span class="type-signature"></span>midgar<span class="type-signature"> :<a href="Midgar.html">Midgar</a></span></h4>
+    <h4 id="midgar"><span class="type-signature"></span>midgar<span class="type-signature"> :<a href="global.html#Midgar">Midgar</a></span></h4>
 
     
 </dt>
@@ -262,7 +207,7 @@ and chack plugin type</div>
         <ul>
             <li>
                 
-<span class="param-type"><a href="Midgar.html">Midgar</a></span>
+<span class="param-type"><a href="global.html#Midgar">Midgar</a></span>
 
 
 
@@ -395,6 +340,911 @@ it can be overite by the plugin config
             
 <hr>
 <dt>
+    <h4 class="name" id="_getPluginDependencies"><span class="type-signature">&lt;async> </span>_getPluginDependencies(plugin)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Return an array of plugin dependencies
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>plugin</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">sting</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">plugin name</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="_getPluginPackage"><span class="type-signature">&lt;async> </span>_getPluginPackage(name)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Load plugin.json file
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="_getPluginPath"><span class="type-signature">&lt;async> </span>_getPluginPath(name)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Return a plugin path
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="_getPluginsDependencies"><span class="type-signature">&lt;async> </span>_getPluginsDependencies()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        return an object with plugins dependencies
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="_readPluginFiles"><span class="type-signature">&lt;async> </span>_readPluginFiles()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="addPlugin"><span class="type-signature">&lt;async> </span>addPlugin(plugin)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Add a plugin in the plugins.js cinfig file file
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>plugin</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="getDependenciesOrder"><span class="type-signature">&lt;async> </span>getDependenciesOrder()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Return an array of plugin name sort by dependencies
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="getDirs"><span class="type-signature">&lt;async> </span>getDirs(dir)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Return an array of object contain
+the plugin and the dir found
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>dir</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">plugin dir key</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
     <h4 class="name" id="init"><span class="type-signature">&lt;async> </span>init()</h4>
     
     
@@ -414,6 +1264,430 @@ and load them
     
 
     
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="loadPlugin"><span class="type-signature">&lt;async> </span>loadPlugin(name, pluginPath)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>pluginPath</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="loadPlugins"><span class="type-signature">&lt;async> </span>loadPlugins(plugins, pluginsPath)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Load plugins in the plugin array
+and in the pluginsPath directory
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>plugins</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">array of plugin names</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>pluginsPath</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">plugins directory</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="readFiles"><span class="type-signature">&lt;async> </span>readFiles(dir)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        read plugins files
+return then in an object indexed by file path
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>dir</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
     
 
     
@@ -519,9 +1793,9 @@ and load them
 
 
 <span class="jsdoc-message">
-	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a>
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a>
 	
-		on 2019-01-21T12:22:15+01:00
+		on 2019-10-24T16:48:54+02:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>
