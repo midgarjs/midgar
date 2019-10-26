@@ -39,8 +39,7 @@ class Dependency {
     let finish = false
     while(!finish && plugins.length) {
       finish = true
-  
-      for (const key in plugins) {
+      for (let key = 0; key < plugins.length;i++) {
         const name = plugins[key]
         const deps = dependencies[name]
         //if plugin have dependencies

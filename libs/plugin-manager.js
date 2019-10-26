@@ -4,9 +4,6 @@ const {timer, asyncWriteFile} = require('@midgar/utils')
 const utils = require('@midgar/utils')
 const Dependency = require('./dependency')
 
-// const Plugin = require ('../plugin')
-// const addIncludePath = require('include-path')
-
 /**
  * PluginMaganger class
  * Manage plugins
@@ -41,16 +38,10 @@ class PluginManager extends Emittery {
      * it can be overite by the plugin config
      * @type {object}
      */
-    this.pluginDirs = {
-      //config files
-      config: 'config',
-    }
-
+    this.pluginDirs = {}
 
     // Observe events
     this._observeEvents()
-
-    //addIncludePath(this.options.pluginsPath)
   }
 
   /**
@@ -167,7 +158,9 @@ class PluginManager extends Emittery {
   /**
    * Return an array of object contain
    * the plugin and the dir found
+   * 
    * @param dir plugin dir key
+   * 
    * @return {Array}
    */
   async getDirs (dir) {
@@ -190,10 +183,15 @@ class PluginManager extends Emittery {
   }
 
   /**
-   * read plugins files
+   * Read files inside a directory of each plugins
    * return then in an object indexed by file path
    *
-   * @param dir
+   * 
+   * @param {String}  dirName   Plugin dir name
+   * @param {RegExp}  regExp    Use to filter by filname
+   * @param {Boolean} recursive Reacursive or not, it true by default
+   * 
+   * @return {Object}
    */
   async readFiles (...args) {
     const files = await this.readPluginsFiles(...args)
@@ -206,19 +204,32 @@ class PluginManager extends Emittery {
     return _files
   }
 
-  async readPluginsFiles (dirName, regExp = null, recursive = false) {
+  /**
+   * Read files inside a directory of each plugins
+   * 
+   * @param {String}  dirName   Plugin dir name
+   * @param {RegExp}  regExp    Use to filter by filname
+   * @param {Boolean} recursive Reacursive or not, it true by default
+   * 
+   * @return {Object}
+   */
+  async readPluginsFiles (dirName, regExp = null, recursive = true) {
     if (!this.pluginDirs[dirName]) {
       this.emit('warn', 'Unknow plugin dir ' + dirName)
     }
 
+    // List plugins
     return utils.asyncMap(this.plugins, async (plugin, name) => {
 
       if (!this.pluginDirs[dirName] && !plugin.dirs[dir]) return //skip
-      //get the plugin dir path
+
+      // Get the plugin dir path
       const dirPath = plugin.getDirPath(dirName)
 
+      // check if the dir exist
       const exists = await utils.asyncFileExists(dirPath)
       if (exists){
+        // Read all files inside the direactory
         const files = await this._readPluginFiles(plugin.name, dirPath, '.', regExp, recursive)
         return {key: name, value: files}
       } else {
@@ -228,29 +239,40 @@ class PluginManager extends Emittery {
   }
 
   /**
+   * Read all files inside a directory of a plugin
+   * 
+   * @param {Plugin} plugin Plugin instance
+   * @param {String} basePath Absolute path of the direactory base directory inside the plugin
+   * @param {String} dirPath Relative path of the current directory to read
+   * 
+   * 
    */
   async _readPluginFiles (plugin, basePath, dirPath, regExp = null, recursive = false) {
     let result = []
 
+    // Read all file in the dir
     const files = await utils.asyncReaddir(path.join(basePath, dirPath))
 
-    //list files
-    for (let key in files) {
-      const name = files[key]
-      //check filename with regex
+    // List files
+    for (let i = 0;i < files.length;i++) {
+      // file name
+      const name = files[i]
+
+      // Check filename with regex
       if (regExp !== null) {
         let result = name.match(regExp)
-        //if regex check fail skip file
+        // if regex check fail skip file
         if (!result) {
           continue
         }
       }
 
+      // Check if it a directory
       const filePath = path.join(basePath, dirPath, name)
       const fileStat = await utils.asyncStat(filePath)
 
       if (!fileStat.isDirectory()) {
-        // only import files that we can `require`
+        // Only import files that we can `require`
         const ext = path.extname(name)
         if (require.extensions[ext]) {
           try {
@@ -260,8 +282,10 @@ class PluginManager extends Emittery {
              console.log(error)
           }
         }
+      // if it a directory and recursive read files inside
       } else if (recursive) {
-        result = result.concat(await this._readPluginFiles(plugin, basePath, path.join(dirPath, name), regExp, recursive))
+        const childFiles = await this._readPluginFiles(plugin, basePath, path.join(dirPath, name), regExp, recursive)
+        result = result.concat(childFiles)
       }
     }
 

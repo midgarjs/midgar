@@ -1,12 +1,12 @@
+
 const utils = require('@midgar/utils')
-const fs = require('fs')
 const path = require('path')
 
 const resolve = (p) => {
   return path.join(__dirname, p)
 }
 
-const tplPath = resolve('../.init-tpl')
+const tplPath = resolve('./.init-tpl')
 
 async function initDir(projectPath, tplPath) {
   // Check if the directory is empty
@@ -28,7 +28,7 @@ async function initDir(projectPath, tplPath) {
   })
 }
 
-module.exports = async (projectPath) => {
+async function init (projectPath) {
   // Check if the directory exist
   const exist = await utils.asyncFileExists(projectPath)
   if (!exist) {
@@ -53,9 +53,27 @@ module.exports = async (projectPath) => {
 
   // Check if the directory is empty
   const stats = await utils.asyncReaddir(projectPath)
+  console.log(stats)
   if (stats.length) {
-    throw('The directory ' + projectPath + ' is not empty')
+    throw new Error('The directory ' + projectPath + ' is not empty')
   }
 
   await initDir(projectPath, tplPath)
 }
+
+module.exports = [
+  {
+    command: 'init [path]',
+    description: 'Create init project',
+    action: async ([initPath]) => {
+      initPath = initPath ? path.resolve(process.cwd(), initPath) : process.cwd()
+  
+      init(initPath).then(() => {
+        process.exit(1)
+      }).catch((e) => {
+        console.log(e)
+        process.exit(0)
+      })
+    },
+  }
+]

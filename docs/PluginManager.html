@@ -33,7 +33,7 @@
 			<li class="dropdown">
 				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="Config.html">Config</a></li><li><a href="Dependency.html">Dependency</a></li><li><a href="Logger.html">Logger</a></li><li><a href="global.html#Midgar">Midgar</a></li><li><a href="Plugin.html">Plugin</a></li><li><a href="PluginManager.html">PluginManager</a></li><li><a href="Test.html">Test</a></li>
+					<li><a href="Cli.html">Cli</a></li><li><a href="Config.html">Config</a></li><li><a href="Dependency.html">Dependency</a></li><li><a href="Logger.html">Logger</a></li><li><a href="global.html#Midgar">Midgar</a></li><li><a href="Plugin.html">Plugin</a></li><li><a href="PluginManager.html">PluginManager</a></li><li><a href="Test.html">Test</a></li>
 				</ul>
 			</li>
 			
@@ -47,7 +47,7 @@
 			<li class="dropdown">
 				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="global.html#cmd">cmd</a></li><li><a href="global.html#loadRCFile">loadRCFile</a></li><li><a href="global.html#logFormat">logFormat</a></li>
+					<li><a href="global.html#cmd">cmd</a></li><li><a href="global.html#logFormat">logFormat</a></li>
 				</ul>
 			</li>
 			
@@ -822,19 +822,121 @@ it can be overite by the plugin config
             
 <hr>
 <dt>
-    <h4 class="name" id="_readPluginFiles"><span class="type-signature">&lt;async> </span>_readPluginFiles()</h4>
+    <h4 class="name" id="_readPluginFiles"><span class="type-signature">&lt;async> </span>_readPluginFiles(plugin, basePath, dirPath)</h4>
     
     
 </dt>
 <dd>
 
     
-
+    <div class="description">
+        Read all files inside a directory of a plugin
+    </div>
     
 
     
 
     
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>plugin</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Plugin.html">Plugin</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Plugin instance</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>basePath</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Absolute path of the direactory base directory inside the plugin</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dirPath</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Relative path of the current directory to read</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
     
 
     
@@ -1626,7 +1728,7 @@ and in the pluginsPath directory
             
 <hr>
 <dt>
-    <h4 class="name" id="readFiles"><span class="type-signature">&lt;async> </span>readFiles(dir)</h4>
+    <h4 class="name" id="readFiles"><span class="type-signature">&lt;async> </span>readFiles(dirName, regExp, recursive)</h4>
     
     
 </dt>
@@ -1634,7 +1736,7 @@ and in the pluginsPath directory
 
     
     <div class="description">
-        read plugins files
+        Read files inside a directory of each plugins
 return then in an object indexed by file path
     </div>
     
@@ -1670,10 +1772,16 @@ return then in an object indexed by file path
 
         <tr>
             
-                <td class="name"><code>dir</code></td>
+                <td class="name"><code>dirName</code></td>
             
 
             <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+
             
             </td>
 
@@ -1681,7 +1789,55 @@ return then in an object indexed by file path
 
             
 
-            <td class="description last"></td>
+            <td class="description last">Plugin dir name</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>regExp</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">RegExp</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Use to filter by filname</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>recursive</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Reacursive or not, it true by default</td>
         </tr>
 
     
@@ -1741,6 +1897,240 @@ return then in an object indexed by file path
     
 
     
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="readPluginsFiles"><span class="type-signature">&lt;async> </span>readPluginsFiles(dirName, regExp, recursive)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Read files inside a directory of each plugins
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>dirName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">Plugin dir name</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>regExp</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">RegExp</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+
+            <td class="description last">Use to filter by filname</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>recursive</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                    true
+                
+                </td>
+            
+
+            <td class="description last">Reacursive or not, it true by default</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
 
     
 </dd>
@@ -1795,7 +2185,7 @@ return then in an object indexed by file path
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a>
 	
-		on 2019-10-24T16:48:54+02:00
+		on 2019-10-26T15:03:31+02:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>
