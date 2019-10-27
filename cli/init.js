@@ -8,7 +8,7 @@ const resolve = (p) => {
 
 const tplPath = resolve('./.init-tpl')
 
-async function initDir(projectPath, tplPath) {
+async function initDir(projectPath, tplPath){
   // Check if the directory is empty
   const stats = await utils.asyncReaddir(tplPath)
   await utils.asyncMap(stats, async (file) => {
@@ -68,12 +68,7 @@ module.exports = [
     action: async ([initPath]) => {
       initPath = initPath ? path.resolve(process.cwd(), initPath) : process.cwd()
   
-      init(initPath).then(() => {
-        process.exit(1)
-      }).catch((e) => {
-        console.log(e)
-        process.exit(0)
-      })
+      await init(initPath)
     },
   }
 ]

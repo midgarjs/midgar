@@ -10,5 +10,5 @@ console.log('')
 const cli = new Cli
 // Init cli then parse command and run
 cli.init().then(() => {
-  cli.program.parse(process.argv)
+  cli.run()
 })

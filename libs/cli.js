@@ -14,11 +14,12 @@ class Cli {
    * 
    * init vars, create program and Midgar instance
    */
-  constructor() {
+  constructor(argv) {
     this.rcConfig = null
     // Path of the config dir
     this.configPath = null
 
+    this.argv = argv ? argv : process.argv
     this.program = new commander.Command()
     this.program.version('0.0.1')
       // Config dir path
@@ -31,7 +32,7 @@ class Cli {
         if (this.configPath == null) {
           console.log('No config path found !')
         } else {
-          console.log('Invalid command: %s\nSee --help for a list of available commands.')
+          console.log('Invalid command: %s\nSee --help for a list of available commands.', this.program.args.join(' '))
         }
         process.exit(1)
       })
@@ -52,8 +53,7 @@ class Cli {
     }
 
     // Parse options to get config dir path
-    this.program.parseOptions(this.program.normalize(process.argv.slice(2)))
-
+    this.program.parseOptions(this.program.normalize(this.argv.slice(2)))
     // If option config is set the config path
     if (this.program.config && this.program.config.trim()) {
       this.configPath = this.program.config.trim()
@@ -116,8 +116,22 @@ class Cli {
     this.program.command(command.command)
       .description(command.description)
       .action((...args) => {
-        command.action(args, this.midgar)
+        command.action(args, this.midgar).then(() => {
+          this.exit(0)
+        }).catch(error => {
+          console.error(error)
+          this.exit(1)
+        })
       })
+  }
+
+  /**
+   * Exit function
+   * 
+   * @param {Binary} code exit code 
+   */
+  exit(code) {
+    process.exit(code)
   }
 
   /**
@@ -129,6 +143,13 @@ class Cli {
     for (let i = 0; i < files.length;i++) {
       this.addCommands(files[i].export)
     }
+  }
+
+  /**
+   * Parse argv and run command
+   */
+  run() {
+    this.program.parse(this.argv)
   }
 }
 
