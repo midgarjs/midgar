@@ -182,7 +182,7 @@ class Midgar extends EventEmitter {
     await this.pm.emit('afterMidgarInit')
      
     const time = utils.timer.getTime('midgar-init')
-    this.debug('midgar has init in ' + time[0] + 's, ' +  time[1] + 'ms')
+    this.debug('midgar has init in ' + time + ' ms')
   }
   
   /**
@@ -280,7 +280,7 @@ class Midgar extends EventEmitter {
     });
     
     const time = utils.timer.getTime('midgar-init-web-serv')
-    this.debug('midgar has init web server in ' + time[0] + 's, ' +  time[1] + 'ms')
+    this.debug('midgar has init web server in ' + time + ' ms')
   }
 
   /**
@@ -417,7 +417,6 @@ class Midgar extends EventEmitter {
       this.error(error)
       process.exit()
     }
-
 
     this.info('Server public live on ' + this.config.public.port)
     this.info(this.config.public.path + ' => ' + this.config.public.baseUrl)

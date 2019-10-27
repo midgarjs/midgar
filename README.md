@@ -22,7 +22,7 @@ $ midgar init /my-project/
 
 ```bash
 $ cd /my-project/
-$ npm install
+$ npm i
 ```
 
 Now you can start the app but basically Midgar add just [Helmet](https://helmetjs.github.io/) and [Body-parser](https://github.com/expressjs/body-parser) middleware to express. You have to install Midgar plugin or create your.
@@ -45,3 +45,9 @@ $ npm run dev
 | [cors](https://www.npmjs.com/package/@midgar/cors) | Add [cors](https://www.npmjs.com/package/cors) |
 
 [Api documentation](https://midgarjs.github.io/midgar/) in progress ...
+
+## Test unit
+
+```bash
+$ npm run test
+```

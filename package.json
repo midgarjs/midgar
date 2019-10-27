@@ -16,7 +16,7 @@
     "url": "git+https://github.com/midgarjs/midgar.git"
   },
   "dependencies": {
-    "@midgar/utils": "~1.0.0-alpha.1.4",
+    "@midgar/utils": "^1.0.0-alpha.1.5",
     "body-parser": "^1.19.0",
     "colors": "^1.4.0",
     "commander": "^3.0.2",

@@ -75,7 +75,7 @@ class PluginManager extends Emittery {
       await this.emit('midgar:afterLoadPlugins')
 
       const time = timer.getTime('midgar-plugin-load')
-      this.midgar.debug('plugins loaded in ' + time[0] + 's, ' +  time[1] + 'ms')
+      this.midgar.debug('plugins loaded in ' + time + ' ms')
   }
 
   /**
