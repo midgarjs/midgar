@@ -1,20 +1,17 @@
 const { describe, it } = require('mocha')
 const chai = require('chai')
 const chaiHttp = require('chai-http')
-const assert = require('assert')
+const chaiArrays = require('chai-arrays')
 const path = require('path')
-const Emittery = require('emittery')
-
 const Logger = require('../libs/logger')
-const PM = require('../libs/plugin-manager')
-const TestPlugin = require('./fixtures/plugins/test/index')
 
 /**
  * @type {Midgar}
  */
 const Midgar = require ('../midgar')
 
-chai.use(chaiHttp);
+chai.use(chaiHttp)
+chai.use(chaiArrays)
 chai.should()
 
 let midgar = null
@@ -29,11 +26,30 @@ const initMidgar = async () => {
 }
 
 /**
+ * before test callback
+ */
+const br = async () => {
+  await initMidgar()
+}
+
+/**
+ * after test callback
+ */
+const ar = async () => {
+  if (midgar)
+    await midgar.stop()
+
+  midgar = null
+}
+
+/**
  * Test the config
  */
 describe('Config', function() {
+  before(br)
+  after(ar)
+
   it ('is loaded', async () => {
-    const midgar = await initMidgar()
     midgar.config.should.not.equal(null, 'config is null')
     midgar.config.web.host.should.equal('localhost', 'Invalid web.host value')
   })
@@ -43,8 +59,10 @@ describe('Config', function() {
  * Test the logger
  */
 describe('Logger', function() {
+  before(br)
+  after(ar)
+
   it ('is init', async () => {
-    const midgar = await initMidgar()
     midgar.logger.should.not.equal(null, 'logger is null')
 
     midgar.logger.should.to.be.an.instanceof(Logger, 'logger is not an instance of Logger')
@@ -52,45 +70,29 @@ describe('Logger', function() {
 })
 
 /**
- * Test the plugin manager
- */
-describe('Plugin Manager', function() {
-  it ('is init', async () => {
-    const midgar = await initMidgar()
-    midgar.pm.should.not.equal(null, 'pm is null')
-
-    midgar.pm.should.to.be.an.instanceof(PM, 'pm is not an instance of PluginManager')
-    midgar.pm.should.to.be.an.instanceof(Emittery, 'pm is not an instance of Emittery')
-  })
-
-  it ('Plugin is loaded', async () => { 
-    const midgar = await initMidgar()
-
-    const testPlugin = midgar.pm.getPlugin('test')
-    testPlugin.should.to.be.an.instanceof(TestPlugin, 'Plugin is not an instance of TestPlugin')
-    testPlugin.isInit.should.equal(true, 'Plugin is not init')  
-  })
-})
-
-/**
  * Test express
  */
 describe('Express', function() {
+  before(br)
+  after(ar)
+
+  /**
+   * Add a route and test a request
+   */
   it ('responde', async () => {
-    const midgar = await initMidgar()
     midgar.app.get('/', function(req, res) {
       res.status(200).json({
         success: true,
       })
     })
 
-    chai.request(midgar.app)
-      .get('/')
-      .end((err, res) => {
-          res.should.have.status(200)
-          res.body.should.be.a('object')
-      })
+    // Do request
+    const res = await chai.request(midgar.app).get('/')
 
+    // Test response
+    res.should.have.status(200)
+    res.body.should.be.a('object')
+    res.body.success.should.to.be.true
   })
 })
 

@@ -5,6 +5,7 @@ const url = require('url')
 const cluster = require('cluster')
 const htmlencode =  require('htmlencode').htmlEncode
 const EventEmitter = require('events')
+const http = require('http')
 const https = require('https')
 
 const utils = require('@midgar/utils')
@@ -60,6 +61,18 @@ class Midgar extends EventEmitter {
     this.publicApp = null
 
     /**
+     * Http server
+     * @type {http.Server} 
+     */
+    this.webServer = null
+
+    /**
+     * Http server for public files
+     * @type {http.Server} 
+     */
+    this.publicServer = null
+
+    /**
      * Midgar data object
      * @type {Object}
      * @private
@@ -73,7 +86,7 @@ class Midgar extends EventEmitter {
 
     /**
      * Config load flag
-     * @type {boolean}
+     * @type {Boolean}
      * @private
      */
     this._configLoaded = false
@@ -104,14 +117,14 @@ class Midgar extends EventEmitter {
       host: 'localhost',
       port: '80',
       ssl: false
-    }, this.config.web || {})
+    }, this.config.web || {})
 
     // Peublic web serveur base config
     this.config.public = utils.assignRecursive({
       host: 'localhost',
       port: '81',
       ssl: false
-    }, this.config.public || {})
+    }, this.config.public || {})
 
     // Check minimal config
     this.config.web.baseUrl = (this.config.web.ssl ? 'https': 'http') + '://' + this.config.web.host
@@ -136,6 +149,9 @@ class Midgar extends EventEmitter {
     this._configLoaded = true
   }
 
+  /**
+   * Create logger instace and init
+   */
   async initLogger() {
     // Create the logger instance
     this.logger = this.config.logger ? this.config.logger(this.config.log) : new Logger(this.config.log)
@@ -178,6 +194,10 @@ class Midgar extends EventEmitter {
     await this.pm.init()
   }
 
+  /**
+   * 
+   * @param {*} plugin 
+   */
   async addPlugin(plugin) {
     const pm = new PluginManager(this)
     await pm.addPlugin(plugin)
@@ -213,6 +233,7 @@ class Midgar extends EventEmitter {
      * Add a function on requeste to gest post and get parameters
      */
     this.app.use((req, res, next) => {
+      // Set Midgar intance on request object
       req.midgar = this
       // add method to get clean request param
       req.getParam = (key, cleanParams = true) => {
@@ -226,7 +247,7 @@ class Midgar extends EventEmitter {
         else if (req.body[key] != undefined)
           value = req.body[key]
 
-        if (value !== null && cleanParams) {
+        if (value !== null && cleanParams) {
           value = this._cleanParam(value)
           if (!req.cleanParams)
             req.cleanParams = {}
@@ -254,7 +275,7 @@ class Midgar extends EventEmitter {
      */
     // await this.pm.emit('afterInitHttpServer')
     
-    this.app.use((err, req, res, next) => {
+    this.app.use((err , req, res, next) => {
       this.error(err)
     });
     
@@ -267,25 +288,25 @@ class Midgar extends EventEmitter {
    * @private
    */
   _cleanParam(value) {
-      if (typeof value === 'object') {
-        const obj = {}
-        const keys = Object.keys(value)
-        for (const i in keys) {
-          let key = keys[i]
-          key = htmlencode(key)
-          obj[key] = htmlencode(value[key])
-        }
-        return obj 
-      } else {
-        return htmlencode(value)
+    if (typeof value === 'object') {
+      const obj = {}
+      const keys = Object.keys(value)
+      for (const i in keys) {
+        let key = keys[i]
+        key = htmlencode(key)
+        obj[key] = htmlencode(value[key])
       }
+      return obj 
+    } else {
+      return htmlencode(value)
+    }
   }
 
   /** 
    * Return the env code
    * @return {string}
    */
-  getModeEnv() {
+  getModeEnv() {
     return process.env.MODE_ENV
   }
 
@@ -338,7 +359,7 @@ class Midgar extends EventEmitter {
   }
 
   /**
-   * @description Start front web serveur
+   * Start front web serveur
    */
   async startWebServer() {
     const opts = {
@@ -356,11 +377,13 @@ class Midgar extends EventEmitter {
       opts.sslCert = this.config.web.sslCert
     }
 
-    await this._startWebServer(this.app, opts).catch(error => {
+    try {
+      this.webServer = await this._startWebServer(this.app, opts)
+    } catch (error) {
       this.error('Cannot start the web server')
       this.error(error)
       process.exit()
-    })
+    }
 
     this.info('Web server live on ' + opts.port)
     this.info(this.config.web.baseUrl)
@@ -387,11 +410,15 @@ class Midgar extends EventEmitter {
       opts.sslCert = this.config.public.sslCert
     }
 
-    await this._startWebServer(this.publicApp, opts).catch( error => {
+    try {
+      this.publicServer = await this._startWebServer(this.publicApp, opts)
+    } catch (error) {
       this.error('Cannot start the public web server')
       this.error(error)
       process.exit()
-    })
+    }
+
+
     this.info('Server public live on ' + this.config.public.port)
     this.info(this.config.public.path + ' => ' + this.config.public.baseUrl)
   }
@@ -400,34 +427,30 @@ class Midgar extends EventEmitter {
    * Listen http requestion on a port
    * @private
    */
-  _startWebServer(app, opts) {
-    return new Promise((resolve, reject) => {
-      try {
-        if (!opts.ssl) {
-          app.listen(opts.port, () => {
-            resolve()
-          }).on('error', error => {
-            reject(error)
-          })
-        } else {
-          https.createServer({
-            key: opts.sslKey,
-            cert: opts.sslCert,
-          }, app).listen(opts.port, opts.host, () => {
-            console.log('Http server listen on '+ opts.baseUrl + "\n"); 
-          })
-        }
-      } catch (error) {
-        reject(error)
-      }
-    })
+  async _startWebServer(app, opts) {
+    if (!opts.ssl) {
+        const server = http.createServer(app)
+        await server.listen(opts.port)
+        return server
+    } else {
+      const server = https.createServer({
+        key: opts.sslKey,
+        cert: opts.sslCert,
+      }, app)
+      
+      await server.listen(opts.port, opts.host)
+      return server
+    }
   }
 
   /**
    * Exit
    * Wait for the logger gracefull exit the process
    */
-  async exit() {  
+  async exit() {
+    // Stop servers if there a runing  
+    await this.stop()
+
     if (this.logger && this.logger.exit && !this._hasExitLogger) {
       this._hasExitLogger = true
       await this.logger.exit()
@@ -435,6 +458,36 @@ class Midgar extends EventEmitter {
 
     //exit process 
     process.exit(0)
+  }
+
+  /**
+   * Stop public and web server
+   */
+  async stop() {
+    if (this.publicServer) {
+      await this._stop(this.publicServer)
+    }
+
+    if (this.webServer) {
+      await this._stop(this.webServer)
+    }
+  }
+
+  /**
+   * Stop an http server
+   * @param {http.Server} server Server to stop
+   */
+  _stop(server) {
+    return new Promise((resolve, reject) => {
+      try {
+        server.close(() => {
+          resolve()
+        })
+      } catch(error) {
+        console.log(error)
+        reject(error)
+      }
+    })
   }
 
   /**
@@ -499,7 +552,7 @@ class Midgar extends EventEmitter {
    * @param {sting}  route   route
    * @param {object} options options
    */
-  url (route, options = {}) {
+  url (route /*, options = {}*/) {
     return url.resolve(this.config.web.baseUrl, route)
   }
 

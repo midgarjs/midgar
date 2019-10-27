@@ -39,9 +39,6 @@ class PluginManager extends Emittery {
      * @type {object}
      */
     this.pluginDirs = {}
-
-    // Observe events
-    this._observeEvents()
   }
 
   /**
@@ -63,7 +60,9 @@ class PluginManager extends Emittery {
    * @param {String} pluginsPath plugins directory
    */
   async loadPlugins (pluginsPath) {
-    this.emit('loadPluginsStart', pluginsPath)
+    timer.start('midgar-plugin-load')
+    this.midgar.debug('start load plugins from ' + this.options.pluginsPath)
+
     //list plugins
     this.plugins = await utils.asyncMap(pluginsPath, async pluginPath => {
         //check if plugin is in plugin path
@@ -73,8 +72,10 @@ class PluginManager extends Emittery {
       }, true)
       
       //after Load callback
-      await this.emit('afterLoadPlugins')
-      await this.emit('loadPluginsEnd')
+      await this.emit('midgar:afterLoadPlugins')
+
+      const time = timer.getTime('midgar-plugin-load')
+      this.midgar.debug('plugins loaded in ' + time[0] + 's, ' +  time[1] + 'ms')
   }
 
   /**
@@ -86,11 +87,7 @@ class PluginManager extends Emittery {
 
     if (plugins.indexOf(plugin) == -1) {
       plugins.push(plugin)
-      try {
-        await asyncWriteFile(path.join(this.midgar.configPath, 'plugins.js'), 'module.exports = ' + JSON.stringify(plugins))
-      } catch (error) {
-        throw error
-      }
+      await asyncWriteFile(path.join(this.midgar.configPath, 'plugins.js'), 'module.exports = ' + JSON.stringify(plugins))
     }
   }
 
@@ -221,7 +218,7 @@ class PluginManager extends Emittery {
     // List plugins
     return utils.asyncMap(this.plugins, async (plugin, name) => {
 
-      if (!this.pluginDirs[dirName] && !plugin.dirs[dir]) return //skip
+      if (!this.pluginDirs[dirName] && !plugin.dirs[dirName]) return //skip
 
       // Get the plugin dir path
       const dirPath = plugin.getDirPath(dirName)
@@ -352,38 +349,6 @@ class PluginManager extends Emittery {
     }
 
     return pluginDependencies
-  }
-
-
-  /**
-   * Observe plugin manager event to bind them
-   * @private
-   */
-  _observeEvents() {
-    //observe start plugin load to get the load time
-    this.on('loadPluginsStart', plugins => {
-      timer.start('midgar-plugin-load')
-      this.midgar.debug('start load plugins from ' + this.options.pluginsPath)
-    })
-
-    //observe end plugin load to get the load time
-    this.on('loadPluginsEnd', () => {
-      const time = timer.getTime('midgar-plugin-load')
-      this.midgar.debug('plugins loaded in ' + time[0] + 's, ' +  time[1] + 'ms')
-    })
-
-    //bind logger
-    this.on('debug', msg => {
-      this.midgar.debug(msg)
-    })
-
-    this.on('error', error => {
-      this.midgar.error(error)
-    })
-
-    this.on('warn', msg => {
-      this.midgar.warn(msg)
-    })
   }
 }
 

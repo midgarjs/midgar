@@ -12,6 +12,9 @@ class Test extends Plugin {
    * Init plugin
    */
   async init() {
+
+    // Add services plugin dir
+    this.pm.pluginDirs['test'] = 'foo'
     this.isInit = true
   }
 }

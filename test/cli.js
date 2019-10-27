@@ -56,7 +56,7 @@ function setupTestEnvironment (name) {
  * 
  */
 function cmd (...command) {
-  return new Promise((accept, reject) => {
+  return new Promise((resolve, reject) => {
     const argv = [binPath].concat([...command])
     const binp = process.argv[0]
     let stderr = ''
@@ -78,7 +78,7 @@ function cmd (...command) {
     })
   
     child.on('close', (code) => {
-      accept({code, stdout, stderr})
+      resolve({code, stdout, stderr})
     })
 
     child.on('error', error => {

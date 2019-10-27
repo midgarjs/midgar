@@ -4,7 +4,7 @@ const resolve = (p) => {
 }
 
 module.exports = {
-  web: {
+  web: {
     port: 3000,
     host: 'localhost',
     ssl: false,
