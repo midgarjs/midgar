@@ -1,6 +1,6 @@
 {
   "name": "@midgar/midgar",
-  "version": "1.0.0-alpha.1.22",
+  "version": "1.0.0-alpha.1.23",
   "description": "A node js framework over express",
   "main": "midgar.js",
   "scripts": {

@@ -19,7 +19,7 @@ class Dependency {
    * Clone dependency Object
    * @param {*} deps 
    */
-  async _cloneDep(deps) {
+  _cloneDep(deps) {
     let o = {}
     for (const k in deps) {
       o[k] = Array.from(deps[k])
@@ -109,79 +109,98 @@ class Dependency {
   }
 
   /**
-   * return an array of plugin name sorted with dependencies
+   * return an array of plugin names sorted by dependencies
    */
-  async getOrder() {
-    //clone dependencies object
-    let dependencies = await this._cloneDep(this._dependencies)
-    //clone plugins array
+  async getSortedPlugins() {
+    // Clone dependencies object
+    let dependencies = this._cloneDep(this._dependencies)
+    
+    // Clone plugins array
     let plugins = Array.from(this._plugins)
 
-    //result array
-    let result = []
+    // Result array
+    let sortedPlugins = []
 
-    //set to false to let start
-    let finish = false
     //stop if no plugin is added in the result array
     //or there are no more plugins
-    while(!finish && plugins.length) {
-      //init to true
-      finish = true
-  
+    while(plugins.length) {
       //list plugins
-      for (const key in plugins) {
-        const name = plugins[key]
+      for (let i = 0;i < plugins.length;i++) {
+        const pluginName = plugins[i]
 
-        //plugin dependencies
-        const deps = dependencies[name]
+        // Get plugin dependencies
+        const pluginDependencies = dependencies[pluginName]
 
-        //if plugin have dependencies
-        if (deps && deps.length) {
-          //if result is empty continue
-          if (!result.length) {
+        // If plugin have dependencies
+        if (pluginDependencies && pluginDependencies.length) {
+
+          // If result is empty continue while his dependencies is added to result
+          if (!sortedPlugins.length) {
             continue
           }
 
-
-          if (await this._checkDependenciesOrder(name, dependencies, plugins, result)) {
-            finish = false
+          if (this._haveAllDep(sortedPlugins, pluginDependencies)) {
+            sortedPlugins.push(pluginName)          
+            plugins.splice(plugins.indexOf(pluginName), 1)
+            i--
           }
         } else {
-          //if no dependcies add the plugin on the root
-          result.push(name)
-          plugins.splice(plugins.indexOf(name), 1)
-          finish = false
+          // if no dependcies add the plugin
+          sortedPlugins.push(pluginName)
+          plugins.splice(plugins.indexOf(pluginName), 1)
+          i--
         }
       }
     }
 
-    return result
+    return sortedPlugins
   }
 
   /**
-   * Renvoi false si un dependance est dans le tableau des plugin a precess
+   * Check if all dependencues in pluginDependencies are in the array sortedPlugins
    * 
-   * @param {*} name 
+   * @param {Array} sortedPlugins      Plugin names 
+   * @param {Array} pluginDependencies Plugin dependencies names
+   * 
+   * @return {Boolean}
    */
-  async _checkDependenciesOrder(name, dependencies, plugins, result) {
+  _haveAllDep(sortedPlugins, pluginDependencies) {
+    let haveAllDep = true
+    for (let di = 0;di < pluginDependencies.length;di++) {
+      if (sortedPlugins.indexOf(pluginDependencies[di]) === -1) {
+        haveAllDep = false
+      }
+    }
+
+    return haveAllDep
+  }
+
+  /**
+   * Renvoi false si un dependence est dans le tableau des plugin a precess
+   * 
+   * @param {String} pluginName   Plugin name
+   * @param {Object} dependencies Contain all dependencies of all plugins
+   * @param {Array}  plugins      Plugin names 
+   */
+  async _checkDependenciesOrder(pluginName, dependencies, plugins, result) {
     
     //list plugin dependencies
-    for (let key in dependencies[name]) {
-      const depName = dependencies[name][key]
+    for (let key in dependencies[pluginName]) {
+      const depName = dependencies[pluginName][key]
       //if dependency is added
       if (result.indexOf(depName) !== -1) {
         //remove them
-        dependencies[name].splice(dependencies[name].indexOf(depName), 1)
+        dependencies[pluginName].splice(dependencies[pluginName].indexOf(depName), 1)
         //if plugin have no more dependency add it ti the result
-        if (!dependencies[name].length) {
+        if (!dependencies[pluginName].length) {
           //add to result array
-          result.push(name)
+          result.push(pluginName)
           //remove the plugin
-          plugins.splice(plugins.indexOf(name), 1)
+          plugins.splice(plugins.indexOf(pluginName), 1)
           return true
         } else {
           //reprocess the plugin
-          return await this._checkDependenciesOrder(name, dependencies, plugins, result)
+          return await this._checkDependenciesOrder(pluginName, dependencies, plugins, result)
         }
       }
     }

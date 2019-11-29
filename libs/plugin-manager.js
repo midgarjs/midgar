@@ -181,8 +181,6 @@ class PluginManager extends Emittery {
 
   /**
    * Read files inside a directory of each plugins
-   * return then in an object indexed by file path
-   *
    * 
    * @param {String}  dirName   Plugin dir name
    * @param {RegExp}  regExp    Use to filter by filname
@@ -190,33 +188,14 @@ class PluginManager extends Emittery {
    * 
    * @return {Object}
    */
-  async readFiles (...args) {
-    const files = await this.readPluginsFiles(...args)
-
-    let _files = []
-    for (const name in files) {
-      _files = _files.concat(files[name])
-    }
-    
-    return _files
-  }
-
-  /**
-   * Read files inside a directory of each plugins
-   * 
-   * @param {String}  dirName   Plugin dir name
-   * @param {RegExp}  regExp    Use to filter by filname
-   * @param {Boolean} recursive Reacursive or not, it true by default
-   * 
-   * @return {Object}
-   */
-  async readPluginsFiles (dirName, regExp = null, recursive = true) {
+  async requireFiles (dirName, regExp = null, recursive = true) {
     if (!this.pluginDirs[dirName]) {
       this.emit('warn', 'Unknow plugin dir ' + dirName)
     }
 
+    const files = []
     // List plugins
-    return utils.asyncMap(this.plugins, async (plugin, name) => {
+    await utils.asyncMap(this.plugins, async (plugin) => {
 
       if (!this.pluginDirs[dirName] && !plugin.dirs[dirName]) return //skip
 
@@ -227,16 +206,16 @@ class PluginManager extends Emittery {
       const exists = await utils.asyncFileExists(dirPath)
       if (exists){
         // Read all files inside the direactory
-        const files = await this._readPluginFiles(plugin.name, dirPath, '.', regExp, recursive)
-        return {key: name, value: files}
-      } else {
-        return //skip
+        const pluginFiles = await this._requirePluginFiles(plugin.name, dirPath, '.', regExp, recursive)
+        files.push(...pluginFiles)
       }
-    }, true)
+    })
+
+    return files
   }
 
   /**
-   * Read all files inside a directory of a plugin
+   * Require all files inside a directory of a plugin
    * 
    * @param {Plugin} plugin Plugin instance
    * @param {String} basePath Absolute path of the direactory base directory inside the plugin
@@ -244,7 +223,7 @@ class PluginManager extends Emittery {
    * 
    * 
    */
-  async _readPluginFiles (plugin, basePath, dirPath, regExp = null, recursive = false) {
+  async _requirePluginFiles (plugin, basePath, dirPath, regExp = null, recursive = false) {
     let result = []
 
     // Read all file in the dir
@@ -281,12 +260,12 @@ class PluginManager extends Emittery {
         }
       // if it a directory and recursive read files inside
       } else if (recursive) {
-        const childFiles = await this._readPluginFiles(plugin, basePath, path.join(dirPath, name), regExp, recursive)
+        const childFiles = await this._requirePluginFiles(plugin, basePath, path.join(dirPath, name), regExp, recursive)
         result = result.concat(childFiles)
       }
     }
 
-    return result.length ? result : null
+    return result
   }
 
   async getDependenciesTree() {
@@ -298,50 +277,136 @@ class PluginManager extends Emittery {
   }
 
   /**
-   * Return an array of plugin name sort by dependencies
+   * Return an array of plugin names sorted by dependencies
+   * 
+   * @param {Array} plugins Plugin name, if is not set use all plugin register
+   * 
+   * @returns {Array}
    */
-  async getDependenciesOrder(plugins = null) {
+  getSortedPlugins(plugins = null) {
     if (plugins == null) {
       plugins = Object.keys(this.plugins)
     }
-    //get plugins dependencies
-    const pluginDependencies = await this._getPluginsDependencies()
 
-    //get dependencies order
-    const dependency = new Dependency(plugins, pluginDependencies)
-    return dependency.getOrder()
+    // Get plugins dependencies
+    const pluginDependencies = this._getPluginsDependencies()
+    // Clone dependencies object
+    const dependencies = this._cloneDep(pluginDependencies)
+    
+    // Clone plugins array
+    plugins = Array.from(plugins)
+
+    // Result array
+    let sortedPlugins = []
+
+    //stop if no plugin is added in the result array
+    //or there are no more plugins
+    while(plugins.length) {
+      //list plugins
+      for (let i = 0;i < plugins.length;i++) {
+        const pluginName = plugins[i]
+
+        // Get plugin dependencies
+        const pluginDependencies = dependencies[pluginName]
+
+        // If plugin have dependencies
+        if (pluginDependencies && pluginDependencies.length) {
+
+          // If result is empty continue while his dependencies is added to sortedPlugins
+          if (!sortedPlugins.length) {
+            continue
+          }
+
+          if (this._haveAllDep(sortedPlugins, pluginDependencies)) {
+            sortedPlugins.push(pluginName)          
+            plugins.splice(plugins.indexOf(pluginName), 1)
+            i--
+          }
+        } else {
+          // if no dependcies add the plugin
+          sortedPlugins.push(pluginName)
+          plugins.splice(plugins.indexOf(pluginName), 1)
+          i--
+        }
+      }
+    }
+
+    return sortedPlugins
+  }
+
+  /**
+   * Clone dependency Object
+   * 
+   * @param {Object} deps 
+   * 
+   * @return {Object}
+   */
+  _cloneDep(deps) {
+    let o = {}
+    for (const k in deps) {
+      o[k] = Array.from(deps[k])
+    }
+    return o
+  }
+
+  /**
+   * Check if all dependencues in pluginDependencies are in the array sortedPlugins
+   * 
+   * @param {Array} sortedPlugins      Plugin names 
+   * @param {Array} pluginDependencies Plugin dependencies names
+   * 
+   * @return {Boolean}
+   */
+  _haveAllDep(sortedPlugins, pluginDependencies) {
+    let haveAllDep = true
+    for (let i = 0;i < pluginDependencies.length;i++) {
+      if (sortedPlugins.indexOf(pluginDependencies[i]) === -1) {
+        haveAllDep = false
+      }
+    }
+
+    return haveAllDep
   }
 
   /**
    * return an object with plugins dependencies
+   * 
+   * @return {Object}
    */
-  async _getPluginsDependencies() {
+  _getPluginsDependencies() {
     if (this._pluginDependencies == null) {
-      //list plugins
-      this._pluginDependencies = await utils.asyncMap(this.plugins, (plugin, name) => {
-        //get plugin dependencies
-        return {key: name, value: this._getPluginDependencies(plugin)}
-      }, true)
+      this._pluginDependencies = {}
+
+      // List all register plugin
+      for (const name in this.plugins) {
+        const plugin = this.plugins[name]
+        // Add plugin dependencies
+        this._pluginDependencies[name] = this._getPluginDependencies(plugin)
+      }
     }
+
     return this._pluginDependencies
   }
 
   /**
-   * Return an array of plugin dependencies
+   * Return get all depencies of plugin and return midgar plugin name
    * 
-   * @param {sting} plugin plugin name
+   * @param {Plugin} plugin Plugin instance
+   * 
+   * @returns {Array}
    */
-  async _getPluginDependencies(plugin) {
-    //result array
+  _getPluginDependencies(plugin) {
     const pluginDependencies = []
-    //get plugin dependencies from package.json
+
+    // Get plugin dependencies from package.json
     const pkg = plugin.package
 
-    //if plugin have dependencies
+    // If plugin have dependencies
     if (pkg.dependencies) {
-      //list dependencies
+
+      // List dependencies in object pkg.dependencies
       for (const depName in pkg.dependencies) {
-        //if the dependency is a plugin
+        // If the dependency is a register midgar plugin
         if (this.plugins[depName] != undefined) {
           pluginDependencies.push(depName)
         }

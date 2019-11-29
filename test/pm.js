@@ -72,12 +72,12 @@ describe('Plugin Manager', function() {
   })
 
   /**
-   * Test result readFiles with shouldResult
+   * Test result requireFiles with shouldResult
    * 
    * @param {Array} result       Result array from readFiles call
    * @param {Array} shouldResult Result we should have
    */
-  function testReadFilesResult(result, shouldResult) {
+  function testRequireFilesResult(result, shouldResult) {
     result.should.be.array()
     result.length.should.equal(shouldResult.length)
 
@@ -110,13 +110,13 @@ describe('Plugin Manager', function() {
   }
 
   /**
-   * Test the readFiles method
+   * Test the plugin manager requireFiles method
    */
-  it ('readFiles', async () => {
+  it ('requireFiles', async () => {
     const midgar = await initMidgar()
 
     // Non recursive test
-    let result = await midgar.pm.readFiles('test', null, false)
+    let result = await midgar.pm.requireFiles('test', null, false)
     const shouldResult = [
       {
         relativePath: 'file-1.js',
@@ -132,17 +132,17 @@ describe('Plugin Manager', function() {
       }
     ]
 
-    testReadFilesResult(result, shouldResult)
+    testRequireFilesResult(result, shouldResult)
   
     // Recursive test
-    result = await midgar.pm.readFiles('test')
+    result = await midgar.pm.requireFiles('test')
     shouldResult.push(      {
       relativePath: 'sub/sub-file-1.js',
       export: 'sub test 1'
     })
 
 
-    testReadFilesResult(result, shouldResult)
+    testRequireFilesResult(result, shouldResult)
 
   })
 
@@ -175,7 +175,6 @@ describe('Plugin Manager', function() {
       dir.should.not.to.be.null
     }
   }
-  
 
   /**
    * Test the getDirs method

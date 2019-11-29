@@ -139,7 +139,7 @@ class Cli {
    */
   async loadPluginsCommands() {
     // Get cli files content
-    const files = await this.midgar.pm.readFiles('cli')
+    const files = await this.midgar.pm.requireFiles('cli')
     for (let i = 0; i < files.length;i++) {
       this.addCommands(files[i].export)
     }
