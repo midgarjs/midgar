@@ -394,7 +394,7 @@ class Midgar extends EventEmitter {
    */
   async startPublicServer() {
     //set the public dir
-    this.publicApp.use(express.static(this.config.public.path))
+    this.publicApp.use(this.config.public.virtualPath ? this.config.public.virtualPath: '/', express.static(this.config.public.path))
     const opts = {
       port: this.config.public.port,
       host: this.config.public.host,
