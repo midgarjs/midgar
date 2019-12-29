@@ -29,8 +29,8 @@ L'étape suivant est donc d'installer des plugins. Midgar supporte bien évidame
 
 | Nom | Description |
 |---------|-------------|
-| [service](https://www.npmjs.com/package/@midgar/service) | Service avec injection de dépendances |
-| [controller](https://www.npmjs.com/package/@midgar/controller) | Controller pour la gestion des routes  |
+| [service](https://github.com/midgarjs/service) | Service avec injection de dépendances |
+| [controller](https://github.com/midgarjs/controller) | Controller pour la gestion des routes  |
 
 [Api documentation](https://midgarjs.github.io/midgar/)
 
