@@ -4,7 +4,7 @@
   "description": "A node js framework over express",
   "main": "./src/index.js",
   "scripts": {
-    "build-docs": "jsdoc -c ./jsdoc.js ./README.md -t ./node_modules/ink-docstrap/template -r ./src/",
+    "build-docs": "jsdoc -c ./jsdoc.js ./README.md -t ./node_modules/ink-docstrap/template ./README.md -r ./src/",
     "test": "mocha -r esm tests/*.js --exit",
     "eslint": "eslint -f json -o reports/.eslint-report.json src/ || exit 0",
     "coverage": "nyc -i esm --reporter=text mocha -r esm tests/*.js --exit",
