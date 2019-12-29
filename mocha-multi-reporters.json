@@ -1,0 +1,6 @@
+{
+  "reporterEnabled": "mocha-teamcity-reporter, mocha-sonarqube-reporter",
+  "mochaSonarqubeReporterReporterOptions": {
+      "output": "reports/xunit.xml"
+  }
+}

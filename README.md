@@ -1,8 +1,9 @@
-In Dev don't use this
+En développement ne pas utiliser en production / In Dev don't use this
 
-## Midgar
+![](https://ci.midgar.io/app/rest/builds/buildType:(id:Midgar_Build)/statusIcon) [![Coverage](https://sonar.midgar.io/api/project_badges/measure?project=midgar-midgar&metric=coverage)](https://sonar.midgar.io/dashboard?id=midgar-midgar) 
 
-Midgar is a plugin manager for [Express](http://expressjs.com/)
+## Qu'est ce que Midgar
+Midgar est un framework node js se basant sur un systeme de plugin. Il permet de réaliser rapidement des applications web complexes de manière claire et structuré.
 
 ## Installation
 
@@ -10,41 +11,28 @@ Midgar is a plugin manager for [Express](http://expressjs.com/)
 $ npm install -g @midgar/midgar
 ```
 
-## Quick start
+## Utilisation
 
-The quickest way to get started with Midgar is to utilize the cli to generate an application:
-
-```bash
-$ midgar init /my-project/
-```
-
-## Install dependencies
+Le moyen le plus rapide de démarrer avec Midgar est d'utiliser le CLI pour générer la structure de l'application.
 
 ```bash
-$ cd /my-project/
+$ midgar init ~/my-project/
+$ cd ~/my-project/
 $ npm i
 ```
 
-Now you can start the app but basically Midgar add just [Helmet](https://helmetjs.github.io/) and [Body-parser](https://github.com/expressjs/body-parser) middleware to express. You have to install Midgar plugin or create your.
+En soit Midgar ne fait que charger des plugins et exposer express. Sans plugin, il ne fait donc rien de concret !
+L'étape suivant est donc d'installer des plugins. Midgar supporte bien évidament l'installation de plugin via npm ou yarn.
 
-## Start app
 
-```bash
-$ npm run dev
-```
+## Plugins officiel
 
-## Official plugins
-
-| Name | Description |
+| Nom | Description |
 |---------|-------------|
-| [services](https://www.npmjs.com/package/@midgar/services) | Service loader with dependency injection |
-| [route-loader](https://www.npmjs.com/package/@midgar/route-loader) | A route loader  |
-| [db](https://www.npmjs.com/package/@midgar/db) | [Sequelize](https://www.npmjs.com/package/sequelize) for Midgar with model loader and db migration |
-| [cache](https://www.npmjs.com/package/@midgar/cache) | A cache service with [node-cache-manager](https://www.npmjs.com/package/cache-manager) |
-| [session](https://www.npmjs.com/package/@midgar/session) | Add sessions with [express-session](https://www.npmjs.com/package/express-session) |
-| [cors](https://www.npmjs.com/package/@midgar/cors) | Add [cors](https://www.npmjs.com/package/cors) |
+| [service](https://www.npmjs.com/package/@midgar/service) | Service avec injection de dépendances |
+| [controller](https://www.npmjs.com/package/@midgar/controller) | Controller pour la gestion des routes  |
 
-[Api documentation](https://midgarjs.github.io/midgar/) in progress ...
+[Api documentation](https://midgarjs.github.io/midgar/)
 
 ## Test unit
 

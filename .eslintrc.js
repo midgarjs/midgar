@@ -1,17 +1,24 @@
 module.exports = {
     "env": {
-        "commonjs": true,
         "es6": true,
-        "node": true
+        "node": true,
+        "mocha": true
     },
-    "extends": "eslint:recommended",
+    "extends": [
+        "standard",
+        "eslint:recommended",
+        "plugin:sonarjs/recommended"
+    ],
     "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly"
     },
     "parserOptions": {
-        "ecmaVersion": 2018
+        "ecmaVersion": 2018,
+        "sourceType": "module"
     },
     "rules": {
-    }
-};
+    },
+    "parser": "babel-eslint",
+    "plugins": ["sonarjs"]
+}

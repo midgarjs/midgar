@@ -3,3 +3,8 @@ node_modules/
 .idea/
 .vscode/
 docs/
+.nyc_output/
+.sonarlint/
+.mocha-report.xml
+coverage/
+reports/

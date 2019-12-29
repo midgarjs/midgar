@@ -1,0 +1,17 @@
+{
+  "name": "midgar",
+  "version": "0.0.1",
+  "description": "",
+  "private": true,
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "NODE_ENV=development nodemon src/index.js",
+    "prod": "node src/index.js"
+  },
+  "dependencies": {
+    "@midgar/midgar": "^1.0.0-alpha.2.0",
+    "nodemon": "^2.0.2",
+    "esm": "^3.2.25"
+  },
+  "devDependencies": {}
+}

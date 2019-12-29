@@ -1,1 +1,0 @@
-module.exports = 'sub test 1'
