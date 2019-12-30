@@ -25,12 +25,6 @@ function rimraf (rmPath) {
   })
 }
 
-function mkdirp (mkPath) {
-  return new Promise((resolve, reject) => {
-    _mkdirp(mkPath, resolve)
-  })
-}
-
 const ctx = {}
 const name = 'cli-test'
 /**
@@ -55,9 +49,7 @@ chai.use(dirtyChai)
 
 function getTmpDir () {
   const dirname = path.join(os.tmpdir(), uid.sync(8))
-
   fs.mkdirSync(dirname, { mode: parseInt('0700', 8) })
-
   return dirname
 }
 

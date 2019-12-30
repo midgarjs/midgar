@@ -1,4 +1,5 @@
 export default [
+  // add command
   {
     command: 'add [plugin]',
     description: 'Add plugin',
@@ -16,6 +17,7 @@ export default [
       }
     }
   },
+  // rm command
   {
     command: 'rm [plugin]',
     description: 'Remove plugin',
@@ -27,6 +29,7 @@ export default [
       }
     }
   },
+  // enable command
   {
     command: 'enable [plugin]',
     description: 'Enable plugin',
@@ -38,6 +41,7 @@ export default [
       }
     }
   },
+  // disable command
   {
     command: 'disable [plugin]',
     description: 'Disable plugin',

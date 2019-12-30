@@ -9,7 +9,7 @@
     "prod": "node src/index.js"
   },
   "dependencies": {
-    "@midgar/midgar": "^1.0.0-alpha.2.0",
+    "@midgar/midgar": "^1.0.0-alpha.2.2",
     "nodemon": "^2.0.2",
     "esm": "^3.2.25"
   },
