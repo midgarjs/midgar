@@ -82,7 +82,7 @@ export default [
   {
     command: 'init [path]',
     description: 'Create init project',
-    action: async ([initPath]) => {
+    action: async (mid, initPath) => {
       initPath = initPath ? path.resolve(process.cwd(), initPath) : process.cwd()
 
       return init(initPath)

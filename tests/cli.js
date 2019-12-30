@@ -19,56 +19,59 @@ const PLUGIN_NAME = '@test/test-plugin-2'
 // fix for TypeError: describe is not a function with mocha-teamcity-reporter
 const { describe, it } = mocha
 
+// Add chai middlware
+const expect = chai.expect
+chai.use(chaiFs)
+chai.use(chaiHttp)
+chai.use(dirtyChai)
+
+/**
+ * Promised rimraf
+ * @param {Sting} rmPath Path
+ * @private 
+ */
 function rimraf (rmPath) {
   return new Promise((resolve, reject) => {
     _rimraf(rmPath, resolve)
   })
 }
 
-const ctx = {}
-const name = 'cli-test'
 /**
- * before test callback
+ * Create random dir in tmp os directory and return it
+ * @private 
  */
-const br = async () => {
-  ctx.dir = path.join(tmpDir, name)
-}
-
-/**
- * after test callback
- */
-async function ar () {
-  // this.timeout(30000)
-  await rimraf(tmpDir)
-}
-
-const expect = chai.expect
-chai.use(chaiFs)
-chai.use(chaiHttp)
-chai.use(dirtyChai)
-
 function getTmpDir () {
   const dirname = path.join(os.tmpdir(), uid.sync(8))
   fs.mkdirSync(dirname, { mode: parseInt('0700', 8) })
   return dirname
 }
 
+let tmpDir = null
 const configPath = path.resolve(__dirname, 'fixtures/config')
-const tmpDir = getTmpDir()
 
 /**
  * Cli tests
  */
 describe('Cli', function () {
-  before(br)
-  after(ar)
+  before(() => {
+    // Create tmp dir
+    tmpDir = getTmpDir()
+  })
+
+  after(async () => {
+    // clean tmp dir
+    await rimraf(tmpDir)
+  })
 
   // Test init command
   it('init', async function () {
-    const cli = new Cli(['', '', 'init', ctx.dir])
+
+    // Call init cli command on tmp dir
+    const cli = new Cli(['', '', 'init', tmpDir])
     await cli.init()
     await cli.run()
 
+    // Check if all template files are created
     const files = [
       'package.json',
       'yarn.lock',
@@ -82,7 +85,7 @@ describe('Cli', function () {
     ]
 
     files.forEach(file => {
-      expect(path.join(ctx.dir, file)).be.a.file()
+      expect(path.join(tmpDir, file)).be.a.file()
     })
   })
 
@@ -159,8 +162,6 @@ describe('Cli', function () {
  * Test if the command test of the plugin test is call
  */
 describe('Test plugin command', function () {
-  before(br)
-  after(ar)
   it('test', async function () {
     const cli = new Cli(['', '', 'test', '--config', configPath])
     await cli.init()

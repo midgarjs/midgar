@@ -37,9 +37,8 @@ class Cli {
        * Invalid command handler
        */
       .on('command:*', () => {
-        if (this.configPath !== null) {
-          throw new Error('Invalid command: %s\nSee --help for a list of available commands.', this.program.args.join(' '))
-        }
+        if (this.configPath !== null) throw new Error(`Invalid command: ${ this.program.args.join(' ') }\nSee --help for a list of available commands.`, )
+        
         this._resolveRun({})
       })
   }
@@ -118,15 +117,47 @@ class Cli {
    * @param {Object} command Command Object
    */
   addCommand (command) {
-    this.program.command(command.command)
+    const cmd = this.program.command(command.command)
       .description(command.description)
-      .action((...args) => {
-        command.action(args, this.mid).then((result) => {
+    
+    if (command.options) {
+      this._addCommandOptions(cmd, command.options)
+    }
+
+    cmd.action((...args) => {
+        command.action(this.mid, ...args).then((result) => {
           this._resolveRun(result)
         }).catch(error => {
           this._rejectRun(error)
         })
       })
+  }
+
+  /**
+   * Add Option to a commander command
+   *
+   * @param {Command} cmd     Commander command
+   * @param {Array}   options Command options
+   * @private
+   */
+  _addCommandOptions (cmd, options) {
+    // check options type
+    if (!Array.isArray(options)) throw new TypeError('@midgar/midgar: Invalid cli options type !')
+
+    for (const option of options) {
+      // Check option def
+      if (!option.flags || !option.description) throw new Error('@midgar/midgar: Invalid cli option def !')
+
+      const args = [
+        option.flags,
+        option.description
+      ]
+  
+      // Add default arf if exist
+      if (option.default !== undefined) args.push(option.default)
+
+      cmd.option(...args)
+    }
   }
 
   /**

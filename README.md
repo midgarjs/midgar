@@ -3,8 +3,11 @@ En développement ne pas utiliser en production
 # Midgar
 ![](https://ci.midgar.io/app/rest/builds/buildType:(id:Midgar_Build)/statusIcon) [![Coverage](https://sonar.midgar.io/api/project_badges/measure?project=midgar-midgar&metric=coverage)](https://sonar.midgar.io/dashboard?id=midgar-midgar) 
 
+
 ## Qu'est ce que Midgar
+
 Midgar est un framework nodejs se basant sur un système de plugin. Il permet de réaliser rapidement des applications web complexes de manière claire et structuré.
+
 
 ## Installation
 
@@ -28,6 +31,7 @@ L'utilisation des scripts de npm permet l'activation automatique des plugins sur
 
 Vous pouvez voir la structure du project générer par la commande init [ici](https://github.com/midgarjs/midgar/tree/master/src/cli/.init-tpl).
 
+
 ## Plugins officiel
 
 | Nom | Description |
@@ -37,7 +41,9 @@ Vous pouvez voir la structure du project générer par la commande init [ici](ht
 
 
 ## Cli
+
 Voici les commandes de base du cli
+
 
 ### init:
 
@@ -46,31 +52,40 @@ $ midgar run init ./new-project
 ```
 Initialise un nouveau projet midgar.
 
+
 ### add:
+
 ```bash
 $ midgar add monplugin
 ```
 Ajoute un plugin au fichier plugins.json contenu dans le dossier de configuration du projet.
 
+
 ### rm:
+
 ```bash
 $ midgar rm monplugin
 ```
 Supprime un plugin du fichier plugins.json.
 
+
 ### enable:
+
 ```bash
 $ midgar enable monplugin
 ```
 Active un plugin présent dans le fichier plugins.json.
 Si le plugin n'est pas présen, il n'est pas ajouté et un avertisement est affiché.
 
+
 ### disable:
+
 ```bash
 $ midgar disable monplugin
 ```
 Désactive un plugin présent dans le fichier plugins.json.
 Si le plugin n'est pas présent, il n'est pas ajouté et un avertisement est affiché.
+
 
 ### Paramètre optionnel:
 
@@ -84,8 +99,11 @@ S'il ne trouve pas ce fichier il cherche dans ./config.
 
 Vous pouvez voir un exemple de fichier .midrc [ici](https://github.com/midgarjs/midgar/blob/master/src/cli/.init-tpl/.midrc)
 
+
 ## Créer un plugin
+
 ### Fichier plugin
+
 Voici un exemple de fichier plugin:
 
 ```js
@@ -105,19 +123,22 @@ class TestPlugin extends Plugin {
 
 export default TestPlugin
 ```
-
 Vous pouvez retouver la liste des évènements dans la [documentation](https://midgarjs.github.io/midgar/).
 
+
 ### Package npm
+
 Un plugin est en premier lieu un package npm et doit etre forcement accompagné d'un fichier **package.json**. Le main du **package.json** doit pointer sur le fichier plugin.
 
 Pour fonctionner il doit aussi etre déclarré dans le fichier **plugins.json** contenu dans le dossier de configuration du projet. Les scripts postinstall et preuninstall peuvent être utiliser pour ajouter/supprimer automatiquement les plugins du fichier **plugins.json**.
 
 
 ### Configuration du plugin
+
 Vous pouvez ajouter un fichier **plugin-config.js** dans le même dossier que le fichier plugin.
 
 Ce fichier est charger avant le chargement des plugins et est injecté dans le membre **.config** de l'instance du plugin.
+
 
 ### Importer
 
@@ -149,11 +170,15 @@ export default {
 }
 ```
 
+
 ### Réecriture
+
 Si un plugin ne fait pas axactement ce dont vous avez besoin ou si vous voulez enrichir les fonctionnalitées d'un plugin, vous pouvez utiliser le système de réecture.
 Le fichier plugin ainsi que les fichiers importer via le système de dossier sont réecrivable.
 
+
 ### Plugin
+
 Pour réecrire un fichier plugin, ajouter ceci dans le fichier **plugin-config.js**.
 
 ```js
@@ -178,9 +203,10 @@ class RewritePlugin extends ServicePlugin {
 }
 
 export default RewritePlugin
-
 ```
+
 ### Fichier
+
 Pour réecrir un fichier import via le système de dossier, ajouter ceci dans le fichier **plugin-config.js**.
 
 ```js

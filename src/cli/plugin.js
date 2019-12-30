@@ -3,7 +3,7 @@ export default [
   {
     command: 'add [plugin]',
     description: 'Add plugin',
-    action: async ([plugin], mid) => {
+    action: async (mid, plugin) => {
       if (!mid.cli.configPath) {
         return {
           stdout: 'Cannot add ' + plugin + ' to plugins.json, Midgar config have not be resolved !'
@@ -21,7 +21,7 @@ export default [
   {
     command: 'rm [plugin]',
     description: 'Remove plugin',
-    action: async ([plugin], mid) => {
+    action: async (mid, plugin) => {
       if (await mid.pm.removePlugin(plugin)) {
         return {
           stdout: plugin + ' removed from plugins.json !'
@@ -33,7 +33,7 @@ export default [
   {
     command: 'enable [plugin]',
     description: 'Enable plugin',
-    action: async ([plugin], mid) => {
+    action: async (mid, plugin) => {
       if (await mid.pm.enablePlugin(plugin)) {
         return {
           stdout: plugin + ' enabled in plugins.json !'
@@ -45,7 +45,7 @@ export default [
   {
     command: 'disable [plugin]',
     description: 'Disable plugin',
-    action: async ([plugin], mid) => {
+    action: async (mid, plugin) => {
       if (await mid.pm.disablePlugin(plugin)) {
         return {
           stdout: plugin + ' disabled in plugins.json !'
