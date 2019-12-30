@@ -120,10 +120,8 @@ class Cli {
     const cmd = this.program.command(command.command)
       .description(command.description)
     
-    if (command.options) {
-      this._addCommandOptions(cmd, command.options)
-    }
-
+    if (command.options) this._addCommandOptions(cmd, command.options)
+     
     cmd.action((...args) => {
         command.action(this.mid, ...args).then((result) => {
           this._resolveRun(result)
@@ -152,7 +150,9 @@ class Cli {
         option.flags,
         option.description
       ]
-  
+
+      // Add processing arg if exist
+      if (option.processing !== undefined) args.push(option.processing)
       // Add default arf if exist
       if (option.default !== undefined) args.push(option.default)
 

@@ -13,7 +13,7 @@ Midgar est un framework nodejs se basant sur un système de plugin. Il permet de
 
 ```sh
 $ npm install -g @midgar/midgar
-```
+```sh
 
 ## Utilisation
 
@@ -38,6 +38,7 @@ Vous pouvez voir la structure du project générer par la commande init [ici](ht
 |---------|-------------|
 | [service](https://github.com/midgarjs/service) | Service avec injection de dépendances |
 | [controller](https://github.com/midgarjs/controller) | Controller pour la gestion des routes  |
+| [migrate](https://github.com/midgarjs/migrate) | Système de migration  |
 
 
 ## Cli
@@ -48,7 +49,7 @@ Voici les commandes de base du cli
 ### init:
 
 ```bash
-$ midgar run init ./new-project
+$ midgar run init ./mon-project
 ```
 Initialise un nouveau projet midgar.
 
@@ -58,21 +59,21 @@ Initialise un nouveau projet midgar.
 ```bash
 $ midgar add monplugin
 ```
-Ajoute un plugin au fichier plugins.json contenu dans le dossier de configuration du projet.
+Ajoute un plugin au fichier **plugins.json** contenu dans le dossier de configuration du projet.
 
 
 ### rm:
 
 ```bash
-$ midgar rm monplugin
+$ midgar rm @migar/service
 ```
-Supprime un plugin du fichier plugins.json.
+Supprime le plugin @migar/service du fichier **plugins.json**.
 
 
 ### enable:
 
 ```bash
-$ midgar enable monplugin
+$ midgar enable @migar/service
 ```
 Active un plugin présent dans le fichier plugins.json.
 Si le plugin n'est pas présen, il n'est pas ajouté et un avertisement est affiché.
@@ -81,16 +82,16 @@ Si le plugin n'est pas présen, il n'est pas ajouté et un avertisement est affi
 ### disable:
 
 ```bash
-$ midgar disable monplugin
+$ midgar disable @migar/service
 ```
-Désactive un plugin présent dans le fichier plugins.json.
+Désactive le plugin @migar/service dans le fichier plugins.json.
 Si le plugin n'est pas présent, il n'est pas ajouté et un avertisement est affiché.
 
 
 ### Paramètre optionnel:
 
 ```bash
-$ midgar add monplugin --config ~/mon-projet/config
+$ midgar add @migar/service --config ~/mon-projet/src/config
 ```
 
 Vous pouvez ajouter le chemin de la configuration du projet au cli.
@@ -156,8 +157,23 @@ const files = await this.mid.pm.importDir('mon-dossier')
 ```
 @see: https://midgarjs.github.io/midgar/PluginManager.html#importDir__anchor
 
-La méthode importDir importe tous les fichier du dossier **mon-dossier** pour tous les plugins.
+La méthode importDir importe tous les fichiers du dossier **mon-dossier** pour tous les plugins.
 Le chemin du dossier **mon-dossier** est par défaut **./mondossier/** relativement par rapport au dossier du fichier plugin.
+
+La méthode importDir renvoit un tableau d'object:
+
+```js
+[
+  {
+    path: '~/mon-projet/src/plugins/test-plugin/mondossier/fichier.js',
+    export: ... // La valeur export default du fichier
+    plugin: 'test-plugin',
+    relativePath: 'fichier.js'
+  },
+  ...
+}
+```
+
 
 Le chemin du dossier **mon-dossier** peut etre configurer pour chaque plugin dans le fichier  **plugin-config.js**:
 
