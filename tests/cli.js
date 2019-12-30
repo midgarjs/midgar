@@ -76,7 +76,7 @@ describe('Cli', function () {
       'src/index.js',
       'src/server.js',
       'src/config/config.js',
-      'src/config/plugins.js',
+      'src/config/plugins.json',
       'src/config/config.prod.js',
       'src/config/config.dev.js'
     ]

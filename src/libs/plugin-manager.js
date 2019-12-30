@@ -33,12 +33,6 @@ class PluginManager {
     this.pluginsPath = mid.config.plugin.dir
 
     /**
-     * Plugins dirs Object
-     * @type {Object}
-     */
-    this.pluginDirs = {}
-
-    /**
      * Define the default plugins dirs
      * it can be overite by the plugin config
      * @type {object}
@@ -50,6 +44,13 @@ class PluginManager {
      * @type {Object}
      */
     this.rewritePlugins = {}
+
+    /**
+     * Rewrited plugin object mapping
+     * @type {Object}
+     */
+    this.rewritedPlugins = {}
+    
 
     /**
      * Rewrite plugin file mapping
@@ -97,6 +98,8 @@ class PluginManager {
 
     // Create plugin instances
     this.plugins = await this._createPluginInstances(pluginsConfigs)
+    // Add rewrite plugin
+    this._addRewritePluginInstances()
 
     const time = timer.getTime('midgar-plugin-load')
     this.mid.debug('plugins loaded in ' + time + ' ms')
@@ -120,6 +123,7 @@ class PluginManager {
     return utils.asyncMap(plugins, async name => {
       let pluginPath = null
 
+      // Check if plugin path is defined in plugins.json
       if (pluginsConfig[name].path !== undefined) {
         pluginPath = path.resolve(this.mid.configPath, pluginsConfig[name].path)
       }
@@ -169,6 +173,7 @@ class PluginManager {
 
   /**
    * Check rewrite plugin and map entries
+   * @private
    */
   _processRewritePlugin (name, pluginConfig, pluginsConfig) {
     // Check if plugin is configured to rewrite another plugin
@@ -180,7 +185,8 @@ class PluginManager {
     if (this.rewritePlugins[rewritedPlugin] !== undefined) this.mid.warn('Plugin ' + name + ' rewite ' + rewritedPlugin + ' over ' + this.rewritePlugins[rewritedPlugin] + ' !')
 
     // Add rewrite plugin
-    this.rewritePlugins[rewritedPlugin] = name
+    this.rewritedPlugins[rewritedPlugin] = name
+    this.rewritePlugins[name] = rewritedPlugin
   }
 
   /**
@@ -188,6 +194,7 @@ class PluginManager {
    *
    * @param {String} name         Plugin name
    * @param {Object} pluginConfig Plugin configuration (plugin-config.js)
+   * @private
    */
   _processRewriteFile (name, pluginConfig) {
     const pluginPath = pluginConfig.path
@@ -214,6 +221,7 @@ class PluginManager {
    * @param {String} filePath       Rewrited file path
    * @param {String} rewritFilePath Rewrite file path
    * @param {String} pluginPath     Rewrite plugin path
+   * @private
    */
   _processRewriteFileEntry (dirKey, name, rwName, filePath, rewritFilePath, pluginPath) {
     if (!this.rewriteFile[dirKey]) this.rewriteFile[dirKey] = {}
@@ -233,21 +241,36 @@ class PluginManager {
   _createPluginInstances (pluginsConfig) {
     // Load plugins
     return utils.asyncMap(pluginsConfig, async (pluginConfig, name) => {
-      const pluginPath = pluginConfig.path
-      let importPath = pluginPath
       let pkg = pluginConfig.package
+      let mainFile = pkg.main ? pkg.main : 'index.js'
 
-      if (this.rewritePlugins[name]) {
+      
+      const pluginPath = path.parse(path.join(pluginConfig.path, mainFile)).dir
+      let importPath = pluginPath
+      // Skip rewrite plugin
+      if (this.rewritePlugins[name]) return
+
+      // ceck if plugin is rewrited
+      if (this.rewritedPlugins[name]) {
         // Config of plugin who rewrite
-        const reweriteConfig = pluginsConfig[this.rewritePlugins[name]]
-        importPath = reweriteConfig.path
+        const reweriteConfig = pluginsConfig[this.rewritedPlugins[name]]
         pkg = reweriteConfig.package
+        mainFile = pkg.main ? pkg.main : 'index.js'
+        importPath = path.parse(path.join(reweriteConfig.path, mainFile)).dir
       }
 
-      const mainFile = pkg.main ? pkg.main : 'index.js'
-      importPath = path.join(importPath, mainFile)
       return { key: name, value: this._createPluginInstance(name, pluginPath, importPath, pkg, pluginConfig.config) }
     }, true)
+  }
+
+  /**
+   * Add rewrite plugin instance to plugins object
+   * @private
+   */
+  _addRewritePluginInstances () {
+    for (let name in this.rewritePlugins) {
+      this.plugins[name] = this.plugins[this.rewritePlugins[name]]
+    }
   }
 
   /**
@@ -343,6 +366,7 @@ class PluginManager {
    * @param {String} name    Plugin name
    * @param {Object} plugins Plugins config (plugins.json)
    * @return {Boolean}
+   * @private
    */
   _isEnabledPlugin (name, plugins) {
     return (typeof plugins[name] === 'boolean' && plugins[name]) ||
@@ -445,6 +469,7 @@ class PluginManager {
 
   /**
    * Add a plugin directory
+   *
    * @param {String} key         Directory key
    * @param {String} defaultPath Default path
    */
@@ -591,6 +616,12 @@ class PluginManager {
     return sortedPlugins
   }
 
+  /**
+   * @param {*} plugins
+   * @param {*} sortedPlugins
+   * @param {*} dependencies
+   * @private
+   */
   _sortPlugins (plugins, sortedPlugins, dependencies) {
     // list plugins
     for (let i = 0; i < plugins.length; i++) {

@@ -191,7 +191,7 @@ describe('Plugin Manager', function () {
    */
   it('getSortedPlugins', async () => {
     const result = await mid.pm.getSortedPlugins()
-    expect(result).to.eql(['@test/test-plugin-3', 'test-plugin', 'test-plugin-2', 'test-plugin-rw'], 'Invalid getSortedPlugins result !')
+    expect(['@test/test-plugin-3', 'test-plugin', 'test-plugin-2', 'test-plugin-rw']).to.eql(result, 'Invalid getSortedPlugins result !')
   })
 
   it('rewrite plugin', async () => {
@@ -203,7 +203,6 @@ describe('Plugin Manager', function () {
 
   it('rewrite file', async () => {
     const fooxxxFiles = await mid.pm.importDir('fooxxx')
-
     let find = false
     for (const file of fooxxxFiles) {
       if (file.plugin === 'test-plugin-2' && file.relativePath === 'file-1.js') {

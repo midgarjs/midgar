@@ -1,4 +1,4 @@
-import Plugin from '../../../../src/plugin'
+import Plugin from '../../../../../src/plugin'
 
 /**
  * Test plugin

@@ -81,6 +81,7 @@ class Cli {
    * Return null if no rc file is found
    *
    * @return {Object|null}
+   * @private
    */
   async _loadRCFile () {
     let rcFile = path.resolve(process.cwd(), '.midrc')
@@ -101,7 +102,7 @@ class Cli {
   }
 
   /**
-   * List commands and add them to the program
+   * Add commands to commander program
    *
    * @param {Array} commands Array of comamnd Object
    */
@@ -141,6 +142,8 @@ class Cli {
 
   /**
    * Parse argv and run command
+   * Wait for action result promise
+   * @return {Any}
    */
   run () {
     this.program.parse(this.argv)
