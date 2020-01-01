@@ -5,3 +5,10 @@ pipeline:
       - yarn
       - yarn run coverage
       - yarn run eslint
+  sonar:
+    image: aosapps/drone-sonar-plugin
+    settings:
+      sonar_host:
+        from_secret: sonar_host
+      sonar_token:
+        from_secret: sonar_token
