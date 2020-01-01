@@ -19,3 +19,7 @@ steps:
     level: DEBUG
     ver: 1.0
     showProfiling: true
+- name: clean
+  image: node:latest
+  commands:
+    - rm -rf ./*
