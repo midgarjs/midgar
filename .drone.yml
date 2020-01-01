@@ -9,7 +9,7 @@ steps:
     - yarn run coverage
     - yarn run eslint
     - ls -la .
-    - car reports/xunit.xml
+    - cat reports/xunit.xml
 
 - name: sonar
   image: aosapps/drone-sonar-plugin:latest
