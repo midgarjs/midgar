@@ -12,9 +12,4 @@ pipeline:
         from_secret: sonar_host
       SONAR_TOKEN:
         from_secret: sonar_token
-    settings:
-        sonar_host:
-          from_secret: sonar_host
-        sonar_token:
-          from_secret: sonar_token
-        level: DEBUG
+
