@@ -5,7 +5,19 @@ pipeline:
       - yarn
       - yarn run coverage
       - yarn run eslint
+  test:
+    secrets: [sonar_host,sonar_token]
+    image: ubuntu:latest
+    commands:
+      - cat hello.txt
+      - env
   sonar:
     image: aosapps/drone-sonar-plugin:1.0
-    secrets: [sonar_host, sonar_token]
-
+    settings:
+        sonar_host:
+          from_secret: sonar_host
+        sonar_token:
+          from_secret: sonar_token
+        level: DEBUG
+        ver: 1.0
+        showProfiling: true
