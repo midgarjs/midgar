@@ -8,6 +8,11 @@ pipeline:
   test:
     secrets: [sonar_host,sonar_token]
     image: ubuntu:latest
+    environment:
+      SONAR_HOST:
+        from_secret: sonar_host
+      SONAR_TOKEN:
+        from_secret: sonar_token
     commands:
       - env
   sonar:
