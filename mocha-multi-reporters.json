@@ -2,8 +2,5 @@
   "reporterEnabled": "mocha-sonarqube-reporter,mocha-junit-reporter",
   "mochaSonarqubeReporterReporterOptions": {
       "output": "reports/xunit.xml"
-  },
-  "mochaJunitReporterReporterOptions": {
-    "mochaFile": "reports/junit.xml"
   }
 }
