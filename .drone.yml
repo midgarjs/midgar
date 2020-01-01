@@ -8,6 +8,7 @@ steps:
     - yarn
     - yarn run coverage
     - yarn run eslint
+    - ls -la .
 
 - name: sonar
   image: aosapps/drone-sonar-plugin:latest
