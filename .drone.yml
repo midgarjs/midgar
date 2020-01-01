@@ -1,8 +1,5 @@
-kind: pipeline
-type: docker
-name: nodejs
-steps:
-  - name: build
+pipeline:
+  build:
     image: node:latest
     commands:
       - yarn
