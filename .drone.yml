@@ -1,26 +1,21 @@
-pipeline:
-  build:
-    image: node:latest
-    commands:
-      - yarn
-      - yarn run coverage
-      - yarn run eslint
-  test:
-    image: ubuntu:latest
-    environment:
-      - SONAR_HOST:
-          from_secret: sonar_host
-      - SONAR_TOKEN:
-          from_secret: sonar_token
-    commands:
-      - env
-  sonar:
-    image: aosapps/drone-sonar-plugin:latest
-    settings:
-        sonar_host:
-          from_secret: sonar_host
-        sonar_token:
-          from_secret: sonar_token
-        level: DEBUG
-        ver: 1.0
-        showProfiling: true
+kind: pipeline
+type: docker
+name: nodejs
+steps:
+- name: build
+  image: node:latest
+  commands:
+    - yarn
+    - yarn run coverage
+    - yarn run eslint
+
+- name: sonar
+  image: aosapps/drone-sonar-plugin:latest
+  settings:
+    sonar_host:
+      from_secret: sonar_host
+    sonar_token:
+      from_secret: sonar_token
+    level: DEBUG
+    ver: 1.0
+    showProfiling: true
