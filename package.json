@@ -5,11 +5,9 @@
   "main": "./src/index.js",
   "scripts": {
     "build-docs": "jsdoc -c ./jsdoc.js ./README.md -t ./node_modules/ink-docstrap/template ./README.md -r ./src/",
-    "test": "mocha -r esm tests/*.js --exit",
+    "test": "mocha --require esm tests/*.js --reporter mocha-multi-reporters --reporter-options configFile=mocha-multi-reporters.json --exit",
     "eslint": "eslint -f json -o reports/.eslint-report.json src/ || exit 0",
-    "coverage": "nyc -i esm --reporter=text mocha -r esm tests/*.js --exit",
-    "test:tc": "mocha --require esm tests/*.js --reporter mocha-multi-reporters --reporter-options configFile=mocha-multi-reporters.json --exit",
-    "coverage:tc": "nyc --require esm --reporter=teamcity --reporter=lcov npm run test:tc"
+    "coverage": "nyc -i esm --reporter=lcov mocha -r esm tests/*.js --exit",
   },
   "module": "true",
   "bin": {
