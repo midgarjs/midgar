@@ -5,3 +5,4 @@ pipeline:
       - yarn
       - yarn run coverage
       - yarn run eslint
+
