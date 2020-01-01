@@ -50,7 +50,6 @@ class PluginManager {
      * @type {Object}
      */
     this.rewritedPlugins = {}
-    
 
     /**
      * Rewrite plugin file mapping
@@ -244,7 +243,6 @@ class PluginManager {
       let pkg = pluginConfig.package
       let mainFile = pkg.main ? pkg.main : 'index.js'
 
-      
       const pluginPath = path.parse(path.join(pluginConfig.path, mainFile)).dir
       let importPath = pluginPath
       // Skip rewrite plugin
@@ -268,7 +266,7 @@ class PluginManager {
    * @private
    */
   _addRewritePluginInstances () {
-    for (let name in this.rewritePlugins) {
+    for (const name in this.rewritePlugins) {
       this.plugins[name] = this.plugins[this.rewritePlugins[name]]
     }
   }

@@ -8,7 +8,7 @@
   "repository": {
   },
   "dependencies": {
-    "@midgar/midgar": "1.0.0-alpha.2.1",
+    "@midgar/midgar": "file:../../..",
     "test-plugin": "file:../test-plugin"
   },
   "devDependencies": {},
