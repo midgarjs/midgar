@@ -1,0 +1,10 @@
+node_modules/
+.history
+.idea/
+.vscode/
+.nyc_output/
+.sonarlint/
+.mocha-report.xml
+coverage/
+reports/
+docs
