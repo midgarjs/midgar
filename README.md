@@ -33,6 +33,9 @@ L'utilisation des scripts de npm permet l'activation automatique des plugins sur
 Vous pouvez voir la structure du project générer par la commande init [ici](https://github.com/midgarjs/midgar/tree/master/src/cli/.init-tpl).
 
 
+## Documentation
+[documentation Api](https://midgarjs.github.io/midgar/).
+
 ## Plugins officiel
 
 | Nom | Description |

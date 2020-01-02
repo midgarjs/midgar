@@ -3,6 +3,7 @@
     "src/**/*.js"
   ],
   "exclude": [
-    "src/bin/midgar.js"
+    "src/bin/midgar.js",
+    "docs"
   ]
 }
