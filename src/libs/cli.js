@@ -37,8 +37,7 @@ class Cli {
        * Invalid command handler
        */
       .on('command:*', () => {
-        if (this.configPath !== null) throw new Error(`Invalid command: ${ this.program.args.join(' ') }\nSee --help for a list of available commands.`, )
-        
+        if (this.configPath !== null) throw new Error(`Invalid command: ${this.program.args.join(' ')}\nSee --help for a list of available commands.`, )
         this._resolveRun({})
       })
   }
@@ -119,16 +118,16 @@ class Cli {
   addCommand (command) {
     const cmd = this.program.command(command.command)
       .description(command.description)
-    
+
     if (command.options) this._addCommandOptions(cmd, command.options)
-     
+
     cmd.action((...args) => {
-        command.action(this.mid, ...args).then((result) => {
-          this._resolveRun(result)
-        }).catch(error => {
-          this._rejectRun(error)
-        })
+      command.action(this.mid, ...args).then((result) => {
+        this._resolveRun(result)
+      }).catch(error => {
+        this._rejectRun(error)
       })
+    })
   }
 
   /**
@@ -156,6 +155,7 @@ class Cli {
       // Add default arf if exist
       if (option.default !== undefined) args.push(option.default)
 
+      console.log(...args)
       cmd.option(...args)
     }
   }
@@ -177,6 +177,7 @@ class Cli {
    * @return {Any}
    */
   run () {
+    console.log('parse')
     this.program.parse(this.argv)
     return this._runPromise
   }

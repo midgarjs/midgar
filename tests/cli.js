@@ -5,7 +5,6 @@ import dirtyChai from 'dirty-chai'
 import chaiFs from 'chai-fs'
 import path from 'path'
 import _rimraf from 'rimraf'
-import _mkdirp from 'mkdirp'
 import fs from 'fs'
 import os from 'os'
 import uid from 'uid-safe'
@@ -28,7 +27,7 @@ chai.use(dirtyChai)
 /**
  * Promised rimraf
  * @param {Sting} rmPath Path
- * @private 
+ * @private
  */
 function rimraf (rmPath) {
   return new Promise((resolve, reject) => {
@@ -38,7 +37,7 @@ function rimraf (rmPath) {
 
 /**
  * Create random dir in tmp os directory and return it
- * @private 
+ * @private
  */
 function getTmpDir () {
   const dirname = path.join(os.tmpdir(), uid.sync(8))
@@ -65,7 +64,6 @@ describe('Cli', function () {
 
   // Test init command
   it('init', async function () {
-
     // Call init cli command on tmp dir
     const cli = new Cli(['', '', 'init', tmpDir])
     await cli.init()
@@ -98,7 +96,7 @@ describe('Cli', function () {
     // Run cli add command
     const cli = new Cli(['', '', 'add', PLUGIN_NAME, '--config', configPath])
     await cli.init()
-    const result = await cli.run()
+    await cli.run()
 
     // Test result
     plugins = JSON.parse(await asyncReadFile(path.join(configPath, PLUGINS_CONFIG_FILE), 'utf8'))
@@ -163,9 +161,14 @@ describe('Cli', function () {
  */
 describe('Test plugin command', function () {
   it('test', async function () {
-    const cli = new Cli(['', '', 'test', '--config', configPath])
+    let cli = new Cli(['', '', 'test', '--config', configPath, '--topt', 'test-return-value'])
     await cli.init()
-    const result = await cli.run()
-    expect(result.stdout).to.have.string('cli test')
+    let result = await cli.run()
+    expect(result.stdout).to.have.string('test-return-value')
+
+    cli = new Cli(['', '', 'test2', '--config', configPath])
+    await cli.init()
+    result = await cli.run()
+    expect(result.stdout).to.have.string('cli test 2')
   })
 })

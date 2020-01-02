@@ -5,9 +5,11 @@
   "main": "./src/index.js",
   "scripts": {
     "build-docs": "jsdoc -c ./jsdoc.js ./README.md -t ./node_modules/ink-docstrap/template ./README.md -r ./src/",
-    "test": "mocha --require esm tests/*.js --reporter mocha-multi-reporters --reporter-options configFile=mocha-multi-reporters.json --exit",
-    "eslint": "eslint -f json -o reports/.eslint-report.json src/ || exit 0",
-    "coverage": "nyc -i esm --reporter=lcov npm run test"
+    "test": "mocha --require esm tests/*.js --exit",
+    "coverage": "nyc -i esm --reporter=lcov --reporter=text-summary npm run test",
+    "eslint:ci": "eslint -f json -o reports/.eslint-report.json src/ || exit 0",
+    "test:ci": "mocha --require esm tests/*.js --reporter mocha-multi-reporters --reporter-options configFile=mocha-multi-reporters.json --exit",
+    "coverage:ci": "nyc -i esm --reporter=lcov npm run test:ci"
   },
   "module": "true",
   "bin": {
@@ -31,7 +33,6 @@
     "express": "^4.17.1",
     "figlet": "^1.2.4",
     "helmet": "^3.21.2",
-    "mkdirp": "^0.5.1",
     "mocha-junit-reporter": "^1.23.1",
     "rimraf": "^3.0.0",
     "save": "^2.4.0",

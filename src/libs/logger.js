@@ -33,7 +33,7 @@ function logFormat (json) {
 /**
  * format stdout log
  * @private
- */ 
+ */
 function logStdoutFormat () {
   const formatMessage = log => `${log.timestamp} [${log.level}] ${log.message}`
   // check if error or text

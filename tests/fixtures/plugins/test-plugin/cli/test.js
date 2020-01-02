@@ -2,8 +2,14 @@ export default [
   {
     command: 'test',
     description: 'Cli test commad',
-    action: async (args, midgar) => {
-      return { stdout: 'cli test' }
+    options: [
+      {
+        flags: '--topt [value]',
+        description: 'test option'
+      }
+    ],
+    action: async (mid, cmd) => {
+      return { stdout: cmd.topt }
     }
   }
 ]
