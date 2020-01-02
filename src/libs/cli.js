@@ -37,7 +37,7 @@ class Cli {
        * Invalid command handler
        */
       .on('command:*', () => {
-        if (this.configPath !== null) throw new Error(`Invalid command: ${this.program.args.join(' ')}\nSee --help for a list of available commands.`, )
+        if (this.configPath !== null) throw new Error(`Invalid command: ${this.program.args.join(' ')}\nSee --help for a list of available commands.`)
         this._resolveRun({})
       })
   }
