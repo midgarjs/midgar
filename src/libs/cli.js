@@ -155,7 +155,6 @@ class Cli {
       // Add default arf if exist
       if (option.default !== undefined) args.push(option.default)
 
-      console.log(...args)
       cmd.option(...args)
     }
   }
@@ -177,7 +176,6 @@ class Cli {
    * @return {Any}
    */
   run () {
-    console.log('parse')
     this.program.parse(this.argv)
     return this._runPromise
   }
