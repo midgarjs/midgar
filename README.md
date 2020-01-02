@@ -14,7 +14,7 @@ Midgar est un framework nodejs se basant sur un système de plugin. Il permet de
 
 ```sh
 $ npm install -g @midgar/midgar
-```sh
+```
 
 ## Utilisation
 
