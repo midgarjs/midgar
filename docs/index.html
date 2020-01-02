@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>Documentation Index</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.lumen.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top ">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">Documentation</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Cli.html">Cli</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Midgar.html">Midgar</a></li><li><a href="Plugin.html">Plugin</a></li><li><a href="PluginManager.html">PluginManager</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="global.html#event:$%257BpluginName%257D:afterInit">event:${pluginName}:afterInit</a></li><li><a href="global.html#event:@midgar/midgar:afterInit">event:@midgar/midgar:afterInit</a></li><li><a href="global.html#event:@midgar/midgar:afterLoadPlugins">event:@midgar/midgar:afterLoadPlugins</a></li><li><a href="global.html#event:@midgar/midgar:initHttpServer">event:@midgar/midgar:initHttpServer</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+        
+            <div class="col-sm-3 col-md-3">
+                <form class="navbar-form" role="search">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                        <div class="input-group-btn">
+                            <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-8">
+	
+		<div id="main">
+			
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+	
+	
+
+
+
+
+
+    <section class="readme-section">
+        <article><h2>En développement ne pas utiliser en production</h2>
+<p><a href="https://drone.midgar.io/Midgar/midgar"><img src="https://drone.midgar.io/api/badges/Midgar/midgar/status.svg" alt="Build Status"></a>
+<a href="https://sonar.midgar.io/dashboard?id=Midgar%3Amidgar"><img src="https://sonar.midgar.io/api/project_badges/measure?project=Midgar%3Amidgar&amp;metric=coverage" alt="Coverage"></a></p>
+<h1>Midgar</h1>
+<h2>Qu'est ce que Midgar</h2>
+<p>Midgar est un framework nodejs se basant sur un système de plugin. Il permet de réaliser rapidement des applications web complexes de manière claire et structuré.</p>
+<h2>Installation</h2>
+<pre class="prettyprint source lang-sh"><code>$ npm install -g @midgar/midgar
+```sh
+
+## Utilisation
+
+Le moyen le plus rapide de démarrer avec Midgar est d'utiliser le CLI pour générer la structure d'un projet.
+
+```bash
+$ midgar init ~/my-project/
+$ cd ~/my-project/
+$ npm i
+</code></pre>
+<p>En soit Midgar ne fait que charger des plugins et exposer express. Sans plugin, il ne fait donc rien de concret !
+L'étape suivante est donc d'installer des plugins. L'installation des plugins se fait via npm ou yarn.
+L'utilisation des scripts de npm permet l'activation automatique des plugins sur le projet.</p>
+<p>Vous pouvez voir la structure du project générer par la commande init <a href="https://github.com/midgarjs/midgar/tree/master/src/cli/.init-tpl">ici</a>.</p>
+<h2>Plugins officiel</h2>
+<table>
+<thead>
+<tr>
+<th>Nom</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/midgarjs/service">service</a></td>
+<td>Service avec injection de dépendances</td>
+</tr>
+<tr>
+<td><a href="https://github.com/midgarjs/controller">controller</a></td>
+<td>Controller pour la gestion des routes</td>
+</tr>
+<tr>
+<td><a href="https://github.com/midgarjs/migrate">migrate</a></td>
+<td>Système de migration</td>
+</tr>
+</tbody>
+</table>
+<h2>Cli</h2>
+<p>Voici les commandes de base du cli</p>
+<h3>init:</h3>
+<pre class="prettyprint source lang-bash"><code>$ midgar run init ./mon-project
+</code></pre>
+<p>Initialise un nouveau projet midgar.</p>
+<h3>add:</h3>
+<pre class="prettyprint source lang-bash"><code>$ midgar add monplugin
+</code></pre>
+<p>Ajoute un plugin au fichier <strong>plugins.json</strong> contenu dans le dossier de configuration du projet.</p>
+<h3>rm:</h3>
+<pre class="prettyprint source lang-bash"><code>$ midgar rm @migar/service
+</code></pre>
+<p>Supprime le plugin @migar/service du fichier <strong>plugins.json</strong>.</p>
+<h3>enable:</h3>
+<pre class="prettyprint source lang-bash"><code>$ midgar enable @migar/service
+</code></pre>
+<p>Active un plugin présent dans le fichier plugins.json.
+Si le plugin n'est pas présen, il n'est pas ajouté et un avertisement est affiché.</p>
+<h3>disable:</h3>
+<pre class="prettyprint source lang-bash"><code>$ midgar disable @migar/service
+</code></pre>
+<p>Désactive le plugin @migar/service dans le fichier plugins.json.
+Si le plugin n'est pas présent, il n'est pas ajouté et un avertisement est affiché.</p>
+<h3>Paramètre optionnel:</h3>
+<pre class="prettyprint source lang-bash"><code>$ midgar add @migar/service --config ~/mon-projet/src/config
+</code></pre>
+<p>Vous pouvez ajouter le chemin de la configuration du projet au cli.
+Par defaut, le cli cherche un fichier .midrc contenant le chemin de la configuration.
+S'il ne trouve pas ce fichier il cherche dans ./config.</p>
+<p>Vous pouvez voir un exemple de fichier .midrc <a href="https://github.com/midgarjs/midgar/blob/master/src/cli/.init-tpl/.midrc">ici</a></p>
+<h2>Créer un plugin</h2>
+<h3>Fichier plugin</h3>
+<p>Voici un exemple de fichier plugin:</p>
+<pre class="prettyprint source lang-js"><code>import { Plugin } from '@midgar/midgar'
+
+/**
+ * TestPlugin
+ */
+class TestPlugin extends Plugin {
+  init () {
+    // Listen @midgar/midgar:afterInit event
+    this.mid.on('@midgar/midgar:afterLoadPlugins', async () => {
+      // Ceci est exécuté une fois que tous les plugins ont été chargés
+    })
+  }
+}
+
+export default TestPlugin
+</code></pre>
+<p>Vous pouvez retouver la liste des évènements dans la <a href="https://midgarjs.github.io/midgar/">documentation</a>.</p>
+<h3>Package npm</h3>
+<p>Un plugin est en premier lieu un package npm et doit etre forcement accompagné d'un fichier <strong>package.json</strong>. Le main du <strong>package.json</strong> doit pointer sur le fichier plugin.</p>
+<p>Pour fonctionner il doit aussi etre déclarré dans le fichier <strong>plugins.json</strong> contenu dans le dossier de configuration du projet. Les scripts postinstall et preuninstall peuvent être utiliser pour ajouter/supprimer automatiquement les plugins du fichier <strong>plugins.json</strong>.</p>
+<h3>Configuration du plugin</h3>
+<p>Vous pouvez ajouter un fichier <strong>plugin-config.js</strong> dans le même dossier que le fichier plugin.</p>
+<p>Ce fichier est charger avant le chargement des plugins et est injecté dans le membre <strong>.config</strong> de l'instance du plugin.</p>
+<h3>Importer</h3>
+<p>Le système de plugin comprend un importer de fichier.
+Vous pouvez déclarrer un nouveau dossier a importer dans la methode init de votre plugin:</p>
+<pre class="prettyprint source lang-js"><code>this.pm.addPluginDir('mon-dossier', 'mondossier')
+</code></pre>
+<p>@see: https://midgarjs.github.io/midgar/PluginManager.html#addPluginDir__anchor</p>
+<p>Pour importer les fichiers contenu de ce dossier:</p>
+<pre class="prettyprint source lang-js"><code>const files = await this.mid.pm.importDir('mon-dossier')
+</code></pre>
+<p>@see: https://midgarjs.github.io/midgar/PluginManager.html#importDir__anchor</p>
+<p>La méthode importDir importe tous les fichiers du dossier <strong>mon-dossier</strong> pour tous les plugins.
+Le chemin du dossier <strong>mon-dossier</strong> est par défaut <strong>./mondossier/</strong> relativement par rapport au dossier du fichier plugin.</p>
+<p>La méthode importDir renvoit un tableau d'object:</p>
+<pre class="prettyprint source lang-js"><code>[
+  {
+    path: '~/mon-projet/src/plugins/test-plugin/mondossier/fichier.js',
+    export: ... // La valeur export default du fichier
+    plugin: 'test-plugin',
+    relativePath: 'fichier.js'
+  },
+  ...
+}
+</code></pre>
+<p>Le chemin du dossier <strong>mon-dossier</strong> peut etre configurer pour chaque plugin dans le fichier  <strong>plugin-config.js</strong>:</p>
+<pre class="prettyprint source lang-js"><code>export default {
+{
+  dirs: {
+      'mon-dossier': 'monnouveaudossier',
+  }
+}
+</code></pre>
+<h3>Réecriture</h3>
+<p>Si un plugin ne fait pas axactement ce dont vous avez besoin ou si vous voulez enrichir les fonctionnalitées d'un plugin, vous pouvez utiliser le système de réecture.
+Le fichier plugin ainsi que les fichiers importer via le système de dossier sont réecrivable.</p>
+<h3>Plugin</h3>
+<p>Pour réecrire un fichier plugin, ajouter ceci dans le fichier <strong>plugin-config.js</strong>.</p>
+<pre class="prettyprint source lang-js"><code>export default {
+    rewritePlugin: '@midgar/service',
+  }
+}
+</code></pre>
+<p>Lors du chargement des plugins, ce plugin sera chargé à la place du plugin <strong>@midgar/service</strong>.</p>
+<p>Le plugin devrait ressember à ceci:</p>
+<pre class="prettyprint source lang-js"><code>import ServicePlugin from '@midgar/service'
+
+class RewritePlugin extends ServicePlugin {
+  async init () {
+    await super.init()
+    ....
+  }
+}
+
+export default RewritePlugin
+</code></pre>
+<h3>Fichier</h3>
+<p>Pour réecrir un fichier import via le système de dossier, ajouter ceci dans le fichier <strong>plugin-config.js</strong>.</p>
+<pre class="prettyprint source lang-js"><code>export default {
+  rewriteFile: {
+    &quot;midgar-mongoose-models&quot;: {
+      &quot;@midgar/graphql-auth&quot;: {
+        'user.js': './rewrite/models/user.js'
+      }
+    }
+  }
+}
+</code></pre>
+<p>Lors de l'import des fichers, le fichier <strong>./rewrite/models/user.js</strong> sera chargé à la place du fichier <strong>user.js</strong> contenu dans le dossier <strong>midgar-mongoose-models</strong> et pour le plugin <strong>@midgar/graphql-auth</strong></p></article>
+    </section>
+
+
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+		<div class="col-md-3">
+			<div id="toc" class="col-md-3 hidden-xs hidden-sm hidden-md"></div>
+		</div>
+	
+
+</div>
+</div>
+
+
+    <div class="modal fade" id="searchResults">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Search results</h4>
+          </div>
+          <div class="modal-body"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div>
+
+
+<footer>
+
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a>
+	
+		on 2020-01-02T13:05:42+00:00
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+
+    <script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre, pre.prettyprint.source" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : true,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			return $( heading ).attr( "id" ) || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            SearcherDisplay.init();
+        });
+    </script>
+
+
+</body>
+</html>
