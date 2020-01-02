@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 const path = require('path')
 
 const resolve = (p) => {
@@ -6,28 +6,28 @@ const resolve = (p) => {
 }
 
 module.exports = {
-  "opts": {
-    "destination": resolve("./docs/"), // same as -d ./out/
-    "template": "./node_modules/ink-docstrap/template"
+  opts: {
+    destination: resolve('./docs/'), // same as -d ./out/
+    template: './node_modules/ink-docstrap/template'
   },
-  "plugins": [],
-  "recurseDepth": 10,
-  "source": {
-    "exclude": [resolve("./node_modules/")],
-    "includePattern": ".+\\.js(doc|x)?$",
-    "excludePattern": "(^|\\/|\\\\)_"
+  plugins: [],
+  recurseDepth: 10,
+  source: {
+    exclude: [resolve('./node_modules/')],
+    includePattern: '.+\\.js(doc|x)?$',
+    excludePattern: '(^|\\/|\\\\)_'
   },
-  "tags": {
-    "allowUnknownTags": true,
-    "dictionaries": [
-      "jsdoc",
-      "closure"
+  tags: {
+    allowUnknownTags: true,
+    dictionaries: [
+      'jsdoc',
+      'closure'
     ]
   },
-  "templates": {
-    "cleverLinks": false,
-    "monospaceLinks": false,
-    "theme" : "lumen",
-    "linenums" : true
+  templates: {
+    cleverLinks: false,
+    monospaceLinks: false,
+    theme: 'lumen',
+    linenums: true
   }
 }
