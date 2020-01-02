@@ -55,7 +55,7 @@ describe('Plugin Manager', function () {
   it('Plugin load', async () => {
     const testPlugin = mid.pm.getPlugin('test-plugin')
     expect(testPlugin).to.be.an.instanceof(TestPlugin, 'Plugin is not an instance of TestPlugin !')
-    expect(testPlugin.isInit).equal(true, 'Plugin is not init !')
+    expect(testPlugin.isInit).to.be.true('Plugin is not init !')
     expect(testPlugin.config.testConfig).equal('ok', 'Plugin config in not load !')
   })
 

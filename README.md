@@ -43,6 +43,7 @@ Vous pouvez voir la structure du project générer par la commande init [ici](ht
 | [service](https://github.com/midgarjs/service) | Service avec injection de dépendances |
 | [controller](https://github.com/midgarjs/controller) | Controller pour la gestion des routes  |
 | [migrate](https://github.com/midgarjs/migrate) | Système de migration  |
+| [mongo](https://github.com/midgarjs/mongo) | [Mongoose](https://mongoosejs.com/) pour Midgar  |
 
 
 ## Cli
