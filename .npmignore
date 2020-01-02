@@ -7,4 +7,4 @@ node_modules/
 .mocha-report.xml
 coverage/
 reports/
-docs
+docs/

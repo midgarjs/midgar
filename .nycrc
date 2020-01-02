@@ -4,6 +4,6 @@
   ],
   "exclude": [
     "src/bin/midgar.js",
-    "docs"
+    "docs/**/*"
   ]
 }
