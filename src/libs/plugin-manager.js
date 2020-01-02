@@ -131,10 +131,9 @@ class PluginManager {
       pluginPath = await this._getPluginPath(name, pluginPath)
 
       // Import plugin package.json and plugin-config.js
-      const [pkg, config] = await Promise.all([
-        import(path.resolve(pluginPath, PACKAGE_JSON)),
-        this._importPluginConfig(pluginPath)
-      ])
+      const pkg = await import(path.resolve(pluginPath, PACKAGE_JSON))
+      const mainFile = pkg.main ? pkg.main : 'index.js'
+      const config = await this._importPluginConfig(path.parse(path.join(pluginPath, mainFile)).dir)
 
       if (name !== pkg.name) this.mid.warn('Plugin name in plugins config ( ' + name + ' ) is not equal to the package name ( ' + pkg.name + ' ) !')
 
@@ -142,7 +141,7 @@ class PluginManager {
         key: pkg.name,
         value: {
           package: pkg,
-          config,
+          config: config,
           path: pluginPath
         }
       }

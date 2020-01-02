@@ -8,9 +8,6 @@ steps:
     - yarn
     - yarn run coverage
     - yarn run eslint
-    - ls -la .
-    - cat reports/xunit.xml
-
 - name: sonar
   image: aosapps/drone-sonar-plugin:latest
   settings:
@@ -18,7 +15,6 @@ steps:
       from_secret: sonar_host
     sonar_token:
       from_secret: sonar_token
-    level: DEBUG
     ver: 1.0
     showProfiling: true
 - name: clean

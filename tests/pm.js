@@ -3,7 +3,6 @@ import chai from 'chai'
 import dirtyChai from 'dirty-chai'
 import chaiArrays from 'chai-arrays'
 import path from 'path'
-import Emittery from 'emittery'
 
 import PM from '../src/libs/plugin-manager'
 import TestPlugin from './fixtures/plugins/test-plugin/index'
