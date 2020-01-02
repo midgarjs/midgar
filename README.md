@@ -1,7 +1,9 @@
 En développement ne pas utiliser en production
 
 # Midgar
-![](https://ci.midgar.io/app/rest/builds/buildType:(id:Midgar_Build)/statusIcon) [![Coverage](https://sonar.midgar.io/api/project_badges/measure?project=midgar-midgar&metric=coverage)](https://sonar.midgar.io/dashboard?id=midgar-midgar) 
+
+[![Build Status](https://drone.midgar.io/api/badges/Midgar/midgar/status.svg)](https://drone.midgar.io/Midgar/midgar)
+[![Coverage](https://sonar.midgar.io/api/project_badges/measure?project=Midgar%3Amidgar&metric=coverage)](https://sonar.midgar.io/dashboard?id=Midgar%3Amidgar)
 
 
 ## Qu'est ce que Midgar
