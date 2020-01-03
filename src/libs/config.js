@@ -8,8 +8,8 @@ import { assignRecursive, asyncFileExists } from '@midgar/utils'
  * @class
  */
 class Config {
-  constructor (midgar, options = {}) {
-    this.midgar = midgar
+  constructor (mid, options = {}) {
+    this.mid = mid
     this.options = Object.assign({
     }, options)
   }
@@ -32,7 +32,7 @@ class Config {
     assignRecursive(this, mainConfig)
 
     // Get the mode
-    const mode = this.midgar.getModeEnv() === 'development' ? 'dev' : 'prod'
+    const mode = this.mid.getNodeEnv() === 'development' ? 'dev' : 'prod'
     file += '.' + mode
 
     const modeConfig = await this.loadConfig(path.join(configDir, file))

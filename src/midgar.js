@@ -200,11 +200,11 @@ class Midgar extends Emittery {
   }
 
   /**
-   * Return the env code
+   * Return the node env code
    * @return {string}
    */
-  getModeEnv () {
-    return process.env.MODE_ENV
+  getNodeEnv () {
+    return process.env.NODE_ENV
   }
 
   /**
