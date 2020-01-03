@@ -27,7 +27,11 @@ function logFormat (json) {
     }
   }
   // return json if enable or text
-  if (json) { return combine(format.json(), timestamp(), format.printf(msg)) } else { return combine(timestamp(), format.printf(msg)) }
+  if (json) {
+    return combine(format.json(), timestamp(), format.printf(msg))
+  } else {
+    return combine(timestamp(), format.printf(msg))
+  }
 }
 
 /**
@@ -47,6 +51,7 @@ function logStdoutFormat () {
       return formatMessage(log)
     }
   }
+
   return combine(format.colorize(), timestamp(), format.printf(msg))
 }
 
@@ -57,24 +62,14 @@ function logStdoutFormat () {
 class Logger {
   constructor (options) {
     this.options = Object.assign({
-      stdout: true,
+      stdout: false,
       files: [{
-        name: 'debug.log',
-        level: 'debug'
-      },
-      {
-        name: 'info.log',
-        level: 'info'
-      },
-      {
-        name: 'warning.log',
-        level: 'warn'
-      },
-      {
-        name: 'error.log',
-        level: 'error'
-      }
-      ]
+        filename: 'midgar-%DATE%.log',
+        datePattern: 'YYYY-MM-DD-HH',
+        zippedArchive: true,
+        maxSize: '20m',
+        maxFiles: '14d'
+      }]
     }, options)
   }
 
@@ -82,18 +77,9 @@ class Logger {
    * Init logger
    */
   async init () {
-    const transports = await utils.asyncMap(this.options.files, file => {
-      return this._getFileTransport(file).catch(error => {
-        console.log(error)
-      })
+    const transports = this.options.files.map(file => {
+      return this._getFileTransport(file)
     })
-
-    // stdout
-    if (this.options.stdout) {
-      transports.push(new winston.transports.Console({
-        format: logStdoutFormat()
-      }))
-    }
 
     // create winston instance
     this.winston = winston.createLogger({
@@ -101,6 +87,13 @@ class Logger {
       transports: transports,
       exitOnError: false
     })
+
+    // stdout
+    if (this.options.stdout) {
+      this.winston.add(new winston.transports.Console({
+        format: logStdoutFormat()
+      }))
+    }
 
     /**
      * Error handler
@@ -135,31 +128,10 @@ class Logger {
    * Create a DailyRotateFile transport instance
    * @private
    */
-  async _getFileTransport (file) {
-    const opts = {
-      filename: file.name,
-      level: file.level,
-      dirname: this.options.dir,
-      format: logFormat(this.options.json)
-    }
-
-    if (this.options.compress || this.options.compress === undefined) {
-      opts.zippedArchive = true
-    }
-
-    if (this.options.maxSize) {
-      opts.maxSize = this.options.maxSize
-    } else if (this.options.maxSize === undefined) {
-      opts.maxSize = '10m'
-    }
-
-    if (this.options.archiveTime) {
-      opts.maxFiles = this.options.archiveTime
-    } else if (this.options.archiveTime === undefined) {
-      opts.maxFiles = '1d'
-    }
-
-    return new (winston.transports.DailyRotateFile)(opts)
+  _getFileTransport (file) {
+    file.dirname = this.options.dir
+    file.format = logFormat(this.options.json)
+    return new (winston.transports.DailyRotateFile)(file)
   }
 
   /**

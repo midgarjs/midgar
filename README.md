@@ -7,7 +7,8 @@
 
 ## Qu'est ce que Midgar
 
-Midgar est un framework nodejs se basant sur un système de plugin. Il permet de réaliser rapidement des applications web complexes de manière claire et structuré.
+Midgar est un framework nodejs utilisant le pattern View-Controller Service.
+Il se base sur un système de plugin pour permetre de réaliser rapidement des applications web complexes de manière claire et structuré.
 
 
 ## Installation
@@ -40,10 +41,11 @@ Vous pouvez voir la structure du project générer par la commande init [ici](ht
 
 | Nom | Description |
 |---------|-------------|
-| [service](https://github.com/midgarjs/service) | Service avec injection de dépendances |
-| [controller](https://github.com/midgarjs/controller) | Controller pour la gestion des routes  |
-| [migrate](https://github.com/midgarjs/migrate) | Système de migration  |
-| [mongo](https://github.com/midgarjs/mongo) | [Mongoose](https://mongoosejs.com/) pour Midgar  |
+| [service](https://github.com/midgarjs/service) | Système de services avec injection de dépendances. |
+| [controller](https://github.com/midgarjs/controller) | Système de controller avec injection de service pour la gestion des routes.  |
+| [migrate](https://github.com/midgarjs/migrate) | Service de migration |
+| [mongo](https://github.com/midgarjs/mongo) | Service [Mongoose](https://mongoosejs.com/) avec chargement des models et migrations.  |
+| [apollo-server](https://github.com/midgarjs/apollo-server) | Service [Apollo server](https://www.apollographql.com/) avec chargement des schémas et resolvers. Resolvers avec injection de service. |
 
 
 ## Cli

@@ -72,6 +72,8 @@ describe('Cli', function () {
     // Check if all template files are created
     const files = [
       'package.json',
+      '.gitignore',
+      '.eslintrc.js',
       'yarn.lock',
       '.midrc',
       'src/index.js',

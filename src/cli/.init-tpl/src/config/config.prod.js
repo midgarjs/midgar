@@ -5,12 +5,12 @@ const resolve = (p) => {
 }
 
 export default {
-  web: {
+  web: {
     port: 3000,
     host: 'localhost',
     ssl: false,
     sslCert: '',
-    sslKey: '',
+    sslKey: ''
   },
   public: {
     enable: true,
@@ -19,10 +19,10 @@ export default {
     host: 'localhost',
     ssl: false,
     sslCert: '',
-    sslKey: '',
+    sslKey: ''
   },
   log: {
     stdout: true,
     level: 'error'
-  },
+  }
 }
