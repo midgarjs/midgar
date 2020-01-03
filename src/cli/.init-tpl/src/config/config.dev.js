@@ -24,8 +24,5 @@ export default {
   log: {
     stdout: true,
     level: 'debug'
-  },
-  logger: () => {
-    return {}
   }
 }
