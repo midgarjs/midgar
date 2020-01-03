@@ -64,13 +64,24 @@ class Cli {
     this.addCommands(initCmds)
     this.addCommands(pluginCmds)
 
-    if (this.configPath) {
+    // Don't init Midgar for plugin command
+    const command = this.argv[2]
+    const skipedCommands = [
+      'add',
+      'rm',
+      'enable',
+      'disable'
+    ]
+
+    if (this.configPath && !skipedCommands.includes(command)) {
       // Init midgar and load plugin cli commands
       await this.mid.init(this.configPath)
       // Add cli plugin dir
       this.mid.pm.pluginDirs.cli = 'cli'
 
       await this.loadPluginsCommands()
+    } else if (this.configPath) {
+      await this.mid.loadConfig(this.configPath)
     }
   }
 

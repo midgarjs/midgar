@@ -10,7 +10,7 @@ import os from 'os'
 import uid from 'uid-safe'
 
 import Cli from '../src/libs/cli'
-import { asyncReadFile } from '@midgar/utils'
+import { asyncReadFile, asyncWriteFile } from '@midgar/utils'
 import { PLUGINS_CONFIG_FILE } from '../src/libs/plugin-manager'
 
 const PLUGIN_NAME = '@test/test-plugin-2'
@@ -47,19 +47,22 @@ function getTmpDir () {
 
 let tmpDir = null
 const configPath = path.resolve(__dirname, 'fixtures/config')
+const pluginsConfigPath = path.resolve(__dirname, 'fixtures/config-plugins')
 
 /**
  * Cli tests
  */
 describe('Cli', function () {
-  before(() => {
+  before(async () => {
     // Create tmp dir
     tmpDir = getTmpDir()
+    await asyncWriteFile(path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE), '{}')
   })
 
   after(async () => {
     // clean tmp dir
     await rimraf(tmpDir)
+    await asyncWriteFile(path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE), '{}')
   })
 
   // Test init command
@@ -90,18 +93,18 @@ describe('Cli', function () {
   })
 
   it('add', async function () {
-    const file = path.join(configPath, PLUGINS_CONFIG_FILE)
+    const file = path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE)
     // Check start config
     let plugins = JSON.parse(await asyncReadFile(file, 'utf8'))
     if (plugins[PLUGIN_NAME]) throw new Error('Invalid plugins.json')
 
     // Run cli add command
-    const cli = new Cli(['', '', 'add', PLUGIN_NAME, '--config', configPath])
+    const cli = new Cli(['', '', 'add', PLUGIN_NAME, '--config', pluginsConfigPath])
     await cli.init()
     await cli.run()
 
     // Test result
-    plugins = JSON.parse(await asyncReadFile(path.join(configPath, PLUGINS_CONFIG_FILE), 'utf8'))
+    plugins = JSON.parse(await asyncReadFile(path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE), 'utf8'))
     expect(plugins).be.a('object')
     expect(plugins[PLUGIN_NAME]).to.not.be.undefined()
     expect(plugins[PLUGIN_NAME]).to.be.true()
@@ -109,16 +112,16 @@ describe('Cli', function () {
 
   it('disable', async function () {
     // Check start config
-    let plugins = JSON.parse(await asyncReadFile(path.join(configPath, PLUGINS_CONFIG_FILE), 'utf8'))
+    let plugins = JSON.parse(await asyncReadFile(path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE), 'utf8'))
     if (plugins[PLUGIN_NAME] === undefined || plugins[PLUGIN_NAME] !== true) throw new Error('Invalid plugins.json')
 
     // Run cli disable command
-    const cli = new Cli(['', '', 'disable', PLUGIN_NAME, '--config', configPath])
+    const cli = new Cli(['', '', 'disable', PLUGIN_NAME, '--config', pluginsConfigPath])
     await cli.init()
     await cli.run()
 
     // Test result
-    plugins = JSON.parse(await asyncReadFile(path.join(configPath, PLUGINS_CONFIG_FILE), 'utf8'))
+    plugins = JSON.parse(await asyncReadFile(path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE), 'utf8'))
     expect(plugins).be.a('object')
     expect(plugins[PLUGIN_NAME]).to.not.be.undefined()
     expect(plugins[PLUGIN_NAME]).to.be.false()
@@ -126,16 +129,16 @@ describe('Cli', function () {
 
   it('enable', async function () {
     // Check start config
-    let plugins = JSON.parse(await asyncReadFile(path.join(configPath, PLUGINS_CONFIG_FILE), 'utf8'))
+    let plugins = JSON.parse(await asyncReadFile(path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE), 'utf8'))
     if (plugins[PLUGIN_NAME] === undefined || plugins[PLUGIN_NAME] === true) throw new Error('Invalid plugins.json')
 
     // Run cli enable command
-    const cli = new Cli(['', '', 'enable', PLUGIN_NAME, '--config', configPath])
+    const cli = new Cli(['', '', 'enable', PLUGIN_NAME, '--config', pluginsConfigPath])
     await cli.init()
     await cli.run()
 
     // Test result
-    plugins = JSON.parse(await asyncReadFile(path.join(configPath, PLUGINS_CONFIG_FILE), 'utf8'))
+    plugins = JSON.parse(await asyncReadFile(path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE), 'utf8'))
     expect(plugins).be.a('object')
     expect(plugins[PLUGIN_NAME]).to.not.be.undefined()
     expect(plugins[PLUGIN_NAME]).to.be.true()
@@ -143,16 +146,16 @@ describe('Cli', function () {
 
   it('rm', async function () {
     // Check start config
-    let plugins = JSON.parse(await asyncReadFile(path.join(configPath, PLUGINS_CONFIG_FILE), 'utf8'))
+    let plugins = JSON.parse(await asyncReadFile(path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE), 'utf8'))
     if (plugins[PLUGIN_NAME] === undefined) throw new Error('Invalid plugins.json')
 
     // Run cli rm command
-    const cli = new Cli(['', '', 'rm', PLUGIN_NAME, '--config', configPath])
+    const cli = new Cli(['', '', 'rm', PLUGIN_NAME, '--config', pluginsConfigPath])
     await cli.init()
     await cli.run()
 
     // Test result
-    plugins = JSON.parse(await asyncReadFile(path.join(configPath, PLUGINS_CONFIG_FILE), 'utf8'))
+    plugins = JSON.parse(await asyncReadFile(path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE), 'utf8'))
     expect(plugins).be.a('object')
     expect(plugins[PLUGIN_NAME]).to.be.undefined()
   })

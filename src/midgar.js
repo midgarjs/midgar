@@ -148,6 +148,62 @@ class Midgar extends Emittery {
   }
 
   /**
+   * Add a plugin in the plugins.json config file
+   * Return true if the plugin was added or false
+   *
+   * @param {String} name Plugin name
+   *
+   * @return {Boolean}
+   */
+  addPlugin (name) {
+    // Instance pm if not exist for plugin cli command
+    const pm = this.pm ? this.pm : new PluginManager(this)
+    return pm.addPlugin(name)
+  }
+
+  /**
+   * Remove a plugin from the plugins.json config file
+   * Return true if the plugin was removed or false
+   *
+   * @param {String} name Plugin name
+   *
+   * @return {Boolean}
+   */
+  async removePlugin (name) {
+    // Instance pm if not exist for plugin cli command
+    const pm = this.pm ? this.pm : new PluginManager(this)
+    return pm.removePlugin(name)
+  }
+
+  /**
+   * Enable a plugin in the plugins.json config file
+   * Return true if the plugin was enabled or false
+   *
+   * @param {String} name Plugin name
+   *
+   * @return {Boolean}
+   */
+  async enablePlugin (name) {
+    // Instance pm if not exist for plugin cli command
+    const pm = this.pm ? this.pm : new PluginManager(this)
+    return pm.enablePlugin(name)
+  }
+
+  /**
+   * Disable a plugin in the plugins.json config file
+   * Return true if the plugin was enabled or false
+   *
+   * @param {String} name Plugin name
+   *
+   * @return {Boolean}
+   */
+  async disablePlugin (name) {
+    // Instance pm if not exist for plugin cli command
+    const pm = this.pm ? this.pm : new PluginManager(this)
+    return pm.disablePlugin(name)
+  }
+
+  /**
    * Create the express app and add some middlewares
    */
   async initWebServer () {

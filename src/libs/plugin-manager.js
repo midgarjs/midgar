@@ -30,7 +30,7 @@ class PluginManager {
      * local plugins directory path
      * @type {String}
      */
-    this.pluginsPath = mid.config.plugin.dir
+    this.pluginsPath = mid.config && mid.config.plugin && mid.config.plugin.dir ? mid.config.plugin.dir : null
 
     /**
      * Define the default plugins dirs

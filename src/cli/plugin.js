@@ -10,7 +10,7 @@ export default [
         }
       }
 
-      if (await mid.pm.addPlugin(plugin)) {
+      if (await mid.addPlugin(plugin)) {
         return {
           stdout: plugin + ' added to plugins.js !'
         }
@@ -22,7 +22,7 @@ export default [
     command: 'rm [plugin]',
     description: 'Remove plugin',
     action: async (mid, plugin) => {
-      if (await mid.pm.removePlugin(plugin)) {
+      if (await mid.removePlugin(plugin)) {
         return {
           stdout: plugin + ' removed from plugins.json !'
         }
@@ -34,7 +34,7 @@ export default [
     command: 'enable [plugin]',
     description: 'Enable plugin',
     action: async (mid, plugin) => {
-      if (await mid.pm.enablePlugin(plugin)) {
+      if (await mid.enablePlugin(plugin)) {
         return {
           stdout: plugin + ' enabled in plugins.json !'
         }
@@ -46,7 +46,7 @@ export default [
     command: 'disable [plugin]',
     description: 'Disable plugin',
     action: async (mid, plugin) => {
-      if (await mid.pm.disablePlugin(plugin)) {
+      if (await mid.disablePlugin(plugin)) {
         return {
           stdout: plugin + ' disabled in plugins.json !'
         }
