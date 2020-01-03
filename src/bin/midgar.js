@@ -13,7 +13,7 @@ const cli = new Cli(process.argv)
 cli.init().then(async () => {
   try {
     const result = await cli.run()
-    if (result.stdout) console.log(result.stdout)
+    if (result && result.stdout) console.log(result.stdout)
     process.exit(0)
   } catch (error) {
     console.log(error)
