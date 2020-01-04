@@ -40,7 +40,7 @@
 			<li class="dropdown">
 				<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="global.html#event:$%257BpluginName%257D:afterInit">event:${pluginName}:afterInit</a></li><li><a href="global.html#event:@midgar/midgar:afterInit">event:@midgar/midgar:afterInit</a></li><li><a href="global.html#event:@midgar/midgar:afterLoadPlugins">event:@midgar/midgar:afterLoadPlugins</a></li><li><a href="global.html#event:@midgar/midgar:initHttpServer">event:@midgar/midgar:initHttpServer</a></li>
+					<li><a href="global.html#event:$%257BpluginName%257D:afterInit">event:${pluginName}:afterInit</a></li><li><a href="global.html#event:@midgar/midgar:afterInit">event:@midgar/midgar:afterInit</a></li><li><a href="global.html#event:@midgar/midgar:afterLoadPlugins">event:@midgar/midgar:afterLoadPlugins</a></li><li><a href="global.html#event:@midgar/midgar:stop">event:@midgar/midgar:stop</a></li>
 				</ul>
 			</li>
 			
@@ -181,84 +181,6 @@ Manage Config, plugin manager, logeer and events</div>
         <h3 class="subsection-title">Members</h3>
 
         <dl>
-            
-<hr>
-<dt class="name" id="app">
-    <h4 id="app"><span class="type-signature"></span>app<span class="type-signature"> :Express</span></h4>
-
-    
-</dt>
-<dd>
-    
-    <div class="description">
-        Express instance for the front webserver
-    </div>
-    
-
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">Express</span>
-
-
-
-            </li>
-        </ul>
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-	<dt class="tag-see method-doc-label method-doc-details-label">See:</dt>
-	<dd class="tag-see">
-		<ul>
-			<li><a href="http://expressjs.com/en/api.html">express doc</a></li>
-			</ul>
-	</dd>
-	
-
-	
-</dl>
-
-
-    
-</dd>
-
-        
             
 <hr>
 <dt class="name" id="cli">
@@ -549,32 +471,84 @@ Manage Config, plugin manager, logeer and events</div>
     
 </dd>
 
-        
+        </dl>
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
             
 <hr>
-<dt class="name" id="webServer">
-    <h4 id="webServer"><span class="type-signature"></span>webServer<span class="type-signature"> :http.Server</span></h4>
-
+<dt>
+    <h4 class="name" id="addPlugin"><span class="type-signature"></span>addPlugin(name)</h4>
+    
     
 </dt>
 <dd>
+
     
     <div class="description">
-        Http server
+        Add a plugin in the plugins.json config file
+Return true if the plugin was added or false
     </div>
     
 
     
-        <h5>Type:</h5>
-        <ul>
-            <li>
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
                 
-<span class="param-type">http.Server</span>
+<span class="param-type">String</span>
 
 
 
-            </li>
-        </ul>
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Plugin name</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
     
 
     
@@ -618,15 +592,41 @@ Manage Config, plugin manager, logeer and events</div>
 
 
     
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Boolean</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
 </dd>
 
-        </dl>
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        <dl>
+        
             
 <hr>
 <dt>
@@ -762,6 +762,304 @@ Manage Config, plugin manager, logeer and events</div>
     
 
     
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="disablePlugin"><span class="type-signature">&lt;async> </span>disablePlugin(name)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Disable a plugin in the plugins.json config file
+Return true if the plugin was enabled or false
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Plugin name</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Boolean</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="enablePlugin"><span class="type-signature">&lt;async> </span>enablePlugin(name)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Enable a plugin in the plugins.json config file
+Return true if the plugin was enabled or false
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Plugin name</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Boolean</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
 
     
 </dd>
@@ -1227,134 +1525,6 @@ Wait for the logger gracefull exit the process
             
 <hr>
 <dt>
-    <h4 class="name" id="init"><span class="type-signature">&lt;async> </span>init(configPath)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Load the config, init logger and plugin manager
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>configPath</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Sting</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
     <h4 class="name" id="initLogger"><span class="type-signature">&lt;async> </span>initLogger()</h4>
     
     
@@ -1511,84 +1681,6 @@ Wait for the logger gracefull exit the process
             
 <hr>
 <dt>
-    <h4 class="name" id="initWebServer"><span class="type-signature">&lt;async> </span>initWebServer()</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Create the express app and add some middlewares
-    </div>
-    
-
-    
-
-    
-
-    
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
     <h4 class="name" id="loadConfig"><span class="type-signature">&lt;async> </span>loadConfig()</h4>
     
     
@@ -1659,6 +1751,155 @@ Wait for the logger gracefull exit the process
     
 
     
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="removePlugin"><span class="type-signature">&lt;async> </span>removePlugin(name)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Remove a plugin from the plugins.json config file
+Return true if the plugin was removed or false
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Plugin name</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Boolean</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
 
     
 </dd>
@@ -1817,7 +2058,7 @@ Wait for the logger gracefull exit the process
     <div class="description">
         Start Midgar
 
-Init Midgar, init webserver and start them
+Load the config, init logger and plugin manager
     </div>
     
 
@@ -1937,7 +2178,7 @@ Init Midgar, init webserver and start them
             
 <hr>
 <dt>
-    <h4 class="name" id="startWebServer"><span class="type-signature">&lt;async> </span>startWebServer()</h4>
+    <h4 class="name" id="stop"><span class="type-signature">&lt;async> </span>stop()</h4>
     
     
 </dt>
@@ -1945,85 +2186,7 @@ Init Midgar, init webserver and start them
 
     
     <div class="description">
-        Start front web serveur
-    </div>
-    
-
-    
-
-    
-
-    
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="stop"><span class="type-signature"></span>stop()</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Stop web server
+        Stop Midgar
     </div>
     
 
@@ -2419,7 +2582,7 @@ Init Midgar, init webserver and start them
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a>
 	
-		on 2020-01-03T18:13:53+00:00
+		on 2020-01-04T13:56:09+00:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>
