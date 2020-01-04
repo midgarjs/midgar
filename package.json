@@ -42,9 +42,9 @@
   },
   "devDependencies": {
     "babel-eslint": "^10.0.3",
-    "sinon": "^8.0.2",
     "chai": "^4.2.0",
     "chai-arrays": "^2.0.0",
+    "chai-as-promised": "^7.1.1",
     "chai-fs": "^2.0.0",
     "chai-http": "^4.3.0",
     "dirty-chai": "^2.0.1",
@@ -60,7 +60,8 @@
     "mocha": "^6.2.2",
     "mocha-multi-reporters": "^1.1.7",
     "mocha-sonarqube-reporter": "^1.0.1",
-    "nyc": "^15.0.0"
+    "nyc": "^15.0.0",
+    "sinon": "^8.0.2"
   },
   "author": "Metais Fabien",
   "license": "MIT"

@@ -3,6 +3,7 @@ import chai from 'chai'
 import dirtyChai from 'dirty-chai'
 import chaiHttp from 'chai-http'
 import chaiArrays from 'chai-arrays'
+import chaiAsPromised from 'chai-as-promised'
 import path from 'path'
 import sinon from 'sinon'
 
@@ -21,6 +22,7 @@ const expect = chai.expect
 chai.use(chaiHttp)
 chai.use(chaiArrays)
 chai.use(dirtyChai)
+chai.use(chaiAsPromised)
 
 let mid = null
 const initMidgar = async (ext = null) => {
@@ -43,11 +45,13 @@ describe('Midgar', function () {
     process.exit.restore()
   })
 
-  it('config', async () => {
+  it('config load', async () => {
+    mid = new Midgar()
+    expect(mid.initPluginManager()).to.be.rejectedWith(Error, '@midgar/midgar: Load config before !')
+
     mid = await initMidgar()
     expect(mid.config).not.equal(null, 'config is null')
     expect(mid.config.web.host).equal('localhost', 'Invalid web.host value')
-    await mid.stop()
   })
 
   it('logger', async () => {
