@@ -75,7 +75,7 @@ class Cli {
 
     if (this.configPath && !skipedCommands.includes(command)) {
       // Init midgar and load plugin cli commands
-      await this.mid.init(this.configPath)
+      await this.mid.start(this.configPath)
       // Add cli plugin dir
       this.mid.pm.pluginDirs.cli = 'cli'
 

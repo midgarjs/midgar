@@ -22,7 +22,7 @@ export default {
     stdout: true,
     level: 'debug'
   },
-  plugin: {
-    dir: resolve('../plugins')
+  pm: {
+    localPath: resolve('../plugins')
   }
 }

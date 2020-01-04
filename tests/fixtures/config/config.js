@@ -19,10 +19,10 @@ function getTmpDir (name) {
 export default {
   log: {
     dir: getTmpDir('logs'),
-    stdout: false,
+    stdout: true,
     level: 'error'
   },
-  plugin: {
-    dir: resolve('../plugins')
+  pm: {
+    localPath: resolve('../plugins')
   }
 }

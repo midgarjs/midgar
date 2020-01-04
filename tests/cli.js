@@ -1,6 +1,5 @@
 import mocha from 'mocha'
 import chai from 'chai'
-import chaiHttp from 'chai-http'
 import dirtyChai from 'dirty-chai'
 import chaiFs from 'chai-fs'
 import path from 'path'
@@ -21,7 +20,6 @@ const { describe, it } = mocha
 // Add chai middlware
 const expect = chai.expect
 chai.use(chaiFs)
-chai.use(chaiHttp)
 chai.use(dirtyChai)
 
 /**

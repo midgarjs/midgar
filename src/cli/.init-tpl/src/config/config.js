@@ -5,8 +5,8 @@ const resolve = (p) => {
 }
 
 export default {
-  plugin: {
-    dir: resolve('../plugins')
+  pm: {
+    localPath: resolve('../plugins')
   },
   log: {
     dir: resolve('../logs')

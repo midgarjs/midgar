@@ -30,7 +30,7 @@ class PluginManager {
      * local plugins directory path
      * @type {String}
      */
-    this.pluginsPath = mid.config && mid.config.plugin && mid.config.plugin.dir ? mid.config.plugin.dir : null
+    this.localPath = mid.config && mid.config.pm && mid.config.pm.localPath ? mid.config.pm.localPath : null
 
     /**
      * Define the default plugins dirs
@@ -86,9 +86,6 @@ class PluginManager {
    * @param {Object} pluginsConfig Plugins config object (plugins.json)
    */
   async loadPlugins (plugins, pluginsConfig) {
-    timer.start('midgar-plugin-load')
-    this.mid.debug('start load plugins from ' + this.pluginsPath)
-
     // Get plugins config and package
     const pluginsConfigs = await this._loadPluginsConfigs(plugins, pluginsConfig)
 
@@ -99,9 +96,6 @@ class PluginManager {
     this.plugins = await this._createPluginInstances(pluginsConfigs)
     // Add rewrite plugin
     this._addRewritePluginInstances()
-
-    const time = timer.getTime('midgar-plugin-load')
-    this.mid.debug('plugins loaded in ' + time + ' ms')
 
     /**
      * afterLoadPlugins event.
@@ -256,6 +250,7 @@ class PluginManager {
         importPath = path.parse(path.join(reweriteConfig.path, mainFile)).dir
       }
 
+      this.mid.debug(`@midgar:midgar: Create plugin instance: ${importPath}.`)
       return { key: name, value: this._createPluginInstance(name, pluginPath, importPath, pkg, pluginConfig.config) }
     }, true)
   }
@@ -435,21 +430,31 @@ class PluginManager {
    * @private
    */
   async _getPluginPath (name, pluginPath = null) {
+    // Try to find plugin package.json from npm or path set in plugins.json
     try {
+      let packagePath = null
       if (pluginPath) {
-        pluginPath = path.join(pluginPath, PACKAGE_JSON)
+        packagePath = path.join(pluginPath, PACKAGE_JSON)
       } else {
-        pluginPath = path.join(name, PACKAGE_JSON)
+        packagePath = path.join(name, PACKAGE_JSON)
       }
-      const packagePath = await utils.asyncRequireResolve(pluginPath)
+      packagePath = await utils.asyncRequireResolve(packagePath)
 
       return path.dirname(packagePath)
     } catch (error) {
-      try {
-        const packagePath = await utils.asyncRequireResolve(path.join(this.pluginsPath, name, PACKAGE_JSON))
-        return path.dirname(packagePath)
-      } catch (_error) {
-        throw new Error('Plugin ' + name + ' not found !')
+      if (error.code !== 'MODULE_NOT_FOUND') throw error
+
+      // Try to find plugin in local plugin dir
+      if (this.localPath) {
+        try {
+          const packagePath = await utils.asyncRequireResolve(path.join(this.localPath, name, PACKAGE_JSON))
+          return path.dirname(packagePath)
+        } catch (_error) {
+          if (_error.code === 'MODULE_NOT_FOUND') throw new Error(`@midgar/midgae: Plugin ${name} not found !`)
+          throw _error
+        }
+      } else {
+        throw new Error(`@midgar/midgae: Plugin ${name} not found !`)
       }
     }
   }

@@ -19,13 +19,6 @@ function getTmpDir (name) {
 }
 
 export default {
-  web: {
-    port: 4000,
-    host: 'localhost',
-    ssl: false,
-    sslCert: '',
-    sslKey: ''
-  },
   logger: (config) => {
     return new CustomLogger(config)
   },
@@ -34,7 +27,7 @@ export default {
     stdout: false,
     level: 'error'
   },
-  plugin: {
-    dir: resolve('../plugins')
+  pm: {
+    localPath: resolve('../plugins')
   }
 }

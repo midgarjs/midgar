@@ -7,10 +7,10 @@
 
 ## Qu'est ce que Midgar
 
-Midgar est un framework nodejs utilisant le pattern View-Controller Service.
+Midgar est un framework nodejs utilisant le pattern Model View-Controller Service (MVCS).
 Il se base sur un système de plugin pour permetre de réaliser rapidement des applications web complexes de manière claire et structuré.
 
-
+npm
 ## Installation
 
 ```sh
@@ -27,7 +27,7 @@ $ cd ~/my-project/
 $ npm i
 ```
 
-En soit Midgar ne fait que charger des plugins et exposer express. Sans plugin, il ne fait donc rien de concret !
+En soit Midgar ne fait que charger des plugins. Sans plugin, il ne fait donc rien de concret !
 L'étape suivante est donc d'installer des plugins. L'installation des plugins se fait via npm ou yarn.
 L'utilisation des scripts de npm permet l'activation automatique des plugins sur le projet.
 
@@ -42,7 +42,8 @@ Vous pouvez voir la structure du project générer par la commande init [ici](ht
 | Nom | Description |
 |---------|-------------|
 | [service](https://github.com/midgarjs/service) | Système de services avec injection de dépendances. |
-| [controller](https://github.com/midgarjs/controller) | Système de controller avec injection de service pour la gestion des routes.  |
+| [express](https://github.com/midgarjs/express) | Service [Express](https://expressjs.com/). |
+| [controller](https://github.com/midgarjs/controller) | Système de controller avec injection de service pour la gestion des routes d'express.  |
 | [migrate](https://github.com/midgarjs/migrate) | Service de migration |
 | [mongo](https://github.com/midgarjs/mongo) | Service [Mongoose](https://mongoosejs.com/) avec chargement des models et migrations.  |
 | [apollo-server](https://github.com/midgarjs/apollo-server) | Service [Apollo server](https://www.apollographql.com/) avec chargement des schémas et resolvers. Resolvers avec injection de service. |
@@ -91,6 +92,7 @@ Si le plugin n'est pas présen, il n'est pas ajouté et un avertisement est affi
 ```bash
 $ midgar disable @migar/service
 ```
+
 Désactive le plugin @migar/service dans le fichier plugins.json.
 Si le plugin n'est pas présent, il n'est pas ajouté et un avertisement est affiché.
 

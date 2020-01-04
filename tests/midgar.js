@@ -1,7 +1,6 @@
 import mocha from 'mocha'
 import chai from 'chai'
 import dirtyChai from 'dirty-chai'
-import chaiHttp from 'chai-http'
 import chaiArrays from 'chai-arrays'
 import chaiAsPromised from 'chai-as-promised'
 import path from 'path'
@@ -19,7 +18,6 @@ import Midgar from '../src/midgar'
 const { describe, it } = mocha
 
 const expect = chai.expect
-chai.use(chaiHttp)
 chai.use(chaiArrays)
 chai.use(dirtyChai)
 chai.use(chaiAsPromised)
@@ -40,21 +38,25 @@ describe('Midgar', function () {
   })
 
   afterEach(async () => {
-    await mid.stop()
+    if (mid.httpServer !== null) await mid.stop()
     mid = null
     process.exit.restore()
   })
 
-  it('config load', async () => {
+  it('Config', async () => {
     mid = new Midgar()
-    expect(mid.initPluginManager()).to.be.rejectedWith(Error, '@midgar/midgar: Load config before !')
+    await expect(mid.initPluginManager()).to.be.rejectedWith(Error, '@midgar/midgar: Load config before init pm !')
 
     mid = await initMidgar()
     expect(mid.config).not.equal(null, 'config is null')
-    expect(mid.config.web.host).equal('localhost', 'Invalid web.host value')
+    expect(mid.config.pm).not.be.undefined('Invalid config')
+    expect(mid.config.log).not.be.undefined('Invalid config')
   })
 
-  it('logger', async () => {
+  it('Logger', async () => {
+    mid = new Midgar()
+    await expect(mid.initLogger()).to.be.rejectedWith(Error, '@midgar/midgar: Load config before init logger !')
+
     mid = await initMidgar()
     expect(mid.logger).not.equal(null, 'logger is null')
     expect(mid.logger).to.be.an.instanceof(Logger, 'logger is not an instance of Logger')
@@ -63,7 +65,7 @@ describe('Midgar', function () {
   /**
    * Test custom logger
    */
-  it('custom logger', async () => {
+  it('Custom logger', async () => {
     mid = await initMidgar('cl')
     expect(mid.logger).not.equal(null, 'logger is null')
     expect(mid.logger).to.be.an.instanceof(CustomLogger, 'logger is not an instance of CustomLogger')
@@ -93,41 +95,5 @@ describe('Midgar', function () {
     mid = await initMidgar()
     await mid.exit()
     sinon.assert.calledWith(process.exit, 0)
-  })
-})
-
-/**
- * Test express
- */
-describe('Express', function () {
-  afterEach(async () => {
-    await mid.stop()
-    mid = null
-  })
-
-  /**
-   * Add a route and test a request
-   */
-  it('HTTPS Serveur', async () => {
-    mid = await initMidgar('ssl')
-    // Add a get route to test express
-    mid.app.get('/getTest', function (req, res) {
-      res.status(200).json({
-        success: true
-      })
-    })
-
-    // Do get request to test valid request
-    let chaiRes = await chai.request(mid.app).get('/getTest')
-
-    // Test response
-    expect(chaiRes).have.status(200)
-    expect(chaiRes.body).be.a('object')
-    expect(chaiRes.body.success).to.be.true()
-
-    // Do get request to test error request
-    chaiRes = await chai.request(mid.app).get('/errorTest')
-    // Test response
-    expect(chaiRes).have.status(404)
   })
 })

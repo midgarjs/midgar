@@ -1,9 +1,4 @@
 
-import express from 'express'
-import bodyParser from 'body-parser'
-import helmet from 'helmet'
-import http from 'http'
-import https from 'https'
 import Emittery from 'emittery'
 
 import utils from '@midgar/utils'
@@ -11,8 +6,6 @@ import Config from './libs/config'
 import Logger from './libs/logger'
 import PluginManager from './libs/plugin-manager'
 
-const LOAD_CONFIG_ERROR = '@midgar/midgar: Load config before !'
-const INIT_LOGGER_ERROR = '@midgar/midgar: Init logger before !'
 /**
  * Midgar Class
  * Manage Config, plugin manager, logeer and events
@@ -41,19 +34,6 @@ class Midgar extends Emittery {
     this.pm = null
 
     /**
-     * Express instance for the front webserver
-     * @type {Express}
-     * @see {@link http://expressjs.com/en/api.html|express doc}
-     */
-    this.app = null
-
-    /**
-     * Http server
-     * @type {http.Server}
-     */
-    this.httpServer = null
-
-    /**
      * Commander instance
      * @type {Commander}
      * @see {@link https://www.npmjs.com/package/commander|commander doc}
@@ -65,28 +45,16 @@ class Midgar extends Emittery {
   }
 
   /**
-   * Load the config, init logger and plugin manager
-   *
-   * @param {Sting} configPath Midgar config path
-   */
-  async init (configPath) {
-    await this.loadConfig(configPath)
-    await this.initLogger()
-    await this.initPluginManager()
-  }
-
-  /**
    * Start Midgar
    *
-   * Init Midgar, init webserver and start them
+   * Load the config, init logger and plugin manager
    *
    * @param {Sting} configPath config dir path
    */
   async start (configPath) {
-    await this.init(configPath)
-    // Init and start servers
-    await this.initWebServer()
-    await this.startWebServer()
+    await this.loadConfig(configPath)
+    await this.initLogger()
+    await this.initPluginManager()
   }
 
   /**
@@ -102,22 +70,10 @@ class Midgar extends Emittery {
 
     process.env.TZ = this.config.tz || 'Europe/Paris'
 
-    // Web serveur base config
-    this.config.web = utils.assignRecursive({
-      host: 'localhost',
-      port: '80',
-      ssl: false
-    }, this.config.web || {})
-
-    // Check minimal config
-    this.config.web.baseUrl = (this.config.web.ssl ? 'https' : 'http') + '://' + this.config.web.host
-    if (this.config.web.port !== 80 || (this.config.web.ssl && this.config.web.port !== 443)) {
-      this.config.web.baseUrl += ':' + this.config.web.port
-    }
-
     this.config.log.level = this.config.log && this.config.log.level ? this.config.log.level : 'warn'
 
-    if (!this.config.plugin || !this.config.plugin.dir) throw new Error('@Midgar/midgar: No plugin dir in config !')
+    if (!this.config.pm) this.config.pm = {}
+    if (this.config.pm.localPath && typeof this.config.pm.localPath !== 'string') throw new TypeError('@midgar/midgar: Invalid pm.localPath type in Midgar config !')
 
     // Flag config loaded
     this._isConfigLoaded = true
@@ -142,11 +98,11 @@ class Midgar extends Emittery {
    */
   async initPluginManager () {
     // Check load stat
-    if (this.config === null) throw new Error(LOAD_CONFIG_ERROR)
-    if (this.logger === null) throw new Error(INIT_LOGGER_ERROR)
+    if (this.config === null) throw new Error('@midgar/midgar: Load config before init pm !')
+    if (this.logger === null) throw new Error('@midgar/midgar: Init logger before init pm !')
 
     utils.timer.start('midgar-init')
-    this.debug('init...')
+    this.debug('@midgar/midgar: init PluginManager...')
 
     // Init the plugin manager
     await this._initPluginManager()
@@ -158,63 +114,7 @@ class Midgar extends Emittery {
     await this.emit('@midgar/midgar:afterInit')
 
     const time = utils.timer.getTime('midgar-init')
-    this.debug('midgar has init in ' + time + ' ms')
-  }
-
-  /**
-   * Create the express app and add some middlewares
-   */
-  async initWebServer () {
-    // Check load stat
-    if (this.config === null) throw new Error('@midgar/midgar: Load config before init http server !')
-    if (this.logger === null) throw new Error('@midgar/midgar: Init logger before init http server !')
-
-    utils.timer.start('midgar-init-web-serv')
-    this.debug('midgar.initWebServer()')
-    // express instance
-    this.app = express()
-
-    if (this.config.helmet === undefined || this.config.helmet) {
-      // default options
-      let helmetOptions = {}
-      if (this.config.helmet !== undefined && this.config.helmet.constructor === ({}).constructor) {
-        helmetOptions = this.config.helmet
-      }
-      this.app.use(helmet(helmetOptions))
-    }
-
-    if (this.config.jsonBodyParser === undefined || this.config.jsonBodyParser) {
-      this.app.use(bodyParser.json()) // support json encoded bodies
-    }
-
-    if (this.config.urlencodedBodyParser === undefined || this.config.urlencodedBodyParser) {
-      // default options
-      let urlencodedOptions = { extended: true }
-      if (this.config.urlencodedBodyParser !== undefined && this.config.urlencodedBodyParser.constructor === ({}).constructor) {
-        urlencodedOptions = this.config.urlencodedBodyParser
-      }
-      this.app.use(bodyParser.urlencoded(urlencodedOptions)) // support encoded bodies
-    }
-
-    this.debug('Call @midgar/midgar:initHttpServer event')
-
-    /**
-     * initHttpServer event.
-     * Used to attach middleware on express
-     *
-     * @event @midgar/midgar:initHttpServer
-     */
-    await this.emit('@midgar/midgar:initHttpServer')
-
-    // /!\ remove next arg cause res.status is not a function
-    this.app.use((err, req, res, next) => {
-      this.error(err)
-      this.error('No route or error handler found !')
-      res.status(500).send('Internal Server Error')
-    })
-
-    const time = utils.timer.getTime('midgar-init-web-serv')
-    this.debug('midgar has init web server in ' + time + ' ms')
+    this.debug('@midgar:midgar: PluginManager has init in ' + time + ' ms.')
   }
 
   /**
@@ -291,68 +191,12 @@ class Midgar extends Emittery {
   }
 
   /**
-   * Start front web serveur
-   */
-  async startWebServer () {
-    // Check load stat
-    if (this.config === null) throw new Error(LOAD_CONFIG_ERROR)
-    if (this.logger === null) throw new Error(INIT_LOGGER_ERROR)
-
-    const opts = {
-      port: this.config.web.port,
-      host: this.config.web.host,
-      ssl: !!this.config.web.ssl,
-      baseUrl: this.config.web.baseUrl
-    }
-
-    if (this.config.web.sslKey) {
-      opts.sslKey = this.config.web.sslKey
-    }
-
-    if (this.config.web.sslCert) {
-      opts.sslCert = this.config.web.sslCert
-    }
-
-    try {
-      this.httpServer = await this._startWebServer(this.app, opts)
-    } catch (error) {
-      this.error('Cannot start the web server')
-      this.error(error)
-      process.exit()
-    }
-
-    this.info('Web server live on ' + opts.port)
-    this.info(this.config.web.baseUrl)
-  }
-
-  /**
-   * Listen http requestion on a port
-   * @private
-   */
-  async _startWebServer (app, opts) {
-    if (!opts.ssl) {
-      const server = http.createServer(app)
-      await server.listen(opts.port)
-      return server
-    } else {
-      const server = https.createServer({
-        key: opts.sslKey,
-        cert: opts.sslCert
-      }, app)
-
-      await server.listen(opts.port, opts.host)
-      return server
-    }
-  }
-
-  /**
    * Exit
    * Wait for the logger gracefull exit the process
    */
   async exit () {
     // Check load stat
-    if (this.config === null) throw new Error(LOAD_CONFIG_ERROR)
-    if (this.logger === null) throw new Error(INIT_LOGGER_ERROR)
+    if (this.pm === null) throw new Error('@midgar/midgar: Start Midgar before stop !')
 
     // Stop servers if there a runing
     await this.stop()
@@ -367,29 +211,14 @@ class Midgar extends Emittery {
   }
 
   /**
-   * Stop web server
+   * Stop Midgar
    */
-  stop () {
-    if (this.httpServer === null) throw new Error('@midgar/midgar: Http server is not start !')
-    return this._stop(this.httpServer)
-  }
-
-  /**
-   * Stop an http server
-   * @param {http.Server} server Server to stop
-   * @private
-   */
-  _stop (server) {
-    return new Promise((resolve, reject) => {
-      if (!server) return resolve()
-      try {
-        server.close(() => {
-          resolve()
-        })
-      } catch (error) {
-        reject(error)
-      }
-    })
+  async stop () {
+    /**
+     * stop event.
+     * @event @midgar/midgar:stop
+     */
+    await this.emit('@midgar/midgar:stop')
   }
 
   /**
@@ -491,4 +320,5 @@ class Midgar extends Emittery {
     this.logger.silly(...args)
   }
 }
+
 export default Midgar
