@@ -27,7 +27,7 @@ $ cd ~/my-project/
 $ npm i
 ```
 
-En soit Midgar ne fait que charger des plugins. Sans plugin, il ne fait donc rien de concret !
+En soit Midgar ne fait que charger des plugins, sans plugin, il ne fait donc rien de concret !
 L'étape suivante est donc d'installer des plugins. L'installation des plugins se fait via npm ou yarn.
 L'utilisation des scripts de npm permet l'activation automatique des plugins sur le projet.
 

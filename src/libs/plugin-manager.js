@@ -1,6 +1,6 @@
 
 import path from 'path'
-import utils, { timer, asyncWriteFile } from '@midgar/utils'
+import utils, { asyncWriteFile } from '@midgar/utils'
 
 const PACKAGE_JSON = 'package.json'
 export const PLUGIN_CONFIG_FILE = 'plugin-config.js'
