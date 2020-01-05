@@ -285,12 +285,6 @@ class PluginManager {
     // Init plugin
     await plugin.init()
 
-    /**
-     * afterInit plugin event.
-     * @event ${pluginName}:afterInit
-     */
-    await this.mid.emit(name + ':afterInit')
-
     return plugin
   }
 
