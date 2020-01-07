@@ -46,7 +46,7 @@ Vous pouvez voir la structure du project générer par la commande init [ici](ht
 | [controller](https://github.com/midgarjs/controller) | Système de controller avec injection de service pour la gestion des routes d'express.  |
 | [migrate](https://github.com/midgarjs/migrate) | Service de migration |
 | [mongo](https://github.com/midgarjs/mongo) | Service [Mongoose](https://mongoosejs.com/) avec chargement des models et migrations.  |
-| [apollo-server](https://github.com/midgarjs/apollo-server) | Service [Apollo server](https://www.apollographql.com/) avec chargement des schémas et resolvers. Resolvers avec injection de service. |
+| [graphql-server](https://github.com/midgarjs/graphql-server) | Service [Apollo server](https://www.apollographql.com/) avec chargement des schémas et resolvers. Resolvers avec injection de service. |
 
 
 ## Cli
