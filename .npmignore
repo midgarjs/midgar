@@ -8,3 +8,9 @@ node_modules/
 coverage/
 reports/
 docs/
+tests/
+.drone.yml
+.eslintrc.js
+jsdoc.js
+sonar-project.properties
+sonarlint.json

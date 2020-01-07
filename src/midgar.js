@@ -114,7 +114,7 @@ class Midgar extends Emittery {
     await this.emit('@midgar/midgar:afterInit')
 
     const time = utils.timer.getTime('midgar-init')
-    this.debug('@midgar:midgar: PluginManager has init in ' + time + ' ms.')
+    this.debug(`@midgar:midgar: PluginManager has init in ${time} ms.`)
   }
 
   /**

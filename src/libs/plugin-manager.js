@@ -129,7 +129,7 @@ class PluginManager {
       const mainFile = pkg.main ? pkg.main : 'index.js'
       const config = await this._importPluginConfig(path.parse(path.join(pluginPath, mainFile)).dir)
 
-      if (name !== pkg.name) this.mid.warn('Plugin name in plugins config ( ' + name + ' ) is not equal to the package name ( ' + pkg.name + ' ) !')
+      if (name !== pkg.name) this.mid.warn(`Plugin name in plugins config ( ${name} ) is not equal to the package name ( ${pkg.name} ) !`)
 
       return {
         key: pkg.name,
@@ -381,7 +381,7 @@ class PluginManager {
       await asyncWriteFile(path.join(this.mid.configPath, PLUGINS_CONFIG_FILE), JSON.stringify(plugins))
       return true
     } else {
-      this.mid.warn('Plugin ' + name + ' is already enabled !')
+      this.mid.warn(`Plugin ${name} is already enabled !`)
     }
 
     return false
@@ -409,7 +409,7 @@ class PluginManager {
       await asyncWriteFile(path.join(this.mid.configPath, PLUGINS_CONFIG_FILE), JSON.stringify(plugins))
       return true
     } else {
-      this.mid.warn('Plugin ' + name + ' is already disabled !')
+      this.mid.warn(`Plugin ${name} is already disabled !`)
     }
 
     return false
@@ -444,11 +444,11 @@ class PluginManager {
           const packagePath = await utils.asyncRequireResolve(path.join(this.localPath, name, PACKAGE_JSON))
           return path.dirname(packagePath)
         } catch (_error) {
-          if (_error.code === 'MODULE_NOT_FOUND') throw new Error(`@midgar/midgae: Plugin ${name} not found !`)
+          if (_error.code === 'MODULE_NOT_FOUND') throw new Error(`@midgar/midgar: Plugin ${name} not found !`)
           throw _error
         }
       } else {
-        throw new Error(`@midgar/midgae: Plugin ${name} not found !`)
+        throw new Error(`@midgar/midgar: Plugin ${name} not found !`)
       }
     }
   }
@@ -483,7 +483,7 @@ class PluginManager {
    */
   async getDirs (dir) {
     if (!this.pluginDirs[dir]) {
-      this.mid.warn('Unknow plugin dir ' + dir)
+      this.mid.warn('@midgar/midgar: Unknow plugin dir ' + dir)
     }
 
     return utils.asyncMap(this.plugins, async (plugin, name) => {
@@ -507,7 +507,7 @@ class PluginManager {
    * @return {Array}
    */
   async importDir (dirkey, regExp = null, recursive = true) {
-    if (!this.pluginDirs[dirkey]) this.mid.warn('Unknow plugin dir ' + dirkey)
+    if (!this.pluginDirs[dirkey]) this.mid.warn('@midgar/midgar: Unknow plugin dir ' + dirkey)
 
     const files = []
     // List plugins
@@ -569,7 +569,7 @@ class PluginManager {
           const { default: defaultExport } = await import(importPath)
           result.push({ path: filePath, export: defaultExport, plugin, relativePath })
         } catch (error) {
-          console.log(error)
+          this.mid.error(error)
         }
       // if it a directory and recursive read files inside
       } else if (recursive) {
