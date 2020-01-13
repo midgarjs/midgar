@@ -1,1 +1,14 @@
-{"test-plugin":true,"test-plugin-2":true,"test-plugin-rw":true,"@test/test-plugin-3":true}
+{
+  "test-plugin": {
+    "local": true
+  },
+  "test-plugin-2": {
+    "local": true
+  },
+  "test-plugin-rw": {
+    "local": true
+  },
+  "@test/test-plugin-3": {
+    "local": true
+  }
+}

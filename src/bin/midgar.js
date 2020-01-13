@@ -8,7 +8,7 @@ const { default: Cli } = esmRequire('../libs/cli')
 // Header
 console.log(colors.cyan('#midgar-cli'))
 
-const cli = new Cli(process.argv)
+const cli = new Cli(process.argv, process.cwd())
 // Init cli then parse command and run
 cli.init().then(async () => {
   try {

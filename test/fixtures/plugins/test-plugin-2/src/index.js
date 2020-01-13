@@ -9,7 +9,7 @@ class Test2Plugin extends Plugin {
    */
   async init () {
     this.foo = 'test'
-    this.pm.addPluginDir('fooxxx', 'fooxxx')
+    this.pm.addModuleType('fooxxx', 'fooxxx')
   }
 }
 

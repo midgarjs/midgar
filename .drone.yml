@@ -2,6 +2,7 @@ kind: pipeline
 type: docker
 name: nodejs
 steps:
+
 - name: build
   image: node:latest
   commands:
@@ -15,4 +16,3 @@ steps:
       from_secret: sonar_host
     sonar.login: 
       from_secret: sonar_token
-    debug: true

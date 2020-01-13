@@ -21,7 +21,7 @@ class PluginManager {
     this.mid = mid
 
     /**
-     * Plugins Object by name
+     * Plugins Dictionary
      * @type {Object}
      */
     this.plugins = {}
@@ -30,32 +30,31 @@ class PluginManager {
      * local plugins directory path
      * @type {String}
      */
-    this.localPath = mid.config && mid.config.pm && mid.config.pm.localPath ? mid.config.pm.localPath : null
+    this.localPath = mid.config.pluginsLocalPath
 
     /**
-     * Define the default plugins dirs
-     * it can be overite by the plugin config
+     * Module types dictionary
      * @type {object}
      */
-    this.pluginDirs = {}
+    this.moduleTypes = {}
 
     /**
-     * Rewrite plugin object mapping
+     * Rewrite plugin dictionary
      * @type {Object}
      */
     this.rewritePlugins = {}
 
     /**
-     * Rewrited plugin object mapping
+     * Rewrited plugin dictionary
      * @type {Object}
      */
     this.rewritedPlugins = {}
 
     /**
-     * Rewrite plugin file mapping
+     * Rewrite modules
      * @type {Object}
      */
-    this.rewriteFile = {}
+    this.rewriteModules = {}
 
     // plugin dependencies object
     this._pluginDependencies = null
@@ -114,29 +113,46 @@ class PluginManager {
    */
   _loadPluginsConfigs (plugins, pluginsConfig) {
     return utils.asyncMap(plugins, async name => {
-      let pluginPath = null
+      let packagePath = name
+      let local = false
 
       // Check if plugin path is defined in plugins.json
-      if (pluginsConfig[name].path !== undefined) {
-        pluginPath = path.resolve(this.mid.configPath, pluginsConfig[name].path)
+      if (typeof pluginsConfig[name] !== 'boolean' && pluginsConfig[name].path !== undefined) {
+        // Set path relative to Midgar config directory
+        packagePath = path.joint(this.configPath, pluginsConfig[name].path)
+        local = true
       }
 
-      // check if plugin is in plugin path
-      pluginPath = await this._getPluginPath(name, pluginPath)
+      if (!local && pluginsConfig[name].local) {
+        local = true
+        packagePath = path.join(this.localPath, name)
+      }
+      let pkg
+      const pkgPath = path.join(packagePath, PACKAGE_JSON)
+      try {
+        // Import plugin package.json and plugin-config.js
+        pkg = await import(pkgPath)
+      } catch (error) {
+        if (error.code && error.code === 'MODULE_NOT_FOUND') throw new Error(`@midgar/midgar: package.json not found for plugin ${name} at ${pkgPath} ) !`)
+        throw error
+      }
 
-      // Import plugin package.json and plugin-config.js
-      const pkg = await import(path.resolve(pluginPath, PACKAGE_JSON))
       const mainFile = pkg.main ? pkg.main : 'index.js'
-      const config = await this._importPluginConfig(path.parse(path.join(pluginPath, mainFile)).dir)
 
-      if (name !== pkg.name) this.mid.warn(`Plugin name in plugins config ( ${name} ) is not equal to the package name ( ${pkg.name} ) !`)
+      // Set main file directory as plugin directory
+      const pluginPath = path.parse(path.join(packagePath, mainFile)).dir
+
+      const config = await this._importPluginConfig(pluginPath)
+
+      if (name !== pkg.name) this.mid.warn(`@midgar/midgar: Plugin name in plugins config ( ${name} ) is not equal to the package name ( ${pkg.name} ) !`)
 
       return {
         key: pkg.name,
         value: {
           package: pkg,
           config: config,
-          path: pluginPath
+          packagePath: packagePath,
+          pluginPath: pluginPath
         }
       }
     }, true)
@@ -146,19 +162,21 @@ class PluginManager {
    * Check if plugin config have rewritePlugin entry
    * Add rewrite entries in rewritePlugins Object
    *
-   * @param {Object} pluginsConfig Object object config and package indexed by plugin name
+   * @param {Object} pluginsConfigs Dictionay of plugin config and package.json
    * @private
    */
-  _processPluginsConfig (pluginsConfig) {
-    for (const name of Object.keys(pluginsConfig)) {
-      const pluginConfig = pluginsConfig[name].config
+  _processPluginsConfig (pluginsConfigs) {
+    for (const name of Object.keys(pluginsConfigs)) {
+      const pluginConfig = pluginsConfigs[name].config
+      if (pluginConfig && pluginConfig.rewrite) {
+        if (pluginConfig.rewrite.plugin) {
+          if (typeof pluginConfig.rewrite.plugin !== 'string') throw new TypeError(`@midgar/midgar: Invalid rewrite plugin type in config of ${name} plugin !`)
+          this._processRewritePlugin(name, pluginsConfigs)
+        }
 
-      if (pluginConfig && pluginConfig.rewritePlugin) {
-        this._processRewritePlugin(name, pluginConfig, pluginsConfig)
-      }
-
-      if (pluginConfig && pluginConfig.rewriteFile) {
-        this._processRewriteFile(name, pluginsConfig[name])
+        if (pluginConfig.rewrite.modules) {
+          this._processRewriteModules(name, pluginsConfigs[name])
+        }
       }
     }
   }
@@ -167,14 +185,14 @@ class PluginManager {
    * Check rewrite plugin and map entries
    * @private
    */
-  _processRewritePlugin (name, pluginConfig, pluginsConfig) {
+  _processRewritePlugin (name, pluginsConfigs) {
     // Check if plugin is configured to rewrite another plugin
-    const rewritedPlugin = pluginConfig.rewritePlugin
+    const rewritedPlugin = pluginsConfigs[name].config.rewrite.plugin
 
-    if (pluginsConfig[rewritedPlugin] === undefined) throw new Error('Unknow plugin ' + rewritedPlugin + ' !')
+    if (pluginsConfigs[rewritedPlugin] === undefined) throw new Error(`@midgar/midgar: Unknow plugin ${rewritedPlugin} !`)
 
     // Warn if the plugin is not already rewrite
-    if (this.rewritePlugins[rewritedPlugin] !== undefined) this.mid.warn('Plugin ' + name + ' rewite ' + rewritedPlugin + ' over ' + this.rewritePlugins[rewritedPlugin] + ' !')
+    if (this.rewritePlugins[rewritedPlugin] !== undefined) this.mid.warn(`@midgar/midgar: Plugin ${name} rewite ${rewritedPlugin} over ${this.rewritePlugins[rewritedPlugin]} !`)
 
     // Add rewrite plugin
     this.rewritedPlugins[rewritedPlugin] = name
@@ -185,20 +203,20 @@ class PluginManager {
    * Check rewrite plugin and map entries
    *
    * @param {String} name         Plugin name
-   * @param {Object} pluginConfig Plugin configuration (plugin-config.js)
+   * @param {Object} pluginConfigs plugin config and package.json
    * @private
    */
-  _processRewriteFile (name, pluginConfig) {
-    const pluginPath = pluginConfig.path
-    pluginConfig = pluginConfig.config
+  _processRewriteModules (name, pluginConfigs) {
+    const pluginPath = pluginConfigs.pluginPath
+    const pluginConfig = pluginConfigs.config
     // List plugin directories
-    for (const dirKey of Object.keys(pluginConfig.rewriteFile)) {
+    for (const dirKey of Object.keys(pluginConfig.rewrite.modules)) {
       // List plugins
-      for (const rwName of Object.keys(pluginConfig.rewriteFile[dirKey])) {
+      for (const rwName of Object.keys(pluginConfig.rewrite.modules[dirKey])) {
         // List plugins
-        for (const filePath of Object.keys(pluginConfig.rewriteFile[dirKey][rwName])) {
-          const rewritFilePath = pluginConfig.rewriteFile[dirKey][rwName][filePath]
-          this._processRewriteFileEntry(dirKey, name, rwName, filePath, rewritFilePath, pluginPath)
+        for (const filePath of Object.keys(pluginConfig.rewrite.modules[dirKey][rwName])) {
+          const rewritFilePath = pluginConfig.rewrite.modules[dirKey][rwName][filePath]
+          this._processrewriteModulesEntry(dirKey, name, rwName, filePath, rewritFilePath, pluginPath)
         }
       }
     }
@@ -215,12 +233,12 @@ class PluginManager {
    * @param {String} pluginPath     Rewrite plugin path
    * @private
    */
-  _processRewriteFileEntry (dirKey, name, rwName, filePath, rewritFilePath, pluginPath) {
-    if (!this.rewriteFile[dirKey]) this.rewriteFile[dirKey] = {}
-    if (!this.rewriteFile[dirKey][rwName]) this.rewriteFile[dirKey][rwName] = {}
+  _processrewriteModulesEntry (dirKey, name, rwName, filePath, rewritFilePath, pluginPath) {
+    if (!this.rewriteModules[dirKey]) this.rewriteModules[dirKey] = {}
+    if (!this.rewriteModules[dirKey][rwName]) this.rewriteModules[dirKey][rwName] = {}
 
-    if (this.rewriteFile[dirKey][rwName][filePath] !== undefined) this.mid.warn('Plugin ' + name + ' rewite ' + rwName + ' ' + filePath + 'over ' + this.rewriteFile[dirKey][rwName][filePath] + ' !')
-    this.rewriteFile[dirKey][rwName][filePath] = path.resolve(pluginPath, rewritFilePath)
+    if (this.rewriteModules[dirKey][rwName][filePath] !== undefined) this.mid.warn('Plugin ' + name + ' rewite ' + rwName + ' ' + filePath + 'over ' + this.rewriteModules[dirKey][rwName][filePath] + ' !')
+    this.rewriteModules[dirKey][rwName][filePath] = path.resolve(pluginPath, rewritFilePath)
   }
 
   /**
@@ -230,28 +248,32 @@ class PluginManager {
    * @param {Object} pluginsConfig Object object config and package indexed by plugin name
    * @private
    */
-  _createPluginInstances (pluginsConfig) {
+  _createPluginInstances (pluginsConfigs) {
     // Load plugins
-    return utils.asyncMap(pluginsConfig, async (pluginConfig, name) => {
-      let pkg = pluginConfig.package
+    return utils.asyncMap(pluginsConfigs, async (pluginConfigs, name) => {
+      const pkg = pluginConfigs.package
       let mainFile = pkg.main ? pkg.main : 'index.js'
+      const pluginPath = path.parse(path.join(pluginConfigs.packagePath, mainFile)).dir
+      let pluginFilePath = path.join(pluginConfigs.packagePath, mainFile)
 
-      const pluginPath = path.parse(path.join(pluginConfig.path, mainFile)).dir
-      let importPath = pluginPath
       // Skip rewrite plugin
       if (this.rewritePlugins[name]) return
 
       // ceck if plugin is rewrited
       if (this.rewritedPlugins[name]) {
         // Config of plugin who rewrite
-        const reweriteConfig = pluginsConfig[this.rewritedPlugins[name]]
-        pkg = reweriteConfig.package
-        mainFile = pkg.main ? pkg.main : 'index.js'
-        importPath = path.parse(path.join(reweriteConfig.path, mainFile)).dir
+        const rewritePlugin = this.rewritedPlugins[name]
+        // Config of plugin who rewrite
+        const reweriteConfigs = pluginsConfigs[rewritePlugin]
+        const _pkg = reweriteConfigs.package
+
+        if (reweriteConfigs.config) pluginConfigs.config = reweriteConfigs.config
+
+        mainFile = _pkg.main ? _pkg.main : 'index.js'
+        pluginFilePath = path.join(reweriteConfigs.packagePath, mainFile)
       }
 
-      this.mid.debug(`@midgar:midgar: Create plugin instance: ${importPath}.`)
-      return { key: name, value: this._createPluginInstance(name, pluginPath, importPath, pkg, pluginConfig.config) }
+      return { key: name, value: this._createPluginInstance(name, pluginPath, pluginFilePath, pkg, pluginConfigs.config) }
     }, true)
   }
 
@@ -275,12 +297,12 @@ class PluginManager {
    * @return {Plugin}
    * @private
    */
-  async _createPluginInstance (name, pluginPath, importPath, pkg, config) {
+  async _createPluginInstance (name, pluginPath, pluginFilePath, pkg, config) {
     // Import plugin main file
-    const { default: Class } = await import(importPath)
+    const { default: PluginClass } = await import(pluginFilePath)
 
     // Create plugin intance
-    const plugin = new Class(this.mid, { name, path: pluginPath, package: pkg, config })
+    const plugin = new PluginClass(this.mid, { name, path: pluginPath, package: pkg, config })
 
     // Init plugin
     await plugin.init()
@@ -356,7 +378,7 @@ class PluginManager {
    */
   _isEnabledPlugin (name, plugins) {
     return (typeof plugins[name] === 'boolean' && plugins[name]) ||
-     (plugins[name].enabled !== undefined && plugins[name].enabled)
+    (typeof plugins[name] === 'object' && (plugins[name].enabled === undefined || plugins[name].enabled === true))
   }
 
   /**
@@ -416,44 +438,6 @@ class PluginManager {
   }
 
   /**
-   * Return a plugin path
-   *
-   * @param {string} name       Plugin name
-   * @param {string} pluginPath Optional path for local plugin
-   * @returns {string}
-   * @private
-   */
-  async _getPluginPath (name, pluginPath = null) {
-    // Try to find plugin package.json from npm or path set in plugins.json
-    try {
-      let packagePath = null
-      if (pluginPath) {
-        packagePath = path.join(pluginPath, PACKAGE_JSON)
-      } else {
-        packagePath = path.join(name, PACKAGE_JSON)
-      }
-      packagePath = await utils.asyncRequireResolve(packagePath)
-
-      return path.dirname(packagePath)
-    } catch (error) {
-      if (error.code !== 'MODULE_NOT_FOUND') throw error
-
-      // Try to find plugin in local plugin dir
-      if (this.localPath) {
-        try {
-          const packagePath = await utils.asyncRequireResolve(path.join(this.localPath, name, PACKAGE_JSON))
-          return path.dirname(packagePath)
-        } catch (_error) {
-          if (_error.code === 'MODULE_NOT_FOUND') throw new Error(`@midgar/midgar: Plugin ${name} not found !`)
-          throw _error
-        }
-      } else {
-        throw new Error(`@midgar/midgar: Plugin ${name} not found !`)
-      }
-    }
-  }
-
-  /**
    * Return a plugin instance by name
    *
    * @param {String} name Plugin name
@@ -464,13 +448,17 @@ class PluginManager {
   }
 
   /**
-   * Add a plugin directory
+   * Add a plugin module types
    *
    * @param {String} key         Directory key
    * @param {String} defaultPath Default path
    */
-  addPluginDir (key, defaultPath) {
-    this.pluginDirs[key] = defaultPath
+  addModuleType (key, defaultPath) {
+    if (typeof key !== 'string') throw new Error('@midgar/midgar: Invalid key type !')
+    if (typeof defaultPath !== 'string') throw new Error('@midgar/midgar: Invalid defaultPath type !')
+
+    if (defaultPath.charAt(0) === '/') defaultPath = defaultPath.substr(1)
+    this.moduleTypes[key] = defaultPath
   }
 
   /**
@@ -481,21 +469,23 @@ class PluginManager {
    *
    * @return {Array}
    */
+  /*
   async getDirs (dir) {
-    if (!this.pluginDirs[dir]) {
+    if (!this.moduleTypes[dir]) {
       this.mid.warn('@midgar/midgar: Unknow plugin dir ' + dir)
     }
 
     return utils.asyncMap(this.plugins, async (plugin, name) => {
-      if (!this.pluginDirs[dir] && !plugin.dirs[dir]) return null
+      if (!this.moduleTypes[dir] && !plugin.dirs[dir]) return null
 
       // get the routes path of the plugin
-      const dirPath = path.join(plugin.path, plugin.dirs[dir] ? plugin.dirs[dir] : this.pluginDirs[dir])
+      const dirPath = path.join(plugin.path, plugin.dirs[dir] ? plugin.dirs[dir] : this.moduleTypes[dir])
       // check if the dir exist
       const exists = await utils.asyncFileExists(dirPath)
       if (exists) { return { plugin: name, path: dirPath } } else { return null }
     })
   }
+  */
 
   /**
    * Import files inside a directory of each plugins
@@ -506,13 +496,13 @@ class PluginManager {
    *
    * @return {Array}
    */
-  async importDir (dirkey, regExp = null, recursive = true) {
-    if (!this.pluginDirs[dirkey]) this.mid.warn('@midgar/midgar: Unknow plugin dir ' + dirkey)
+  async importModules (dirkey, regExp = null, recursive = true) {
+    if (!this.moduleTypes[dirkey]) throw new Error(`@midgar/midgar: Unknow plugin dir ${dirkey}`)
 
     const files = []
     // List plugins
     await utils.asyncMap(this.plugins, async (plugin) => {
-      if (!this.pluginDirs[dirkey] && !plugin.dirs[dirkey]) return // skip
+      if (!this.moduleTypes[dirkey] && !plugin.dirs[dirkey]) return // skip
 
       // Get the plugin dir path
       const dirPath = plugin.getDirPath(dirkey)
@@ -562,8 +552,8 @@ class PluginManager {
         try {
           let importPath = filePath
           const relativePath = path.join(dirPath, name)
-          if (this.rewriteFile[dirkey] !== undefined && this.rewriteFile[dirkey][plugin] !== undefined && this.rewriteFile[dirkey][plugin][relativePath] !== undefined) {
-            importPath = this.rewriteFile[dirkey][plugin][relativePath]
+          if (this.rewriteModules[dirkey] !== undefined && this.rewriteModules[dirkey][plugin] !== undefined && this.rewriteModules[dirkey][plugin][relativePath] !== undefined) {
+            importPath = this.rewriteModules[dirkey][plugin][relativePath]
           }
 
           const { default: defaultExport } = await import(importPath)

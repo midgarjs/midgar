@@ -101,7 +101,7 @@ describe('Plugin Manager', function () {
    */
   it('importFiles', async () => {
     // Non recursive test
-    let result = await mid.pm.importDir('test', null, false)
+    let result = await mid.pm.importModules('test', null, false)
     let shouldResult = [
       {
         relativePath: 'file-1.js',
@@ -120,7 +120,7 @@ describe('Plugin Manager', function () {
     testImportFilesResult(result, shouldResult, FOO_PLUGIN_PATH)
 
     // Recursive test
-    result = await mid.pm.importDir('test')
+    result = await mid.pm.importModules('test')
     shouldResult.push({
       relativePath: 'sub/sub-file-1.js',
       export: 'test-plugin:foo:sub-file-1'
@@ -129,7 +129,7 @@ describe('Plugin Manager', function () {
     testImportFilesResult(result, shouldResult, FOO_PLUGIN_PATH)
 
     // Config dir
-    result = await mid.pm.importDir('boo')
+    result = await mid.pm.importModules('boo')
     shouldResult = [
       {
         relativePath: 'file-boo.js',
@@ -173,6 +173,7 @@ describe('Plugin Manager', function () {
   /**
    * Test the getDirs method
    */
+  /*
   it('getDirs', async () => {
     const result = await mid.pm.getDirs('test')
     const shouldResult = [
@@ -184,6 +185,7 @@ describe('Plugin Manager', function () {
 
     testGetDirsResult(result, shouldResult)
   })
+  */
 
   /**
    * Test the getSortedPlugins method
@@ -201,7 +203,7 @@ describe('Plugin Manager', function () {
   })
 
   it('rewrite file', async () => {
-    const fooxxxFiles = await mid.pm.importDir('fooxxx')
+    const fooxxxFiles = await mid.pm.importModules('fooxxx')
     let find = false
     for (const file of fooxxxFiles) {
       if (file.plugin === 'test-plugin-2' && file.relativePath === 'file-1.js') {

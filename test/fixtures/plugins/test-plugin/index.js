@@ -14,8 +14,8 @@ class Test extends Plugin {
    */
   async init () {
     // Add test plugin dir
-    this.pm.addPluginDir('test', 'foo')
-    this.pm.addPluginDir('boo', 'basefolder')
+    this.pm.addModuleType('test', 'foo')
+    this.pm.addModuleType('boo', './basefolder')
     this.isInit = true
   }
 }

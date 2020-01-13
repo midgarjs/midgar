@@ -1,7 +1,7 @@
 ## En développement ne pas utiliser en production
 
 [![Build Status](https://drone.midgar.io/api/badges/Midgar/midgar/status.svg)](https://drone.midgar.io/Midgar/midgar)
-[![Coverage](https://sonar.midgar.io/api/project_badges/measure?project=Midgar%3Amidgar&metric=coverage)](https://sonar.midgar.io/dashboard?id=Midgar%3Amidgar)
+[![Coverage](https://sonar.midgar.io/api/project_badges/measure?project=midgar-midgar&metric=coverage)](https://sonar.midgar.io/dashboard?id=midgar-midgar)
 
 # Midgar
 
@@ -119,19 +119,13 @@ Voici un exemple de fichier plugin:
 ```js
 import { Plugin } from '@midgar/midgar'
 
-/**
- * TestPlugin
- */
-class TestPlugin extends Plugin {
+export default class TestPlugin extends Plugin {
   init () {
-    // Listen @midgar/midgar:afterInit event
     this.mid.on('@midgar/midgar:afterLoadPlugins', async () => {
       // Ceci est exécuté une fois que tous les plugins ont été chargés
     })
   }
 }
-
-export default TestPlugin
 ```
 Vous pouvez retouver la liste des évènements dans la [documentation](https://midgarjs.github.io/midgar/).
 
@@ -150,26 +144,45 @@ Vous pouvez ajouter un fichier **plugin-config.js** dans le même dossier que le
 Ce fichier est charger avant le chargement des plugins et est injecté dans le membre **.config** de l'instance du plugin.
 
 
-### Importer
+### Modules
 
-Le système de plugin comprend un importer de fichier.
-Vous pouvez déclarrer un nouveau dossier a importer dans la methode init de votre plugin:
-```js
-this.pm.addPluginDir('mon-dossier', 'mondossier')
-```
-@see: https://midgarjs.github.io/midgar/PluginManager.html#addPluginDir__anchor
-
-Pour importer les fichiers contenu de ce dossier:
+Le système de plugin comprend un importer de modules.
+Vous pouvez déclarrer un type de modules a importer dans la methode init de votre plugin:
 
 ```js
-const files = await this.mid.pm.importDir('mon-dossier')
+import { Plugin } from '@midgar/midgar'
+
+export default class TestPlugin extends Plugin {
+  init () {
+    this.pm.addModuleType('mon-type', 'mondossier')
+  }
+}
 ```
-@see: https://midgarjs.github.io/midgar/PluginManager.html#importDir__anchor
+***mon-type*** corréspond à l'identifiant du type de module.
+***modossier*** corréspond au chemin par défaut du dossier contenant ce type de modules.
 
-La méthode importDir importe tous les fichiers du dossier **mon-dossier** pour tous les plugins.
-Le chemin du dossier **mon-dossier** est par défaut **./mondossier/** relativement par rapport au dossier du fichier plugin.
+@see: https://midgarjs.github.io/midgar/PluginManager.html#addModuleType__anchor
 
-La méthode importDir renvoit un tableau d'object:
+Pour importer les modules:
+
+```js
+import { Plugin } from '@midgar/midgar'
+
+export default class TestPlugin extends Plugin {
+  init () {
+    this.mid.on('@midgar/midgar:afterLoadPlugins', async () => {
+      const files = await this.mid.pm.importModules('mon-type')
+      ...
+    })
+  }
+}
+```
+@see: https://midgarjs.github.io/midgar/PluginManager.html#importModules__anchor
+
+La méthode importModules importe tous les modules **mon-typer** pour tous les plugins.
+Le chemin du dossier **mon-type** est par défaut **./mondossier/** relativement par rapport au fichier plugin.
+
+La méthode importModules renvoit un tableau d'object:
 
 ```js
 [
@@ -183,14 +196,12 @@ La méthode importDir renvoit un tableau d'object:
 }
 ```
 
-
-Le chemin du dossier **mon-dossier** peut etre configurer pour chaque plugin dans le fichier  **plugin-config.js**:
+Le chemin du dossier **mon-type** peut etre configuré pour chaque plugin dans le fichier  **plugin-config.js**:
 
 ```js
 export default {
-{
-  dirs: {
-      'mon-dossier': 'monnouveaudossier',
+  modules: {
+    'mon-type': 'mon/nouveau/dossier',
   }
 }
 ```
@@ -198,52 +209,55 @@ export default {
 
 ### Réecriture
 
-Si un plugin ne fait pas axactement ce dont vous avez besoin ou si vous voulez enrichir les fonctionnalitées d'un plugin, vous pouvez utiliser le système de réecture.
-Le fichier plugin ainsi que les fichiers importer via le système de dossier sont réecrivable.
+Si un plugin ne fait pas axactement ce dont vous avez besoin, ou bien si vous voulez enrichir les fonctionnalitées d'un plugin, vous pouvez utiliser le système de réecture.
+Les plugins ainsi que les modules importé via la méthode importModules sont réecrivable.
 
 
-### Plugin
+#### Plugin
 
-Pour réecrire un fichier plugin, ajouter ceci dans le fichier **plugin-config.js**.
+Pour réecrire un plugin, ajouter ceci dans le fichier **plugin-config.js**.
 
 ```js
 export default {
-    rewritePlugin: '@midgar/service',
+    rewrite:{
+      plugin: '@midgar/service'
+    }
   }
 }
 ```
 
 Lors du chargement des plugins, ce plugin sera chargé à la place du plugin **@midgar/service**.
 
-Le plugin devrait ressember à ceci:
+Le plugin devrait ressembler à ceci:
 
 ```js
 import ServicePlugin from '@midgar/service'
 
-class RewritePlugin extends ServicePlugin {
+export default class RewritePlugin extends ServicePlugin {
   async init () {
     await super.init()
     ....
   }
 }
 
-export default RewritePlugin
 ```
 
-### Fichier
+### Module
 
-Pour réecrir un fichier import via le système de dossier, ajouter ceci dans le fichier **plugin-config.js**.
+Pour réecrir un module importé via la méthode importModules, ajouter ceci dans le fichier **plugin-config.js**.
 
 ```js
 export default {
-  rewriteFile: {
-    "midgar-mongoose-models": {
-      "@midgar/graphql-auth": {
-        'user.js': './rewrite/models/user.js'
+  rewrite: {
+    modules: {
+      "midgar-mongoose-models": { // Type de module
+        "@midgar/graphql-auth": { // nom du plugin a réecrire
+          'user.js': './rewrite/models/user.js' // chemin du fichier a réecrire: chemin du module de remplacement
+        }
       }
     }
   }
 }
 ```
 
-Lors de l'import des fichers, le fichier **./rewrite/models/user.js** sera chargé à la place du fichier **user.js** contenu dans le dossier **midgar-mongoose-models** et pour le plugin **@midgar/graphql-auth**
+Lors de l'import des modules, le modules **./rewrite/models/user.js** sera chargé à la place du modules **user.js** contenu dans le dossier **midgar-mongoose-models** et pour le plugin **@midgar/graphql-auth**

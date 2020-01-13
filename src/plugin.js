@@ -65,12 +65,12 @@ class Plugin extends Emittery {
    * @return {String}
    */
   getDir (name) {
-    if (!this.pm.pluginDirs[name] && !this.dirs[name]) {
+    if (!this.pm.moduleTypes[name] && !this.dirs[name]) {
       this.mid.warn('Unknow plugin dir ' + name)
       return null
     }
 
-    return this.dirs[name] ? this.dirs[name] : this.pm.pluginDirs[name]
+    return this.dirs[name] ? this.dirs[name] : this.pm.moduleTypes[name]
   }
 
   getDirPath (name) {

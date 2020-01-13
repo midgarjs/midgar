@@ -1,7 +1,6 @@
 
-import path from 'path'
 import commander from 'commander'
-import utils from '@midgar/utils'
+import { cosmiconfig } from 'cosmiconfig'
 import Midgar from '../midgar'
 import initCmds from '../cli/init'
 import pluginCmds from '../cli/plugin'
@@ -15,12 +14,16 @@ class Cli {
    * Construct
    * init vars, create program and Midgar instance
    */
-  constructor (argv) {
+  constructor (argv, cwd) {
     this.rcConfig = null
     // Path of the config dir
     this.configPath = null
 
     this.argv = argv
+    /**
+     * Current working directory
+     */
+    this.cwd = cwd
     this.mid = new Midgar()
     this.mid.cli = this
     this._runPromise = new Promise((resolve, reject) => {
@@ -77,7 +80,7 @@ class Cli {
       // Init midgar and load plugin cli commands
       await this.mid.start(this.configPath)
       // Add cli plugin dir
-      this.mid.pm.pluginDirs.cli = 'cli'
+      this.mid.pm.moduleTypes.cli = 'cli'
 
       await this.loadPluginsCommands()
     } else if (this.configPath) {
@@ -93,21 +96,10 @@ class Cli {
    * @private
    */
   async _loadRCFile () {
-    let rcFile = path.resolve(process.cwd(), '.midrc')
-    let exists = await utils.asyncFileExists(rcFile)
-    if (exists) {
-      return utils.asyncRequire(rcFile)
-    }
-
-    if (!process.env.INIT_CWD) { return null }
-
-    rcFile = path.resolve(process.env.INIT_CWD, '.midrc')
-    exists = await utils.asyncFileExists(rcFile)
-    if (exists) {
-      return utils.asyncRequire(rcFile)
-    }
-
-    return null
+    const explorer = cosmiconfig('midgar')
+    const result = await explorer.search(this.cwd)
+    // result.config is the parsed configuration object.
+    return result ? result.config : null
   }
 
   /**
@@ -175,7 +167,7 @@ class Cli {
    */
   async loadPluginsCommands () {
     // Get cli files content
-    const files = await this.mid.pm.importDir('cli')
+    const files = await this.mid.pm.importModules('cli')
     for (let i = 0; i < files.length; i++) {
       this.addCommands(files[i].export)
     }

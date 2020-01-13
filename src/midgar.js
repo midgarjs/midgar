@@ -2,7 +2,7 @@
 import Emittery from 'emittery'
 
 import utils from '@midgar/utils'
-import Config from './libs/config'
+import loadConfig from './libs/config'
 import Logger from './libs/logger'
 import PluginManager from './libs/plugin-manager'
 
@@ -63,20 +63,18 @@ class Midgar extends Emittery {
   async loadConfig (dirPath) {
     // set the config dir
     this.configPath = dirPath
-    this.config = new Config(this)
 
     // Load the configs
-    await this.config.loadConfigs(dirPath, 'config', true)
+    this.config = await loadConfig(dirPath, this.getNodeEnv())
 
     process.env.TZ = this.config.tz || 'Europe/Paris'
 
     this.config.log.level = this.config.log && this.config.log.level ? this.config.log.level : 'warn'
 
     if (!this.config.pm) this.config.pm = {}
-    if (this.config.pm.localPath && typeof this.config.pm.localPath !== 'string') throw new TypeError('@midgar/midgar: Invalid pm.localPath type in Midgar config !')
 
-    // Flag config loaded
-    this._isConfigLoaded = true
+    if (this.config.pluginsLocalPath === undefined) throw new Error('@midgar/midgar: Missing pluginsLocalPath in Midgar config !')
+    if (typeof this.config.pluginsLocalPath !== 'string') throw new TypeError('@midgar/midgar: Invalid pluginsLocalPath type in Midgar config !')
   }
 
   /**
@@ -88,9 +86,6 @@ class Midgar extends Emittery {
 
     this.logger = this.config.logger ? this.config.logger(this.config.log) : new Logger(this.config.log)
     await this.logger.init()
-
-    // Flag logger is init
-    this._isLoggerInit = true
   }
 
   /**
@@ -104,8 +99,9 @@ class Midgar extends Emittery {
     utils.timer.start('midgar-init')
     this.debug('@midgar/midgar: init PluginManager...')
 
-    // Init the plugin manager
-    await this._initPluginManager()
+    // Create plugin manager instance and init
+    this.pm = this._createPmInstance()
+    await this.pm.init()
 
     /**
      * afterInit event.
@@ -118,12 +114,13 @@ class Midgar extends Emittery {
   }
 
   /**
-   * Init plugin manager
-   * @private
+   * Create Plugin manager instance
+   *
+   * @return {PluginManager}
+   * @protected
    */
-  async _initPluginManager () {
-    this.pm = new PluginManager(this)
-    await this.pm.init()
+  _createPmInstance () {
+    return new PluginManager(this)
   }
 
   /**
@@ -136,7 +133,7 @@ class Midgar extends Emittery {
    */
   addPlugin (name) {
     // Instance pm if not exist for plugin cli command
-    const pm = this.pm ? this.pm : new PluginManager(this)
+    const pm = this.pm ? this.pm : this._createPmInstance()
     return pm.addPlugin(name)
   }
 
@@ -150,7 +147,7 @@ class Midgar extends Emittery {
    */
   async removePlugin (name) {
     // Instance pm if not exist for plugin cli command
-    const pm = this.pm ? this.pm : new PluginManager(this)
+    const pm = this.pm ? this.pm : this._createPmInstance()
     return pm.removePlugin(name)
   }
 
@@ -164,7 +161,7 @@ class Midgar extends Emittery {
    */
   async enablePlugin (name) {
     // Instance pm if not exist for plugin cli command
-    const pm = this.pm ? this.pm : new PluginManager(this)
+    const pm = this.pm ? this.pm : this._createPmInstance()
     return pm.enablePlugin(name)
   }
 
@@ -178,7 +175,7 @@ class Midgar extends Emittery {
    */
   async disablePlugin (name) {
     // Instance pm if not exist for plugin cli command
-    const pm = this.pm ? this.pm : new PluginManager(this)
+    const pm = this.pm ? this.pm : this._createPmInstance()
     return pm.disablePlugin(name)
   }
 

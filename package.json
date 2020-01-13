@@ -28,6 +28,7 @@
     "@midgar/utils": "^1.0.0-alpha.1.5",
     "colors": "^1.4.0",
     "commander": "^4.1.0",
+    "cosmiconfig": "^6.0.0",
     "emittery": "^0.5.1",
     "esm": "^3.2.25",
     "figlet": "^1.2.4",
@@ -58,7 +59,13 @@
     "nyc": "^15.0.0",
     "sinon": "^8.0.4"
   },
-  "keywords": ["mvc", "mvcs", "node", "plugin", "framework"],
+  "keywords": [
+    "mvc",
+    "mvcs",
+    "node",
+    "plugin",
+    "framework"
+  ],
   "author": "Metais Fabien",
   "license": "MIT"
 }

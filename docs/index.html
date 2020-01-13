@@ -211,16 +211,16 @@ export default TestPlugin
 <h3>Importer</h3>
 <p>Le système de plugin comprend un importer de fichier.
 Vous pouvez déclarrer un nouveau dossier a importer dans la methode init de votre plugin:</p>
-<pre class="prettyprint source lang-js"><code>this.pm.addPluginDir('mon-dossier', 'mondossier')
+<pre class="prettyprint source lang-js"><code>this.pm.addModuleType('mon-dossier', 'mondossier')
 </code></pre>
-<p>@see: https://midgarjs.github.io/midgar/PluginManager.html#addPluginDir__anchor</p>
+<p>@see: https://midgarjs.github.io/midgar/PluginManager.html#addModuleType__anchor</p>
 <p>Pour importer les fichiers contenu de ce dossier:</p>
-<pre class="prettyprint source lang-js"><code>const files = await this.mid.pm.importDir('mon-dossier')
+<pre class="prettyprint source lang-js"><code>const files = await this.mid.pm.importModules('mon-dossier')
 </code></pre>
-<p>@see: https://midgarjs.github.io/midgar/PluginManager.html#importDir__anchor</p>
-<p>La méthode importDir importe tous les fichiers du dossier <strong>mon-dossier</strong> pour tous les plugins.
+<p>@see: https://midgarjs.github.io/midgar/PluginManager.html#importModules__anchor</p>
+<p>La méthode importModules importe tous les fichiers du dossier <strong>mon-dossier</strong> pour tous les plugins.
 Le chemin du dossier <strong>mon-dossier</strong> est par défaut <strong>./mondossier/</strong> relativement par rapport au dossier du fichier plugin.</p>
-<p>La méthode importDir renvoit un tableau d'object:</p>
+<p>La méthode importModules renvoit un tableau d'object:</p>
 <pre class="prettyprint source lang-js"><code>[
   {
     path: '~/mon-projet/src/plugins/test-plugin/mondossier/fichier.js',

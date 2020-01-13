@@ -2,61 +2,51 @@
 import path from 'path'
 import { assignRecursive, asyncFileExists } from '@midgar/utils'
 
+const CONFIG_FILE_NAME = 'config'
+
 /**
- * Config class
- * @description Manage config files
- * @class
+ * Load config files in a folder
+ * load the file {prefix}.config.json
+ * load the file {prefix}.config.{MODE}.json
+ * Mode are prod and dev
+ *
+ * @param {string} configDir config directory path
+ * @param {string} prefix config prefix for the files name
+ * @param {boolean} require require flag
  */
-class Config {
-  constructor (mid, options = {}) {
-    this.mid = mid
-    this.options = Object.assign({
-    }, options)
-  }
+async function loadConfig (configDir, env) {
+  const config = {}
+  const mainConfig = await loadConfigfile(path.join(configDir, CONFIG_FILE_NAME), true)
+  assignRecursive(config, mainConfig)
 
-  /**
-   * Load config files in a folder
-   * load the file {prefix}.config.json
-   * load the file {prefix}.config.{MODE}.json
-   * Mode are prod and dev
-   *
-   * @param {string} configDir config directory path
-   * @param {string} prefix config prefix for the files name
-   * @param {boolean} require require flag
-   */
-  async loadConfigs (configDir, prefix) {
-    if (!prefix) { throw new Error('the prefix is not set') }
+  const modeConfig = await loadConfigfile(path.join(configDir, CONFIG_FILE_NAME + '.' + env))
+  assignRecursive(config, modeConfig)
 
-    let file = prefix
-    const mainConfig = await this.loadConfig(path.join(configDir, file), true)
-    assignRecursive(this, mainConfig)
+  return config
+}
 
-    // Get the mode
-    const mode = this.mid.getNodeEnv() === 'development' ? 'dev' : 'prod'
-    file += '.' + mode
-
-    const modeConfig = await this.loadConfig(path.join(configDir, file))
-    assignRecursive(this, modeConfig)
-  }
-
-  /**
-   * load a config file, parse the json and merge it into the config object
-   * if the require flag is at true and the file not exist throw an error
-   *
-   * @param {string} filePath config file path
-   * @param {boolean} requireMode require flag
-   *
-   * @return {Object|Array}
-   */
-  async loadConfig (filePath, requireMode = false) {
-    const exist = await asyncFileExists(filePath + '.js')
-    if (exist) {
-      const { default: config } = await import(filePath)
-      return config
-    } else if (requireMode) {
-      throw new Error('the file ' + filePath + ' doesn\'t exist !')
-    }
+/**
+ * load a config file, parse the json and merge it into the config object
+ * if the require flag is at true and the file not exist throw an error
+ *
+ * @param {string} filePath config file path
+ * @param {boolean} requireMode require flag
+ *
+ * @return {Object|Array}
+ */
+async function loadConfigfile (filePath, requireMode = false) {
+  const exist = await asyncFileExists(filePath + '.js')
+  if (exist) {
+    const { default: config } = await import(filePath)
+    return config
+  } else if (requireMode) {
+    throw new Error(`@midgar/midgar: the file ${filePath}.js doesn't exist !`)
   }
 }
 
-export default Config
+export {
+  CONFIG_FILE_NAME,
+  loadConfig
+}
+
+export default loadConfig
