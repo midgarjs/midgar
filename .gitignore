@@ -1,4 +1,5 @@
 node_modules/
+.scannerwork/
 .history
 .idea/
 .vscode/
@@ -7,3 +8,4 @@ node_modules/
 .mocha-report.xml
 coverage/
 reports/
+.drone-secret

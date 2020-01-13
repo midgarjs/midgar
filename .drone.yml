@@ -9,12 +9,10 @@ steps:
     - yarn run coverage:ci
     - yarn run eslint:ci
 - name: sonar
-  image: aosapps/drone-sonar-plugin:latest
+  image: fmetais/drone-sonar-scan-plugin:latest
   settings:
-    sonar_host:
+    sonar.host.url: 
       from_secret: sonar_host
-    sonar_token:
+    sonar.login: 
       from_secret: sonar_token
-    ver: 1.0
-    sources: src/
-    exclusions: docs/**/*
+    debug: true
