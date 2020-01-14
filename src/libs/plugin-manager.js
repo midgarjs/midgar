@@ -63,6 +63,8 @@ class PluginManager {
   /**
    * Init plugin manager
    * Get the enabled plugins from the config and load them
+   *
+   * @return {Promise<void>}
    */
   async init () {
     // Import plugins config
@@ -83,6 +85,8 @@ class PluginManager {
    *
    * @param {Array}  plugins       Array of plugin anabled plugins names
    * @param {object} pluginsConfig Plugins config object (plugins.json)
+   *
+   * @return {Promise<void>}
    */
   async loadPlugins (plugins, pluginsConfig) {
     // Get plugins config and package
@@ -108,7 +112,8 @@ class PluginManager {
    *
    * @param {Array} plugins Plugin name array
    * @param {object} pluginsConfig Plugins config object (plugins.json)
-   * @return {object} Indexed by plugin name
+   *
+   * @return {Promise<object>}
    * @private
    */
   _loadPluginsConfigs (plugins, pluginsConfig) {
@@ -246,6 +251,8 @@ class PluginManager {
    * Check if a plugin need to be rewrite
    *
    * @param {object} pluginsConfig Object object config and package indexed by plugin name
+   *
+   * @return {Promise<Object>}
    * @private
    */
   _createPluginInstances (pluginsConfigs) {
@@ -294,7 +301,8 @@ class PluginManager {
    * @param {string} pluginPath Plugin path
    * @param {object} pkg        Plugin package.json
    * @param {object} config     Plugin config from plugin-config.js
-   * @return {Plugin}
+   *
+   * @return {Promise<Plugin>}
    * @private
    */
   async _createPluginInstance (name, pluginPath, pluginFilePath, pkg, config) {
@@ -315,7 +323,8 @@ class PluginManager {
    * Import plugin-config.js file if exist
    *
    * @param {string} pluginPath Plugin path
-   * @return {object}
+   *
+   * @return {Promise<object>}
    * @private
    */
   async _importPluginConfig (pluginPath) {
@@ -330,6 +339,18 @@ class PluginManager {
   }
 
   /**
+   * Check if a plugin exist in local pligin path
+   *
+   * @param {String} name Plugin name
+   *
+   * @return {Promise<boolean>}
+   * @private
+   */
+  _isLocalPlugin (name) {
+    return utils.asyncFileExists(path.join(this.localPath, name))
+  }
+
+  /**
    * Add a plugin in the plugins.json config file
    * Return true if the plugin was added or false
    *
@@ -340,8 +361,16 @@ class PluginManager {
     const { default: plugins } = await import(path.join(this.mid.configPath, PLUGINS_CONFIG_FILE))
 
     if (plugins[name] === undefined) {
-      plugins[name] = true
+      if (await this._isLocalPlugin(name)) {
+        plugins[name] = {
+          local: true
+        }
+      } else {
+        plugins[name] = true
+      }
+
       await utils.asyncWriteFile(path.join(this.mid.configPath, PLUGINS_CONFIG_FILE), JSON.stringify(plugins))
+
       return true
     }
 
@@ -398,7 +427,7 @@ class PluginManager {
       if (typeof plugins[name] === 'boolean') {
         plugins[name] = true
       } else {
-        plugins[name].enabled = true
+        delete plugins[name].enabled
       }
 
       await utils.asyncWriteFile(path.join(this.mid.configPath, PLUGINS_CONFIG_FILE), JSON.stringify(plugins))
@@ -475,36 +504,21 @@ class PluginManager {
     }
   }
 
+  /**
+   * Return a module type definition
+   *
+   * @param {*} type Module type
+   *
+   * @return {object {
+   *    {string}       path
+   *    {string}       glob
+   *    {string|Array} ignore
+   *  }}
+   */
   getModuleType (type) {
     if (!this.moduleTypes[type]) throw new Error(`@midgar/midgar: Unknow module type ${type}`)
     return this.moduleTypes[type]
   }
-
-  /**
-   * Return an array of object contain
-   * the plugin and the dir found
-   *
-   * @param dir plugin dir key
-   *
-   * @return {Array}
-   */
-  /*
-  async getDirs (dir) {
-    if (!this.moduleTypes[dir]) {
-      this.mid.warn('@midgar/midgar: Unknow plugin dir ' + dir)
-    }
-
-    return utils.asyncMap(this.plugins, async (plugin, name) => {
-      if (!this.moduleTypes[dir] && !plugin.dirs[dir]) return null
-
-      // get the routes path of the plugin
-      const dirPath = path.join(plugin.path, plugin.dirs[dir] ? plugin.dirs[dir] : this.moduleTypes[dir])
-      // check if the dir exist
-      const exists = await utils.asyncFileExists(dirPath)
-      if (exists) { return { plugin: name, path: dirPath } } else { return null }
-    })
-  }
-  */
 
   /**
    * Import files inside a directory of each plugins
@@ -555,6 +569,7 @@ class PluginManager {
    *    {string}       glob
    *    {string|Array} ignore
    *  }}
+   * @private
    */
   _getPluginModuleType (plugin, type) {
     const moduleType = this.getModuleType(type)
@@ -587,6 +602,8 @@ class PluginManager {
    * @param {Plugin} plugin           Plugin isntance
    * @param {string} type             Module type
    * @param {string} pluginModuleType Modules root absolute path
+   *
+   * @raturn {Array}
    * @private
    */
   async _importModuleFiles (plugin, type, pluginModuleType) {

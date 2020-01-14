@@ -50,6 +50,8 @@ class Midgar extends Emittery {
    * Load the config, init logger and plugin manager
    *
    * @param {Sting} configPath config dir path
+   *
+   * @return {Promise<void>}
    */
   async start (configPath) {
     await this.loadConfig(configPath)
@@ -59,6 +61,8 @@ class Midgar extends Emittery {
 
   /**
    * load the config
+   *
+   * @return {Promise<void>}
    */
   async loadConfig (dirPath) {
     // set the config dir
@@ -79,6 +83,8 @@ class Midgar extends Emittery {
 
   /**
    * Create logger instace and init
+   *
+   * @return {Promise<void>}
    */
   async initLogger () {
     // Check config is loaded
@@ -89,7 +95,9 @@ class Midgar extends Emittery {
   }
 
   /**
-   * @description Init plugin manager
+   * Init plugin manager
+   *
+   * @return {Promise<void>}
    */
   async initPluginManager () {
     // Check load stat
@@ -129,7 +137,7 @@ class Midgar extends Emittery {
    *
    * @param {string} name Plugin name
    *
-   * @return {boolean}
+   * @return {Promise<boolean>}
    */
   addPlugin (name) {
     // Instance pm if not exist for plugin cli command
@@ -143,7 +151,7 @@ class Midgar extends Emittery {
    *
    * @param {string} name Plugin name
    *
-   * @return {boolean}
+   * @return {Promise<boolean>}
    */
   async removePlugin (name) {
     // Instance pm if not exist for plugin cli command
@@ -157,7 +165,7 @@ class Midgar extends Emittery {
    *
    * @param {string} name Plugin name
    *
-   * @return {boolean}
+   * @return {Promise<boolean>}
    */
   async enablePlugin (name) {
     // Instance pm if not exist for plugin cli command
@@ -171,7 +179,7 @@ class Midgar extends Emittery {
    *
    * @param {string} name Plugin name
    *
-   * @return {boolean}
+   * @return {Promise<boolean>}
    */
   async disablePlugin (name) {
     // Instance pm if not exist for plugin cli command
@@ -181,6 +189,7 @@ class Midgar extends Emittery {
 
   /**
    * Return the node env code
+   *
    * @return {string}
    */
   getNodeEnv () {
@@ -190,6 +199,8 @@ class Midgar extends Emittery {
   /**
    * Exit
    * Wait for the logger gracefull exit the process
+   *
+   * @return {Promise<void>}
    */
   async exit () {
     // Check load stat
@@ -209,6 +220,8 @@ class Midgar extends Emittery {
 
   /**
    * Stop Midgar
+   *
+   * @return {Promise<void>}
    */
   async stop () {
     /**

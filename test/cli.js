@@ -109,14 +109,14 @@ describe('Cli', function () {
     // Test result
     plugins = JSON.parse(await asyncReadFile(path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE), 'utf8'))
     expect(plugins).be.a('object')
-    expect(plugins[PLUGIN_NAME]).to.not.be.undefined()
-    expect(plugins[PLUGIN_NAME]).to.be.true()
+    expect(plugins[PLUGIN_NAME]).not.be.undefined()
+    expect(plugins[PLUGIN_NAME]).eql({ local: true })
   })
 
   it('disable', async function () {
     // Check start config
     let plugins = JSON.parse(await asyncReadFile(path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE), 'utf8'))
-    if (plugins[PLUGIN_NAME] === undefined || plugins[PLUGIN_NAME] !== true) throw new Error('Invalid plugins.json')
+    if (plugins[PLUGIN_NAME] === undefined || plugins[PLUGIN_NAME].local !== true) throw new Error('Invalid plugins.json')
 
     // Run cli disable command
     const cli = new Cli(['', '', 'disable', PLUGIN_NAME, '--config', pluginsConfigPath])
@@ -126,8 +126,8 @@ describe('Cli', function () {
     // Test result
     plugins = JSON.parse(await asyncReadFile(path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE), 'utf8'))
     expect(plugins).be.a('object')
-    expect(plugins[PLUGIN_NAME]).to.not.be.undefined()
-    expect(plugins[PLUGIN_NAME]).to.be.false()
+    expect(plugins[PLUGIN_NAME]).not.be.undefined()
+    expect(plugins[PLUGIN_NAME].enabled).be.false()
   })
 
   it('enable', async function () {
@@ -143,8 +143,8 @@ describe('Cli', function () {
     // Test result
     plugins = JSON.parse(await asyncReadFile(path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE), 'utf8'))
     expect(plugins).be.a('object')
-    expect(plugins[PLUGIN_NAME]).to.not.be.undefined()
-    expect(plugins[PLUGIN_NAME]).to.be.true()
+    expect(plugins[PLUGIN_NAME]).not.be.undefined()
+    expect(plugins[PLUGIN_NAME]).eql({ local: true })
   })
 
   it('rm', async function () {
@@ -160,7 +160,7 @@ describe('Cli', function () {
     // Test result
     plugins = JSON.parse(await asyncReadFile(path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE), 'utf8'))
     expect(plugins).be.a('object')
-    expect(plugins[PLUGIN_NAME]).to.be.undefined()
+    expect(plugins[PLUGIN_NAME]).be.undefined()
   })
 })
 
@@ -172,11 +172,11 @@ describe('Test plugin command', function () {
     let cli = new Cli(['', '', 'test', '--config', configPath, '--topt', 'test-return-value'])
     await cli.init()
     let result = await cli.run()
-    expect(result.stdout).to.have.string('test-return-value')
+    expect(result.stdout).have.string('test-return-value')
 
     cli = new Cli(['', '', 'test2', '--config', configPath])
     await cli.init()
     result = await cli.run()
-    expect(result.stdout).to.have.string('cli test 2')
+    expect(result.stdout).have.string('cli test 2')
   })
 })

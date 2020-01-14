@@ -1,6 +1,5 @@
 
 import Emittery from 'emittery'
-import path from 'path'
 
 /**
  * Plugin class
@@ -60,6 +59,8 @@ class Plugin extends Emittery {
 
   /**
    * Init method
+   *
+   * @return {Promise<void>}
    */
   async init () {}
 
