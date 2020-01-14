@@ -63,7 +63,9 @@ describe('Cli', function () {
     await asyncWriteFile(path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE), '{}')
   })
 
-  // Test init command
+  /**
+   * Test init command
+   */
   it('init', async function () {
     // Call init cli command on tmp dir
     const cli = new Cli(['', '', 'init', tmpDir])
@@ -90,6 +92,9 @@ describe('Cli', function () {
     })
   })
 
+  /**
+   * Test add command
+   */
   it('add', async function () {
     const file = path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE)
     // Check start config

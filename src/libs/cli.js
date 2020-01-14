@@ -26,6 +26,7 @@ class Cli {
     this.cwd = cwd
     this.mid = new Midgar()
     this.mid.cli = this
+
     this._runPromise = new Promise((resolve, reject) => {
       this._resolveRun = resolve
       this._rejectRun = reject
@@ -80,7 +81,7 @@ class Cli {
       // Init midgar and load plugin cli commands
       await this.mid.start(this.configPath)
       // Add cli plugin dir
-      this.mid.pm.moduleTypes.cli = 'cli'
+      this.mid.pm.addModuleType('cli', 'cli')
 
       await this.loadPluginsCommands()
     } else if (this.configPath) {
@@ -116,7 +117,7 @@ class Cli {
   /**
    * Add a command to the program
    *
-   * @param {Object} command Command Object
+   * @param {object} command Command Object
    */
   addCommand (command) {
     const cmd = this.program.command(command.command)

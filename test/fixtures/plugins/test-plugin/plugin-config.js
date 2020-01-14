@@ -1,6 +1,8 @@
 export default {
-  dirs: {
-    boo: 'boo'
+  moduleTypes: {
+    boo: {
+      path: 'boo'
+    }
   },
   testConfig: 'ok'
 }

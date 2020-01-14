@@ -110,7 +110,7 @@ class Midgar extends Emittery {
     await this.emit('@midgar/midgar:afterInit')
 
     const time = utils.timer.getTime('midgar-init')
-    this.debug(`@midgar:midgar: PluginManager has init in ${time} ms.`)
+    this.debug(`@midgar:midgar: PluginManager init in ${time} ms.`)
   }
 
   /**
@@ -127,9 +127,9 @@ class Midgar extends Emittery {
    * Add a plugin in the plugins.json config file
    * Return true if the plugin was added or false
    *
-   * @param {String} name Plugin name
+   * @param {string} name Plugin name
    *
-   * @return {Boolean}
+   * @return {boolean}
    */
   addPlugin (name) {
     // Instance pm if not exist for plugin cli command
@@ -141,9 +141,9 @@ class Midgar extends Emittery {
    * Remove a plugin from the plugins.json config file
    * Return true if the plugin was removed or false
    *
-   * @param {String} name Plugin name
+   * @param {string} name Plugin name
    *
-   * @return {Boolean}
+   * @return {boolean}
    */
   async removePlugin (name) {
     // Instance pm if not exist for plugin cli command
@@ -155,9 +155,9 @@ class Midgar extends Emittery {
    * Enable a plugin in the plugins.json config file
    * Return true if the plugin was enabled or false
    *
-   * @param {String} name Plugin name
+   * @param {string} name Plugin name
    *
-   * @return {Boolean}
+   * @return {boolean}
    */
   async enablePlugin (name) {
     // Instance pm if not exist for plugin cli command
@@ -169,9 +169,9 @@ class Midgar extends Emittery {
    * Disable a plugin in the plugins.json config file
    * Return true if the plugin was enabled or false
    *
-   * @param {String} name Plugin name
+   * @param {string} name Plugin name
    *
-   * @return {Boolean}
+   * @return {boolean}
    */
   async disablePlugin (name) {
     // Instance pm if not exist for plugin cli command

@@ -32,6 +32,7 @@
     "emittery": "^0.5.1",
     "esm": "^3.2.25",
     "figlet": "^1.2.4",
+    "glob": "^7.1.6",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^4.4.1"
   },

@@ -11,35 +11,39 @@ class Plugin extends Emittery {
   constructor (mid, options) {
     super()
 
+    /**
+     * Midgar Instance
+     * @var {Midgar}
+     */
     this.mid = mid
 
-    if (!options.name) throw new Error('The plugin have no name')
+    if (!options.name) throw new Error('@midgar:midgar: The plugin have no name !')
 
     /**
      * Plugin name
-     * @var {String}
+     * @var {string}
      */
     this.name = options.name
 
-    if (!options.path) throw new Error('The plugin as no path')
+    if (!options.path) throw new Error(`@midgar:midgar: Plugin "${this.name}" have no path !`)
 
     /**
-     * Plugin path
-     * @var {String}
+     * Plugin absolute path
+     * @var {string}
      */
     this.path = options.path
 
     /**
      * Plugin config from plugin-config.js
-     * @var {Object}
+     * @var {object}
      */
     this.config = options.config || {}
 
     /**
-     * Plugin dirs from plugin-config.js
-     * @var {Object}
+     * Module types from plugin-config.js
+     * @var {object}
      */
-    this.dirs = this.config.dirs || {}
+    this.moduleTypes = this.config.moduleTypes || {}
 
     /**
      * Plugin Manager
@@ -49,7 +53,7 @@ class Plugin extends Emittery {
 
     /**
      * package.json
-     * @var {Object}
+     * @var {object}
      */
     this.package = options.package
   }
@@ -60,22 +64,34 @@ class Plugin extends Emittery {
   async init () {}
 
   /**
-   * Return a dir path by is name
-   * @param {String} name
-   * @return {String}
+   * Return plugin module type configuration
+   *
+   * @param {string} type Module type
+   *
+   * @return {object {
+   *    {string}       path
+   *    {string}       glob
+   *    {string|Array} ignore
+   *  }}
    */
-  getDir (name) {
-    if (!this.pm.moduleTypes[name] && !this.dirs[name]) {
-      this.mid.warn('Unknow plugin dir ' + name)
-      return null
+  getModuleType (type) {
+    const moduleType = this.moduleTypes[type] !== undefined ? this.moduleTypes[type] : null
+
+    const result = {}
+    if (moduleType) {
+      if (typeof moduleType === 'string') {
+        return {
+          path: moduleType
+        }
+      }
+
+      if (typeof moduleType !== 'object') throw new TypeError(`@midgar/midgar: Invalid module type config in plugin ${this.name} for modules ${type} !`)
+      if (moduleType.glob !== undefined) result.glob = moduleType.glob
+      if (moduleType.ignore !== undefined) result.ignore = moduleType.ignore
+      if (moduleType.path !== undefined) result.path = moduleType.path
     }
 
-    return this.dirs[name] ? this.dirs[name] : this.pm.moduleTypes[name]
-  }
-
-  getDirPath (name) {
-    const dir = this.getDir(name)
-    return dir ? path.join(this.path, dir) : null
+    return result
   }
 }
 

@@ -97,11 +97,10 @@ describe('Plugin Manager', function () {
   }
 
   /**
-   * Test the plugin manager importFiles method
+   * Test the plugin manager importModules method
    */
-  it('importFiles', async () => {
-    // Non recursive test
-    let result = await mid.pm.importModules('test', null, false)
+  it('importModules', async () => {
+    let result = await mid.pm.importModules('test')
     let shouldResult = [
       {
         relativePath: 'file-1.js',
@@ -114,17 +113,16 @@ describe('Plugin Manager', function () {
       {
         relativePath: 'file-3.js',
         export: 'test-plugin:foo:file-3'
+      },
+      {
+        relativePath: 'sub/sub-file-1.js',
+        export: 'test-plugin:foo:sub-file-1'
       }
     ]
 
     testImportFilesResult(result, shouldResult, FOO_PLUGIN_PATH)
 
-    // Recursive test
-    result = await mid.pm.importModules('test')
-    shouldResult.push({
-      relativePath: 'sub/sub-file-1.js',
-      export: 'test-plugin:foo:sub-file-1'
-    })
+    shouldResult.push()
 
     testImportFilesResult(result, shouldResult, FOO_PLUGIN_PATH)
 
@@ -141,53 +139,6 @@ describe('Plugin Manager', function () {
   })
 
   /**
-   * Test result getDirs with shouldResult
-   *
-   * @param {Array} result       Result array from getDirs call
-   * @param {Array} shouldResult Result we should have
-   */
-  function testGetDirsResult (result, shouldResult) {
-    expect(result).be.array()
-    expect(result.length).equal(shouldResult.length)
-
-    // List files in result
-    for (let i = 0; i < result.length; i++) {
-      const resultDir = result[i]
-      let dir = null
-      // List files we should have
-      for (let si = 0; si < shouldResult.length; si++) {
-        dir = shouldResult[si]
-        // Check if it the same dir
-        if (dir.path === resultDir.path) {
-          // Check plugin name
-          expect(resultDir.plugin).equal(dir.plugin)
-          break
-        }
-      }
-
-      // Check file is found
-      expect(dir).not.to.be.null()
-    }
-  }
-
-  /**
-   * Test the getDirs method
-   */
-  /*
-  it('getDirs', async () => {
-    const result = await mid.pm.getDirs('test')
-    const shouldResult = [
-      {
-        path: path.join(__dirname, FOO_PLUGIN_PATH),
-        plugin: 'test-plugin'
-      }
-    ]
-
-    testGetDirsResult(result, shouldResult)
-  })
-  */
-
-  /**
    * Test the getSortedPlugins method
    */
   it('getSortedPlugins', async () => {
@@ -202,12 +153,12 @@ describe('Plugin Manager', function () {
     expect(testPlugin2.bar).equal('testrw', 'Invalid rewrite plugin foo value !')
   })
 
-  it('rewrite file', async () => {
+  it('rewrite modules', async () => {
     const fooxxxFiles = await mid.pm.importModules('fooxxx')
     let find = false
     for (const file of fooxxxFiles) {
       if (file.plugin === 'test-plugin-2' && file.relativePath === 'file-1.js') {
-        expect(file.export).equal('test-plugi-rw:fooxxx:file-rw', 'Invalid rewrite file export !')
+        expect(file.export).equal('test-plugi-rw:fooxxx:file-rw', 'Invalid rewrite module export !')
         find = true
       }
     }
@@ -227,11 +178,5 @@ describe('Plugin', function () {
   afterEach(async () => {
     await mid.stop()
     mid = null
-  })
-
-  it('getDir', async () => {
-    const testPlugin = await mid.pm.getPlugin('test-plugin')
-    expect(testPlugin.getDir('test')).equal('foo')
-    expect(testPlugin.getDir('boo')).equal('boo')
   })
 })

@@ -9,10 +9,10 @@ const tplPath = resolve('./.init-tpl')
 
 /**
  * Copy template directory
- * @param {String} projectPath Project init path
- * @param {String} templatePath Template path
- * @param {Object} result Command result object
- * @return {Object}
+ * @param {string} projectPath Project init path
+ * @param {string} templatePath Template path
+ * @param {object} result Command result object
+ * @return {object}
  * @private
  */
 async function initDir (projectPath, templatePath, result) {
@@ -38,8 +38,8 @@ async function initDir (projectPath, templatePath, result) {
 
 /**
  * Init Midgar project into direction projectPath
- * @param {String} projectPath Init project path
- * @return {Object} Cli restult object
+ * @param {string} projectPath Init project path
+ * @return {object} Cli restult object
  * @private
  */
 async function init (projectPath) {
