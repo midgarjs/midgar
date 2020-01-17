@@ -7,5 +7,4 @@ node_modules/
 .sonarlint/
 .mocha-report.xml
 coverage/
-reports/
 .drone-secret

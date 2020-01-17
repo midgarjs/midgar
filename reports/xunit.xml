@@ -1,0 +1,27 @@
+<testExecutions version="1">
+<file path="test/cli.js">
+<testCase name="Cli: rc file" duration="304"/>
+<testCase name="Cli: Invalid command" duration="30"/>
+<testCase name="Cli: init" duration="26"/>
+<testCase name="Cli: add" duration="328"/>
+<testCase name="Cli: disable" duration="14"/>
+<testCase name="Cli: enable" duration="11"/>
+<testCase name="Cli: rm" duration="9"/>
+</file>
+<file path="test/midgar.js">
+<testCase name="Midgar: Invalid call order" duration="1"/>
+<testCase name="Midgar: Invalid config path" duration="0"/>
+<testCase name="Midgar: Config" duration="7"/>
+<testCase name="Midgar: Logger" duration="6"/>
+<testCase name="Midgar: Custom logger" duration="30"/>
+<testCase name="Midgar: exit" duration="212"/>
+</file>
+<file path="test/pm.js">
+<testCase name="Plugin Manager: init" duration="1"/>
+<testCase name="Plugin Manager: Plugin load" duration="1"/>
+<testCase name="Plugin Manager: importModules" duration="103"/>
+<testCase name="Plugin Manager: getSortedPlugins" duration="0"/>
+<testCase name="Plugin Manager: rewrite plugin" duration="1"/>
+<testCase name="Plugin Manager: rewrite modules" duration="28"/>
+</file>
+</testExecutions>

@@ -13,6 +13,9 @@ const CONFIG_FILE_NAME = 'config'
  * @param {string} configDir config directory path
  * @param {string} prefix config prefix for the files name
  * @param {boolean} require require flag
+ * 
+ * @return {object}
+ * @private
  */
 async function loadConfig (configDir, env) {
   const config = {}
@@ -33,6 +36,7 @@ async function loadConfig (configDir, env) {
  * @param {boolean} requireMode require flag
  *
  * @return {Object|Array}
+ * @private
  */
 async function loadConfigfile (filePath, requireMode = false) {
   const exist = await asyncFileExists(filePath + '.js')

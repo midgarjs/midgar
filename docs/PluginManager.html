@@ -40,7 +40,14 @@
 			<li class="dropdown">
 				<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="global.html#event:$%257BpluginName%257D:afterInit">event:${pluginName}:afterInit</a></li><li><a href="global.html#event:@midgar/midgar:afterInit">event:@midgar/midgar:afterInit</a></li><li><a href="global.html#event:@midgar/midgar:afterLoadPlugins">event:@midgar/midgar:afterLoadPlugins</a></li><li><a href="global.html#event:@midgar/midgar:stop">event:@midgar/midgar:stop</a></li>
+					<li><a href="global.html#event:@midgar/midgar:afterInit">event:@midgar/midgar:afterInit</a></li><li><a href="global.html#event:@midgar/midgar:afterLoadPlugins">event:@midgar/midgar:afterLoadPlugins</a></li><li><a href="global.html#event:@midgar/midgar:stop">event:@midgar/midgar:stop</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="global.html">Global</a></li>
 				</ul>
 			</li>
 			
@@ -184,7 +191,7 @@ Manage plugins</div>
             
 <hr>
 <dt class="name" id="localPath">
-    <h4 id="localPath"><span class="type-signature"></span>localPath<span class="type-signature"> :String</span></h4>
+    <h4 id="localPath"><span class="type-signature"></span>localPath<span class="type-signature"> :string</span></h4>
 
     
 </dt>
@@ -200,7 +207,7 @@ Manage plugins</div>
         <ul>
             <li>
                 
-<span class="param-type">String</span>
+<span class="param-type">string</span>
 
 
 
@@ -333,8 +340,7 @@ Manage plugins</div>
 <dd>
     
     <div class="description">
-        Define the default plugins dirs
-it can be overite by the plugin config
+        Module types dictionary
     </div>
     
 
@@ -398,14 +404,14 @@ it can be overite by the plugin config
             
 <hr>
 <dt class="name" id="plugins">
-    <h4 id="plugins"><span class="type-signature"></span>plugins<span class="type-signature"> :Object</span></h4>
+    <h4 id="plugins"><span class="type-signature"></span>plugins<span class="type-signature"> :object</span></h4>
 
     
 </dt>
 <dd>
     
     <div class="description">
-        Plugins Object by name
+        Plugins Dictionary
     </div>
     
 
@@ -414,7 +420,7 @@ it can be overite by the plugin config
         <ul>
             <li>
                 
-<span class="param-type">Object</span>
+<span class="param-type">object</span>
 
 
 
@@ -469,14 +475,14 @@ it can be overite by the plugin config
             
 <hr>
 <dt class="name" id="rewritedPlugins">
-    <h4 id="rewritedPlugins"><span class="type-signature"></span>rewritedPlugins<span class="type-signature"> :Object</span></h4>
+    <h4 id="rewritedPlugins"><span class="type-signature"></span>rewritedPlugins<span class="type-signature"> :object</span></h4>
 
     
 </dt>
 <dd>
     
     <div class="description">
-        Rewrited plugin object mapping
+        Rewrited plugin dictionary
     </div>
     
 
@@ -485,7 +491,7 @@ it can be overite by the plugin config
         <ul>
             <li>
                 
-<span class="param-type">Object</span>
+<span class="param-type">object</span>
 
 
 
@@ -539,15 +545,15 @@ it can be overite by the plugin config
         
             
 <hr>
-<dt class="name" id="rewriteFile">
-    <h4 id="rewriteFile"><span class="type-signature"></span>rewriteFile<span class="type-signature"> :Object</span></h4>
+<dt class="name" id="rewriteModules">
+    <h4 id="rewriteModules"><span class="type-signature"></span>rewriteModules<span class="type-signature"> :object</span></h4>
 
     
 </dt>
 <dd>
     
     <div class="description">
-        Rewrite plugin file mapping
+        Rewrite modules
     </div>
     
 
@@ -556,7 +562,7 @@ it can be overite by the plugin config
         <ul>
             <li>
                 
-<span class="param-type">Object</span>
+<span class="param-type">object</span>
 
 
 
@@ -611,14 +617,14 @@ it can be overite by the plugin config
             
 <hr>
 <dt class="name" id="rewritePlugins">
-    <h4 id="rewritePlugins"><span class="type-signature"></span>rewritePlugins<span class="type-signature"> :Object</span></h4>
+    <h4 id="rewritePlugins"><span class="type-signature"></span>rewritePlugins<span class="type-signature"> :object</span></h4>
 
     
 </dt>
 <dd>
     
     <div class="description">
-        Rewrite plugin object mapping
+        Rewrite plugin dictionary
     </div>
     
 
@@ -627,7 +633,7 @@ it can be overite by the plugin config
         <ul>
             <li>
                 
-<span class="param-type">Object</span>
+<span class="param-type">object</span>
 
 
 
@@ -688,6 +694,228 @@ it can be overite by the plugin config
             
 <hr>
 <dt>
+    <h4 class="name" id="addModuleType"><span class="type-signature"></span>addModuleType(key, path, glob, ignore)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Add a plugin module types
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>key</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">Module type key</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">Relative path for modules directory</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>glob</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                    **/*.js
+                
+                </td>
+            
+
+            <td class="description last">Glob pattern, default is **\/*.js</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>ignore</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+
+            <td class="description last">Ignore glob pattern or Array of glob pattern</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
     <h4 class="name" id="addPlugin"><span class="type-signature">&lt;async> </span>addPlugin(name)</h4>
     
     
@@ -738,7 +966,7 @@ Return true if the plugin was added or false
             <td class="type">
             
                 
-<span class="param-type">String</span>
+<span class="param-type">string</span>
 
 
 
@@ -820,7 +1048,7 @@ Return true if the plugin was added or false
     </dt>
     <dd>
         
-<span class="param-type">Boolean</span>
+<span class="param-type">boolean</span>
 
 
 
@@ -829,158 +1057,6 @@ Return true if the plugin was added or false
 
 
         
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="addModuleType"><span class="type-signature"></span>addModuleType(key, defaultPath)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Add a plugin directory
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>key</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Directory key</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>defaultPath</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Default path</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
 
     
 </dd>
@@ -1039,7 +1115,7 @@ Return true if the plugin was enabled or false
             <td class="type">
             
                 
-<span class="param-type">String</span>
+<span class="param-type">string</span>
 
 
 
@@ -1121,7 +1197,7 @@ Return true if the plugin was enabled or false
     </dt>
     <dd>
         
-<span class="param-type">Boolean</span>
+<span class="param-type">boolean</span>
 
 
 
@@ -1188,7 +1264,7 @@ Return true if the plugin was enabled or false
             <td class="type">
             
                 
-<span class="param-type">String</span>
+<span class="param-type">string</span>
 
 
 
@@ -1270,7 +1346,7 @@ Return true if the plugin was enabled or false
     </dt>
     <dd>
         
-<span class="param-type">Boolean</span>
+<span class="param-type">boolean</span>
 
 
 
@@ -1287,7 +1363,7 @@ Return true if the plugin was enabled or false
             
 <hr>
 <dt>
-    <h4 class="name" id="getDirs"><span class="type-signature">&lt;async> </span>getDirs(dir)</h4>
+    <h4 class="name" id="getModuleType"><span class="type-signature"></span>getModuleType(type)</h4>
     
     
 </dt>
@@ -1295,8 +1371,7 @@ Return true if the plugin was enabled or false
 
     
     <div class="description">
-        Return an array of object contain
-the plugin and the dir found
+        Return a module type definition
     </div>
     
 
@@ -1331,10 +1406,16 @@ the plugin and the dir found
 
         <tr>
             
-                <td class="name"><code>dir</code></td>
+                <td class="name"><code>type</code></td>
             
 
             <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+
             
             </td>
 
@@ -1342,7 +1423,7 @@ the plugin and the dir found
 
             
 
-            <td class="description last">plugin dir key</td>
+            <td class="description last">Module type</td>
         </tr>
 
     
@@ -1413,7 +1494,7 @@ the plugin and the dir found
     </dt>
     <dd>
         
-<span class="param-type">Array</span>
+<span class="param-type"><a href="global.html#ModuleType">ModuleType</a></span>
 
 
 
@@ -1479,7 +1560,7 @@ the plugin and the dir found
             <td class="type">
             
                 
-<span class="param-type">String</span>
+<span class="param-type">string</span>
 
 
 
@@ -1734,7 +1815,7 @@ the plugin and the dir found
             
 <hr>
 <dt>
-    <h4 class="name" id="importModules"><span class="type-signature">&lt;async> </span>importModules(dirkey, regExp, recursive)</h4>
+    <h4 class="name" id="importModules"><span class="type-signature">&lt;async> </span>importModules(type)</h4>
     
     
 </dt>
@@ -1767,8 +1848,6 @@ the plugin and the dir found
         
 
         
-        <th>Default</th>
-        
 
         <th class="last">Description</th>
     </tr>
@@ -1779,13 +1858,13 @@ the plugin and the dir found
 
         <tr>
             
-                <td class="name"><code>dirkey</code></td>
+                <td class="name"><code>type</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">String</span>
+<span class="param-type">string</span>
 
 
 
@@ -1795,72 +1874,8 @@ the plugin and the dir found
             
 
             
-                <td class="default">
-                
-                </td>
-            
 
-            <td class="description last">Plugin dir name</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>regExp</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">RegExp</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-                <td class="default">
-                
-                    null
-                
-                </td>
-            
-
-            <td class="description last">Use to filter by filname</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>recursive</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Boolean</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-                <td class="default">
-                
-                    true
-                
-                </td>
-            
-
-            <td class="description last">Reacursive or not, it true by default</td>
+            <td class="description last">Module type key</td>
         </tr>
 
     
@@ -2019,6 +2034,26 @@ Get the enabled plugins from the config and load them
     
 
     
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;void></span>
+
+
+
+    </dd>
+</dl>
+
+
+        
 
     
 </dd>
@@ -2100,7 +2135,7 @@ Get the enabled plugins from the config and load them
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type">object</span>
 
 
 
@@ -2171,6 +2206,26 @@ Get the enabled plugins from the config and load them
     
 
     
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;void></span>
+
+
+
+    </dd>
+</dl>
+
+
+        
 
     
 </dd>
@@ -2229,7 +2284,7 @@ Return true if the plugin was removed or false
             <td class="type">
             
                 
-<span class="param-type">String</span>
+<span class="param-type">string</span>
 
 
 
@@ -2311,7 +2366,7 @@ Return true if the plugin was removed or false
     </dt>
     <dd>
         
-<span class="param-type">Boolean</span>
+<span class="param-type">boolean</span>
 
 
 
@@ -2374,7 +2429,7 @@ Return true if the plugin was removed or false
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a>
 	
-		on 2020-01-04T13:56:09+00:00
+		on 2020-01-16T18:43:14+00:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>

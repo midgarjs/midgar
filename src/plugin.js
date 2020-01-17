@@ -69,11 +69,7 @@ class Plugin extends Emittery {
    *
    * @param {string} type Module type
    *
-   * @return {object {
-   *    {string}       path
-   *    {string}       glob
-   *    {string|Array} ignore
-   *  }}
+   * @return {ModuleType}
    */
   getModuleType (type) {
     const moduleType = this.moduleTypes[type] !== undefined ? this.moduleTypes[type] : null

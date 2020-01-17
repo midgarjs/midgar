@@ -6,6 +6,7 @@
   "scripts": {
     "build-docs": "jsdoc -c ./jsdoc.js -t ./node_modules/ink-docstrap/template ./README.md -r ./src/",
     "test": "mocha --require esm test/*.js --exit",
+    "nodemontest": "nodemon --exec \"npm run test\"",
     "drone": "drone exec --secret-file=.drone-secret",
     "coverage": "nyc -i esm --reporter=lcov --reporter=text-summary npm run test",
     "eslint:ci": "eslint -f json -o reports/.eslint-report.json src/ || exit 0",
@@ -55,10 +56,10 @@
     "ink-docstrap": "^1.3.2",
     "jsdoc": "3.6.3",
     "mocha": "^7.0.0",
-    "mocha-junit-reporter": "^1.23.2",
+    "mocha-junit-reporter": "^1.23.3",
     "mocha-sonarqube-reporter": "^1.0.1",
     "nyc": "^15.0.0",
-    "sinon": "^8.0.4"
+    "sinon": "^8.1.0"
   },
   "keywords": [
     "mvc",

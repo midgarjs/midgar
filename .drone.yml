@@ -2,10 +2,10 @@ kind: pipeline
 type: docker
 name: nodejs
 steps:
-
 - name: build
   image: node:latest
   commands:
+    - rm -rf ./.scannerwork
     - yarn
     - yarn run coverage:ci
     - yarn run eslint:ci

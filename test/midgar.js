@@ -43,13 +43,27 @@ describe('Midgar', function () {
     process.exit.restore()
   })
 
-  it('Config', async () => {
+  it('Invalid call order', async () => {
     mid = new Midgar()
-    await expect(mid.initPluginManager()).to.be.rejectedWith(Error, '@midgar/midgar: Load config before init pm !')
+    await expect(mid.initLogger()).be.rejectedWith(Error, '@midgar/midgar: Load config before init logger !')
+    await expect(mid.initPluginManager()).be.rejectedWith(Error, '@midgar/midgar: Load config before init pm !')
+    mid.loadConfig(path.join(__dirname, 'fixtures/config'))
+    await expect(mid.initPluginManager()).be.rejectedWith(Error, '@midgar/midgar: Load config before init pm !')
 
+  })
+
+  it('Invalid config path', async () => {
+    // Test invalid config directory
+    mid = new Midgar()
+    
+    await expect(mid.start(path.join(__dirname, 'fixtures/test'))).be.rejectedWith(Error, `@midgar/midgar: the file ${path.join(__dirname, 'fixtures/test', 'config.js')} doesn't exist !`)
+
+  })
+
+  it('Config', async () => {
     mid = await initMidgar()
     expect(mid.config).not.equal(null, 'config is null')
-    expect(mid.config.pm).not.be.undefined('Invalid config')
+    expect(mid.config.pluginsLocalPath).not.be.undefined('Invalid config')
     expect(mid.config.log).not.be.undefined('Invalid config')
   })
 

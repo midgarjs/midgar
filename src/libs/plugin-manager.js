@@ -6,6 +6,13 @@ const PACKAGE_JSON = 'package.json'
 export const PLUGIN_CONFIG_FILE = 'plugin-config.js'
 export const PLUGINS_CONFIG_FILE = 'plugins.json'
 
+/**
+ * @typedef {Object} ModuleType
+ * @property {string}       path   Modules path
+ * @property {string}       glob   Glob pattern
+ * @property {string|Array} ignore Ignore glob pattern
+ */
+
 const notAddedPluginError = (name) => `Plugin ${name} is not in plugins config file !'`
 /**
  * PluginMaganger class
@@ -509,11 +516,7 @@ class PluginManager {
    *
    * @param {*} type Module type
    *
-   * @return {object {
-   *    {string}       path
-   *    {string}       glob
-   *    {string|Array} ignore
-   *  }}
+   * @return {ModuleType}
    */
   getModuleType (type) {
     if (!this.moduleTypes[type]) throw new Error(`@midgar/midgar: Unknow module type ${type}`)
@@ -524,8 +527,6 @@ class PluginManager {
    * Import files inside a directory of each plugins
    *
    * @param {string}  type  Module type key
-   * @param {string}  globPattern Use to filter by path
-   * @param {string}  ignore      Ignore glob pattern
    *
    * @return {Array}
    */
@@ -561,14 +562,8 @@ class PluginManager {
    *
    * @param {string}       plugin      Plugin name
    * @param {string}       type        Module type
-   * @param {string}       glob        Glob pattern
-   * @param {string|Array} ignore      Ignore glob patter
    *
-   * @return {object {
-   *    {string}       path
-   *    {string}       glob
-   *    {string|Array} ignore
-   *  }}
+   * @return {ModuleType}
    * @private
    */
   _getPluginModuleType (plugin, type) {
@@ -599,9 +594,9 @@ class PluginManager {
   /**
    * Import module inside a plugin directory
    *
-   * @param {Plugin} plugin           Plugin isntance
-   * @param {string} type             Module type
-   * @param {string} pluginModuleType Modules root absolute path
+   * @param {Plugin}        plugin           Plugin isntance
+   * @param {string}        type             Module type
+   * @param {ModuleType} pluginModuleType Modules root absolute path
    *
    * @raturn {Array}
    * @private

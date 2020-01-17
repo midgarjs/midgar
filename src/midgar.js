@@ -75,8 +75,6 @@ class Midgar extends Emittery {
 
     this.config.log.level = this.config.log && this.config.log.level ? this.config.log.level : 'warn'
 
-    if (!this.config.pm) this.config.pm = {}
-
     if (this.config.pluginsLocalPath === undefined) throw new Error('@midgar/midgar: Missing pluginsLocalPath in Midgar config !')
     if (typeof this.config.pluginsLocalPath !== 'string') throw new TypeError('@midgar/midgar: Invalid pluginsLocalPath type in Midgar config !')
   }

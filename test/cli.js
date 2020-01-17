@@ -1,7 +1,8 @@
-import mocha from 'mocha'
+import { describe, it } from 'mocha'
 import chai from 'chai'
 import dirtyChai from 'dirty-chai'
 import chaiFs from 'chai-fs'
+import chaiAsPromised from 'chai-as-promised'
 import path from 'path'
 import _rimraf from 'rimraf'
 import fs from 'fs'
@@ -14,13 +15,11 @@ import { PLUGINS_CONFIG_FILE } from '../src/libs/plugin-manager'
 
 const PLUGIN_NAME = '@test/test-plugin-2'
 
-// fix for TypeError: describe is not a function with mocha-teamcity-reporter
-const { describe, it } = mocha
-
 // Add chai middlware
 const expect = chai.expect
 chai.use(chaiFs)
 chai.use(dirtyChai)
+chai.use(chaiAsPromised)
 
 /**
  * Promised rimraf
@@ -39,7 +38,7 @@ function rimraf (rmPath) {
  */
 function getTmpDir () {
   const dirname = path.join(os.tmpdir(), uid.sync(8))
-  fs.mkdirSync(dirname, { mode: parseInt('0700', 8) })
+  // fs.mkdirSync(dirname, { mode: parseInt('0700', 8) })
   return dirname
 }
 
@@ -64,11 +63,32 @@ describe('Cli', function () {
   })
 
   /**
+   * Test cli get config path from rc file
+   */
+  it('rc file', async function () {
+    const argv = ['', '', 'test']
+    const cwd = path.resolve(__dirname, 'fixtures/test/test/test')
+    const cli = new Cli(argv, cwd)
+    await cli.init()
+    expect(cli.mid.configPath).equal(configPath, 'Invalid config path')
+  })
+
+  /**
+   * Test invalid command
+   */
+  it('Invalid command', async function () {
+    const argv = ['', '', 'invalidcmd']
+    const cwd = path.resolve(__dirname, 'fixtures/test/test/test')
+    const cli = new Cli(argv, cwd)
+    await cli.init()
+    await expect(cli.run()).be.rejectedWith('Invalid command: invalidcmd\nSee --help for a list of available commands.', 'nlalala')
+  })
+  /**
    * Test init command
    */
   it('init', async function () {
     // Call init cli command on tmp dir
-    const cli = new Cli(['', '', 'init', tmpDir])
+    const cli = new Cli(['', '', 'init', tmpDir], tmpDir)
     await cli.init()
     await cli.run()
 
@@ -78,7 +98,7 @@ describe('Cli', function () {
       '.gitignore',
       '.eslintrc.js',
       'yarn.lock',
-      '.midrc',
+      '.midgarrc.js',
       'src/index.js',
       'src/server.js',
       'src/config/config.js',
@@ -113,6 +133,9 @@ describe('Cli', function () {
     expect(plugins[PLUGIN_NAME]).eql({ local: true })
   })
 
+  /**
+   * Test disable command
+   */
   it('disable', async function () {
     // Check start config
     let plugins = JSON.parse(await asyncReadFile(path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE), 'utf8'))
@@ -130,6 +153,9 @@ describe('Cli', function () {
     expect(plugins[PLUGIN_NAME].enabled).be.false()
   })
 
+  /**
+   * Test enable command
+   */
   it('enable', async function () {
     // Check start config
     let plugins = JSON.parse(await asyncReadFile(path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE), 'utf8'))
@@ -147,6 +173,9 @@ describe('Cli', function () {
     expect(plugins[PLUGIN_NAME]).eql({ local: true })
   })
 
+  /**
+   * Test rm command
+   */
   it('rm', async function () {
     // Check start config
     let plugins = JSON.parse(await asyncReadFile(path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE), 'utf8'))
@@ -161,22 +190,5 @@ describe('Cli', function () {
     plugins = JSON.parse(await asyncReadFile(path.join(pluginsConfigPath, PLUGINS_CONFIG_FILE), 'utf8'))
     expect(plugins).be.a('object')
     expect(plugins[PLUGIN_NAME]).be.undefined()
-  })
-})
-
-/**
- * Test if the command test of the plugin test is call
- */
-describe('Test plugin command', function () {
-  it('test', async function () {
-    let cli = new Cli(['', '', 'test', '--config', configPath, '--topt', 'test-return-value'])
-    await cli.init()
-    let result = await cli.run()
-    expect(result.stdout).have.string('test-return-value')
-
-    cli = new Cli(['', '', 'test2', '--config', configPath])
-    await cli.init()
-    result = await cli.run()
-    expect(result.stdout).have.string('cli test 2')
   })
 })

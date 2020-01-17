@@ -40,7 +40,14 @@
 			<li class="dropdown">
 				<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="global.html#event:$%257BpluginName%257D:afterInit">event:${pluginName}:afterInit</a></li><li><a href="global.html#event:@midgar/midgar:afterInit">event:@midgar/midgar:afterInit</a></li><li><a href="global.html#event:@midgar/midgar:afterLoadPlugins">event:@midgar/midgar:afterLoadPlugins</a></li><li><a href="global.html#event:@midgar/midgar:stop">event:@midgar/midgar:stop</a></li>
+					<li><a href="global.html#event:@midgar/midgar:afterInit">event:@midgar/midgar:afterInit</a></li><li><a href="global.html#event:@midgar/midgar:afterLoadPlugins">event:@midgar/midgar:afterLoadPlugins</a></li><li><a href="global.html#event:@midgar/midgar:stop">event:@midgar/midgar:stop</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="global.html">Global</a></li>
 				</ul>
 			</li>
 			
@@ -95,10 +102,10 @@
     <section class="readme-section">
         <article><h2>En développement ne pas utiliser en production</h2>
 <p><a href="https://drone.midgar.io/Midgar/midgar"><img src="https://drone.midgar.io/api/badges/Midgar/midgar/status.svg" alt="Build Status"></a>
-<a href="https://sonar.midgar.io/dashboard?id=Midgar%3Amidgar"><img src="https://sonar.midgar.io/api/project_badges/measure?project=Midgar%3Amidgar&amp;metric=coverage" alt="Coverage"></a></p>
+<a href="https://sonar.midgar.io/dashboard?id=midgar-midgar"><img src="https://sonar.midgar.io/api/project_badges/measure?project=midgar-midgar&amp;metric=coverage" alt="Coverage"></a></p>
 <h1>Midgar</h1>
 <h2>Qu'est ce que Midgar</h2>
-<p>Midgar est un framework nodejs utilisant le pattern Model View-Controller Service (MVCS).
+<p>Midgar est un framework nodejs modulaire utilisant le pattern Model View-Controller Service (MVCS).
 Il se base sur un système de plugin pour permetre de réaliser rapidement des applications web complexes de manière claire et structuré.</p>
 <p>npm</p>
 <h2>Installation</h2>
@@ -146,7 +153,7 @@ L'utilisation des scripts de npm permet l'activation automatique des plugins sur
 <td>Service <a href="https://mongoosejs.com/">Mongoose</a> avec chargement des models et migrations.</td>
 </tr>
 <tr>
-<td><a href="https://github.com/midgarjs/apollo-server">apollo-server</a></td>
+<td><a href="https://github.com/midgarjs/graphql-server">graphql-server</a></td>
 <td>Service <a href="https://www.apollographql.com/">Apollo server</a> avec chargement des schémas et resolvers. Resolvers avec injection de service.</td>
 </tr>
 </tbody>
@@ -187,19 +194,13 @@ S'il ne trouve pas ce fichier il cherche dans ./config.</p>
 <p>Voici un exemple de fichier plugin:</p>
 <pre class="prettyprint source lang-js"><code>import { Plugin } from '@midgar/midgar'
 
-/**
- * TestPlugin
- */
-class TestPlugin extends Plugin {
+export default class TestPlugin extends Plugin {
   init () {
-    // Listen @midgar/midgar:afterInit event
     this.mid.on('@midgar/midgar:afterLoadPlugins', async () => {
       // Ceci est exécuté une fois que tous les plugins ont été chargés
     })
   }
 }
-
-export default TestPlugin
 </code></pre>
 <p>Vous pouvez retouver la liste des évènements dans la <a href="https://midgarjs.github.io/midgar/">documentation</a>.</p>
 <h3>Package npm</h3>
@@ -208,18 +209,35 @@ export default TestPlugin
 <h3>Configuration du plugin</h3>
 <p>Vous pouvez ajouter un fichier <strong>plugin-config.js</strong> dans le même dossier que le fichier plugin.</p>
 <p>Ce fichier est charger avant le chargement des plugins et est injecté dans le membre <strong>.config</strong> de l'instance du plugin.</p>
-<h3>Importer</h3>
-<p>Le système de plugin comprend un importer de fichier.
-Vous pouvez déclarrer un nouveau dossier a importer dans la methode init de votre plugin:</p>
-<pre class="prettyprint source lang-js"><code>this.pm.addModuleType('mon-dossier', 'mondossier')
+<h3>Modules</h3>
+<p>Le système de plugin comprend un importer de modules.
+Vous pouvez déclarrer un type de modules a importer dans la methode init de votre plugin:</p>
+<pre class="prettyprint source lang-js"><code>import { Plugin } from '@midgar/midgar'
+
+export default class TestPlugin extends Plugin {
+  init () {
+    this.pm.addModuleType('mon-type', 'mondossier')
+  }
+}
 </code></pre>
+<p><em><strong>mon-type</strong></em> corréspond à l'identifiant du type de module.
+<em><strong>modossier</strong></em> corréspond au chemin par défaut du dossier contenant ce type de modules.</p>
 <p>@see: https://midgarjs.github.io/midgar/PluginManager.html#addModuleType__anchor</p>
-<p>Pour importer les fichiers contenu de ce dossier:</p>
-<pre class="prettyprint source lang-js"><code>const files = await this.mid.pm.importModules('mon-dossier')
+<p>Pour importer les modules:</p>
+<pre class="prettyprint source lang-js"><code>import { Plugin } from '@midgar/midgar'
+
+export default class TestPlugin extends Plugin {
+  init () {
+    this.mid.on('@midgar/midgar:afterLoadPlugins', async () => {
+      const files = await this.mid.pm.importModules('mon-type')
+      ...
+    })
+  }
+}
 </code></pre>
 <p>@see: https://midgarjs.github.io/midgar/PluginManager.html#importModules__anchor</p>
-<p>La méthode importModules importe tous les fichiers du dossier <strong>mon-dossier</strong> pour tous les plugins.
-Le chemin du dossier <strong>mon-dossier</strong> est par défaut <strong>./mondossier/</strong> relativement par rapport au dossier du fichier plugin.</p>
+<p>La méthode importModules importe tous les modules <strong>mon-typer</strong> pour tous les plugins.
+Le chemin du dossier <strong>mon-type</strong> est par défaut <strong>./mondossier/</strong> relativement par rapport au fichier plugin.</p>
 <p>La méthode importModules renvoit un tableau d'object:</p>
 <pre class="prettyprint source lang-js"><code>[
   {
@@ -231,50 +249,52 @@ Le chemin du dossier <strong>mon-dossier</strong> est par défaut <strong>./mond
   ...
 }
 </code></pre>
-<p>Le chemin du dossier <strong>mon-dossier</strong> peut etre configurer pour chaque plugin dans le fichier  <strong>plugin-config.js</strong>:</p>
+<p>Le chemin du dossier <strong>mon-type</strong> peut etre configuré pour chaque plugin dans le fichier  <strong>plugin-config.js</strong>:</p>
 <pre class="prettyprint source lang-js"><code>export default {
-{
-  dirs: {
-      'mon-dossier': 'monnouveaudossier',
+  modules: {
+    'mon-type': 'mon/nouveau/dossier',
   }
 }
 </code></pre>
 <h3>Réecriture</h3>
-<p>Si un plugin ne fait pas axactement ce dont vous avez besoin ou si vous voulez enrichir les fonctionnalitées d'un plugin, vous pouvez utiliser le système de réecture.
-Le fichier plugin ainsi que les fichiers importer via le système de dossier sont réecrivable.</p>
-<h3>Plugin</h3>
-<p>Pour réecrire un fichier plugin, ajouter ceci dans le fichier <strong>plugin-config.js</strong>.</p>
+<p>Si un plugin ne fait pas axactement ce dont vous avez besoin, ou bien si vous voulez enrichir les fonctionnalitées d'un plugin, vous pouvez utiliser le système de réecture.
+Les plugins ainsi que les modules importé via la méthode importModules sont réecrivable.</p>
+<h4>Plugin</h4>
+<p>Pour réecrire un plugin, ajouter ceci dans le fichier <strong>plugin-config.js</strong>.</p>
 <pre class="prettyprint source lang-js"><code>export default {
-    rewritePlugin: '@midgar/service',
+    rewrite:{
+      plugin: '@midgar/service'
+    }
   }
 }
 </code></pre>
 <p>Lors du chargement des plugins, ce plugin sera chargé à la place du plugin <strong>@midgar/service</strong>.</p>
-<p>Le plugin devrait ressember à ceci:</p>
+<p>Le plugin devrait ressembler à ceci:</p>
 <pre class="prettyprint source lang-js"><code>import ServicePlugin from '@midgar/service'
 
-class RewritePlugin extends ServicePlugin {
+export default class RewritePlugin extends ServicePlugin {
   async init () {
     await super.init()
     ....
   }
 }
 
-export default RewritePlugin
 </code></pre>
-<h3>Fichier</h3>
-<p>Pour réecrir un fichier import via le système de dossier, ajouter ceci dans le fichier <strong>plugin-config.js</strong>.</p>
+<h3>Module</h3>
+<p>Pour réecrir un module importé via la méthode importModules, ajouter ceci dans le fichier <strong>plugin-config.js</strong>.</p>
 <pre class="prettyprint source lang-js"><code>export default {
-  rewriteFile: {
-    &quot;midgar-mongoose-models&quot;: {
-      &quot;@midgar/graphql-auth&quot;: {
-        'user.js': './rewrite/models/user.js'
+  rewrite: {
+    modules: {
+      &quot;midgar-mongoose-models&quot;: { // Type de module
+        &quot;@midgar/graphql-auth&quot;: { // nom du plugin a réecrire
+          'user.js': './rewrite/models/user.js' // chemin du fichier a réecrire: chemin du module de remplacement
+        }
       }
     }
   }
 }
 </code></pre>
-<p>Lors de l'import des fichers, le fichier <strong>./rewrite/models/user.js</strong> sera chargé à la place du fichier <strong>user.js</strong> contenu dans le dossier <strong>midgar-mongoose-models</strong> et pour le plugin <strong>@midgar/graphql-auth</strong></p></article>
+<p>Lors de l'import des modules, le modules <strong>./rewrite/models/user.js</strong> sera chargé à la place du modules <strong>user.js</strong> contenu dans le dossier <strong>midgar-mongoose-models</strong> et pour le plugin <strong>@midgar/graphql-auth</strong></p></article>
     </section>
 
 
@@ -320,7 +340,7 @@ export default RewritePlugin
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a>
 	
-		on 2020-01-04T13:56:09+00:00
+		on 2020-01-16T18:43:13+00:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>
