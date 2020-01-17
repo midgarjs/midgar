@@ -13,7 +13,7 @@ const CONFIG_FILE_NAME = 'config'
  * @param {string} configDir config directory path
  * @param {string} prefix config prefix for the files name
  * @param {boolean} require require flag
- * 
+ *
  * @return {object}
  * @private
  */

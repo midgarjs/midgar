@@ -41,10 +41,8 @@ class Cli {
        * Invalid command handler
        */
       .on('command:*', () => {
-        if (this.configPath !== null) 
-          this._rejectRun(`Invalid command: ${this.program.args.join(' ')}\nSee --help for a list of available commands.`)
-        else
-          this._resolveRun({})
+        if (this.configPath !== null) this._rejectRun(`Invalid command: ${this.program.args.join(' ')}\nSee --help for a list of available commands.`)
+        else this._resolveRun({})
       })
   }
 

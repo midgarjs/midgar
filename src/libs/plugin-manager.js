@@ -489,10 +489,10 @@ class PluginManager {
    *
    * @param {string} key   Module type key
    * @param {string} path   Relative path for modules directory
-   * @param {string} glob   Glob pattern, default is **\/*.js
+   * @param {string} globPattern   Glob pattern, default is **\/*.js
    * @param {string} ignore Ignore glob pattern or Array of glob pattern
    */
-  addModuleType (key, path, glob = '**/*.js', ignore = null) {
+  addModuleType (key, path, globPattern = '**/*.js', ignore = null) {
     if (typeof key !== 'string') throw new Error('@midgar/midgar: Invalid key type !')
     if (typeof path !== 'string') throw new Error('@midgar/midgar: Invalid path type !')
 
@@ -501,12 +501,12 @@ class PluginManager {
 
     if (!path.length) throw new Error('@midgar/midgar: Invalid path !')
 
-    if (typeof glob !== 'string') throw new TypeError(`@midgar/midgar: Invalid glob type for modules ${key}.`)
+    if (typeof globPattern !== 'string') throw new TypeError(`@midgar/midgar: Invalid glob type for modules ${key}.`)
     if (ignore && typeof ignore !== 'string' && !Array.isArray(ignore)) throw new TypeError(`@midgar/midgar: Invalid ignore type for modules ${key}.`)
 
     this.moduleTypes[key] = {
       path,
-      glob,
+      glob: globPattern,
       ignore
     }
   }

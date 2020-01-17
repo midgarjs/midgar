@@ -1,7 +1,7 @@
 ## En développement ne pas utiliser en production
 
 [![Build Status](https://drone.midgar.io/api/badges/Midgar/midgar/status.svg)](https://drone.midgar.io/Midgar/midgar)
-[![Coverage](https://sonar.midgar.io/api/project_badges/measure?project=midgar-midgar&metric=coverage)](https://sonar.midgar.io/dashboard?id=midgar-midgar)
+[![Coverage](https://sonar.midgar.io/api/project_badges/measure?project=Midgar-midgar&metric=coverage)](https://sonar.midgar.io/dashboard?id=Midgar-midgar)
 
 # Midgar
 
