@@ -121,7 +121,7 @@ export default [
       if (!mid.cli.configPath) throw new Error(`Cannot add ${plugin} to plugins.json, Midgar config have not be resolved !`)
 
       if (await mid.addPlugin(plugin)) {
-        console.log(plugin + ' added to plugins.js !')
+        console.log(plugin + ' added to plugins.json !')
       }
     }
   },
