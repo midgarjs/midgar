@@ -8,7 +8,7 @@
 ## Qu'est ce que Midgar
 
 Midgar est un framework nodejs modulaire utilisant le pattern Model View-Controller Service (MVCS).
-Il se base sur un système de plugin pour permetre de réaliser rapidement des applications web complexes de manière claire et structuré.
+Il se base sur un système de plugin pour permettre de réaliser rapidement des applications web complexes de manière claire et structuré.
 
 ## Démarrage
 
