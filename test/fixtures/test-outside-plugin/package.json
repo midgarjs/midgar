@@ -1,0 +1,15 @@
+{
+  "name": "test-outside-plugin",
+  "version": "0.0.1",
+  "description": "Unit test midgar plugin",
+  "scripts": {
+  },
+  "repository": {
+  },
+  "dependencies": {
+    "@midgar/midgar": "file:../.."
+  },
+  "devDependencies": {},
+  "author": "Metais Fabien",
+  "license": "MIT"
+}

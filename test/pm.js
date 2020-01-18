@@ -143,7 +143,8 @@ describe('Plugin Manager', function () {
    */
   it('getSortedPlugins', async () => {
     const result = await mid.pm.getSortedPlugins()
-    expect(['@test/test-plugin-3', 'test-plugin', 'test-plugin-2', 'test-plugin-rw']).to.eql(result, 'Invalid getSortedPlugins result !')
+    const shouldSorted = ['@test/test-plugin-3', 'test-outside-plugin', 'test-plugin', 'test-plugin-2', 'test-plugin-rw']
+    expect(result).to.eql(shouldSorted, 'Invalid getSortedPlugins result !')
   })
 
   it('rewrite plugin', async () => {

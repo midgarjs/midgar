@@ -134,7 +134,7 @@ class PluginManager {
       // Check if plugin path is defined in plugins.json
       if (typeof pluginsConfig[name] !== 'boolean' && pluginsConfig[name].path !== undefined) {
         // Set path relative to Midgar config directory
-        packagePath = path.joint(this.configPath, pluginsConfig[name].path)
+        packagePath = path.join(this.mid.configPath, pluginsConfig[name].path)
         local = true
       }
 

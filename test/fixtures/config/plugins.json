@@ -10,5 +10,9 @@
   },
   "@test/test-plugin-3": {
     "local": true
+  },
+  "test-outside-plugin": {
+    "path": "../test-outside-plugin",
+    "local": true
   }
 }
