@@ -1,9 +1,26 @@
-
+import path from 'path'
 import commander from 'commander'
 import { cosmiconfig } from 'cosmiconfig'
+import template from 'lodash.template'
+import utils from '@midgar/utils'
+
 import Midgar from '../midgar'
-import initCmds from '../cli/init'
 import pluginCmds from '../cli/plugin'
+import initCmds from '../cli/init'
+
+/**
+ * @typedef {Object} Command
+ * @property {string}               command   Command pattern
+ * @property {string}               description   Command description
+ * @property {Array<CommandOption>} options Command options array
+ * @property {function}             action   Action function
+ */
+
+/**
+ * @typedef {Object} Command
+ * @property {string} flags       Option flags string
+ * @property {string} description Option description
+ */
 
 /**
  * Manage the Commander program
@@ -11,38 +28,80 @@ import pluginCmds from '../cli/plugin'
  */
 class Cli {
   /**
-   * Construct
-   * init vars, create program and Midgar instance
+   * @param {Array}  argv   Cli command arguments
+   * @param {string} cwd    Current working directory path
+   * @param {Stream} stdin  Input stream
+   * @param {Stream} stdout Output stream
    */
-  constructor (argv, cwd) {
-    this.rcConfig = null
-    // Path of the config dir
+  constructor (argv, cwd, stdin = process.stdin, stdout = process.stdout) {
+    /**
+     * Midgar config path
+     * @type {string}
+     */
     this.configPath = null
 
+    /**
+     * Package.json of Midgar app
+     */
+    this.packagePath = null
+
+    /**
+     * Cli command arguments
+     * @type {Array}
+     */
     this.argv = argv
+
+    /**
+     * Input stream
+     * @type {Stream}
+     */
+    this.stdin = stdin
+
+    /**
+     * Output stream
+     * @type {Stream}
+     */
+    this.stdout = stdout
+
     /**
      * Current working directory
+     * @type {String}
      */
     this.cwd = cwd
+
+    /**
+     * Midgar instance
+     * @type {Midgar}
+     */
     this.mid = new Midgar()
+
+    // Set Cli instance on midgar
     this.mid.cli = this
 
+    /**
+     * Run method promise
+     * Resolve and reject function are binded on CLi instance
+     * @type {Promise<any>}
+     * @private
+     */
     this._runPromise = new Promise((resolve, reject) => {
       this._resolveRun = resolve
       this._rejectRun = reject
     })
 
+    /**
+     * Commander instance
+     * @type {commander.Command}
+     */
     this.program = new commander.Command()
     this.program.version('0.0.1')
       // Config dir path
       .option('-c, --config <path>', 'Config directory path')
 
-      /**
-       * Invalid command handler
-       */
+      // Invalid command handler
       .on('command:*', () => {
         if (this.configPath !== null) this._rejectRun(`Invalid command: ${this.program.args.join(' ')}\nSee --help for a list of available commands.`)
-        else this._resolveRun({})
+        else this._rejectRun(`Invalid command: ${this.program.args.join(' ')}\n--config option is not set, see --help for a list of available commands.`)
       })
   }
 
@@ -51,18 +110,14 @@ class Cli {
    * and load plugins commands
    */
   async init () {
-    const rcConfig = await this._loadRCFile()
-
-    // If config path is in the rc config
-    if (rcConfig && rcConfig.configPath) {
-      this.configPath = rcConfig.configPath
-    }
 
     // Parse options to get config dir path
     this.program.parseOptions(this.program.normalize(this.argv.slice(2)))
     // If option config is set the config path
     if (this.program.config && this.program.config.trim()) {
       this.configPath = this.program.config.trim()
+    } else {
+      await this._loadConfigAndPackagePath()
     }
 
     this.addCommands(initCmds)
@@ -96,11 +151,20 @@ class Cli {
    * @return {Object|null}
    * @private
    */
-  async _loadRCFile () {
-    const explorer = cosmiconfig('midgar')
+  async _loadConfigAndPackagePath () {
+    const explorer = cosmiconfig('midgar', { searchPlaces: ['package.json']})
     const result = await explorer.search(this.cwd)
-    // result.config is the parsed configuration object.
-    return result ? result.config : null
+
+    // If config path is in the rc config
+    if (result) {
+      const { filepath, config: midgarConfig } = result
+      if (midgarConfig && midgarConfig.config) {
+        if (typeof midgarConfig.config !== 'string') throw new TypeError('Invalid config path type !')
+        console.log('midgarConfig', path.resolve(this.cwd, midgarConfig.config ))
+        this.configPath = path.resolve(path.dirname(filepath), midgarConfig.config)
+        this.packagePath = filepath
+      }
+    }
   }
 
   /**
@@ -117,7 +181,7 @@ class Cli {
   /**
    * Add a command to the program
    *
-   * @param {object} command Command Object
+   * @param {Command} command Command Object
    */
   addCommand (command) {
     const cmd = this.program.command(command.command)
@@ -171,6 +235,37 @@ class Cli {
     const files = await this.mid.pm.importModules('cli')
     for (let i = 0; i < files.length; i++) {
       this.addCommands(files[i].export)
+    }
+  }
+
+  /**
+   * Copy template directory
+   *
+   * @param {string} targetPath Target copy path path
+   * @param {string} templatePath Template path
+   * @param {Object} variables Template variables
+   *
+   * @return {Promise<void>}
+   * @private
+   */
+  async copyTemplate (targetPath, templatePath, variables = {}) {
+    const stats = await utils.asyncReaddir(templatePath)
+    for (const file of stats) {
+      const filePath = path.join(targetPath, file)
+      const tplFilePath = path.join(templatePath, file)
+
+      const fileStats = await utils.asyncStat(tplFilePath)
+      if (fileStats.isFile()) {
+        let content = await utils.asyncReadFile(tplFilePath, 'utf8')
+        const compiled = template(content)
+        content = compiled(variables)
+        await utils.asyncWriteFile(filePath, content, 'utf-8')
+        console.log('Create file: ' + filePath)
+      } else if (fileStats.isDirectory()) {
+        await utils.asyncMkdir(filePath)
+        console.log('Create directory: ' + filePath)
+        await this.copyTemplate(filePath, tplFilePath, variables)
+      }
     }
   }
 

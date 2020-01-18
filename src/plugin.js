@@ -1,5 +1,18 @@
-
 import Emittery from 'emittery'
+
+/**
+ * @typedef {Object} PluginOptions
+ * @property {string}       name   Plugin name
+ * @property {string}       path   Plugin path
+ * @property {PluginConfig} config Plugin config from plugin-config.js
+ * @private
+ */
+
+/**
+ * @typedef {Object} PluginConfig
+ * @property {Object}       modulesTypes Module types dictionnary
+ * @property {Object}       rewite       Rewrite config
+ */
 
 /**
  * Plugin class
@@ -7,6 +20,10 @@ import Emittery from 'emittery'
  * @abstract
  */
 class Plugin extends Emittery {
+  /**
+   * @param {Midgar}        mid     Midgar instance
+   * @param {PluginOptions} options Options
+   */
   constructor (mid, options) {
     super()
 
@@ -34,7 +51,7 @@ class Plugin extends Emittery {
 
     /**
      * Plugin config from plugin-config.js
-     * @var {object}
+     * @var {PluginConfig}
      */
     this.config = options.config || {}
 
@@ -51,7 +68,7 @@ class Plugin extends Emittery {
     this.pm = mid.pm
 
     /**
-     * package.json
+     * Package.json
      * @var {object}
      */
     this.package = options.package
@@ -82,7 +99,7 @@ class Plugin extends Emittery {
         }
       }
 
-      if (typeof moduleType !== 'object') throw new TypeError(`@midgar/midgar: Invalid module type config in plugin ${this.name} for modules ${type} !`)
+      if (typeof moduleType !== 'object') throw new TypeError(`Invalid module type config in plugin ${this.name} for modules ${type} !`)
       if (moduleType.glob !== undefined) result.glob = moduleType.glob
       if (moduleType.ignore !== undefined) result.ignore = moduleType.ignore
       if (moduleType.path !== undefined) result.path = moduleType.path

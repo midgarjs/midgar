@@ -14,12 +14,15 @@ export const PLUGINS_CONFIG_FILE = 'plugins.json'
  */
 
 const notAddedPluginError = (name) => `Plugin ${name} is not in plugins config file !'`
+
 /**
  * PluginMaganger class
  * Manage plugins
- * @todo: lot of asyn works :'(
  */
 class PluginManager {
+  /**
+   * @param {Midgar} mid Midgar instance
+   */
   constructor (mid) {
     /**
      * Midgar instance
@@ -109,9 +112,9 @@ class PluginManager {
 
     /**
      * afterLoadPlugins event.
-     * @event @midgar/midgar:afterLoadPlugins
+     * @event @midgar/midgar:afterInitPlugins
      */
-    await this.mid.emit('@midgar/midgar:afterLoadPlugins')
+    await this.mid.emit('@midgar/midgar:afterInitPlugins')
   }
 
   /**
@@ -145,7 +148,7 @@ class PluginManager {
         // Import plugin package.json and plugin-config.js
         pkg = await import(pkgPath)
       } catch (error) {
-        if (error.code && error.code === 'MODULE_NOT_FOUND') throw new Error(`@midgar/midgar: package.json not found for plugin ${name} at ${pkgPath} ) !`)
+        if (error.code && error.code === 'MODULE_NOT_FOUND') throw new Error(`package.json not found for plugin ${name} at ${pkgPath} ) !`)
         throw error
       }
 
@@ -156,7 +159,7 @@ class PluginManager {
 
       const config = await this._importPluginConfig(pluginPath)
 
-      if (name !== pkg.name) this.mid.warn(`@midgar/midgar: Plugin name in plugins config ( ${name} ) is not equal to the package name ( ${pkg.name} ) !`)
+      if (name !== pkg.name) this.mid.warn(`Plugin name in plugins config ( ${name} ) is not equal to the package name ( ${pkg.name} ) !`)
 
       return {
         key: pkg.name,
@@ -182,7 +185,7 @@ class PluginManager {
       const pluginConfig = pluginsConfigs[name].config
       if (pluginConfig && pluginConfig.rewrite) {
         if (pluginConfig.rewrite.plugin) {
-          if (typeof pluginConfig.rewrite.plugin !== 'string') throw new TypeError(`@midgar/midgar: Invalid rewrite plugin type in config of ${name} plugin !`)
+          if (typeof pluginConfig.rewrite.plugin !== 'string') throw new TypeError(`Invalid rewrite plugin type in config of ${name} plugin !`)
           this._processRewritePlugin(name, pluginsConfigs)
         }
 
@@ -201,10 +204,10 @@ class PluginManager {
     // Check if plugin is configured to rewrite another plugin
     const rewritedPlugin = pluginsConfigs[name].config.rewrite.plugin
 
-    if (pluginsConfigs[rewritedPlugin] === undefined) throw new Error(`@midgar/midgar: Unknow plugin ${rewritedPlugin} !`)
+    if (pluginsConfigs[rewritedPlugin] === undefined) throw new Error(`Unknow plugin ${rewritedPlugin} !`)
 
     // Warn if the plugin is not already rewrite
-    if (this.rewritePlugins[rewritedPlugin] !== undefined) this.mid.warn(`@midgar/midgar: Plugin ${name} rewite ${rewritedPlugin} over ${this.rewritePlugins[rewritedPlugin]} !`)
+    if (this.rewritePlugins[rewritedPlugin] !== undefined) this.mid.warn(`Plugin ${name} rewite ${rewritedPlugin} over ${this.rewritePlugins[rewritedPlugin]} !`)
 
     // Add rewrite plugin
     this.rewritedPlugins[rewritedPlugin] = name
@@ -376,7 +379,7 @@ class PluginManager {
         plugins[name] = true
       }
 
-      await utils.asyncWriteFile(path.join(this.mid.configPath, PLUGINS_CONFIG_FILE), JSON.stringify(plugins))
+      await utils.asyncWriteFile(path.join(this.mid.configPath, PLUGINS_CONFIG_FILE), JSON.stringify(plugins, null, 4))
 
       return true
     }
@@ -398,7 +401,7 @@ class PluginManager {
       this.mid.warn(notAddedPluginError(name))
     } else {
       delete plugins[name]
-      await utils.asyncWriteFile(path.join(this.mid.configPath, PLUGINS_CONFIG_FILE), JSON.stringify(plugins))
+      await utils.asyncWriteFile(path.join(this.mid.configPath, PLUGINS_CONFIG_FILE), JSON.stringify(plugins, null, 4))
       return true
     }
 
@@ -437,7 +440,7 @@ class PluginManager {
         delete plugins[name].enabled
       }
 
-      await utils.asyncWriteFile(path.join(this.mid.configPath, PLUGINS_CONFIG_FILE), JSON.stringify(plugins))
+      await utils.asyncWriteFile(path.join(this.mid.configPath, PLUGINS_CONFIG_FILE), JSON.stringify(plugins, null, 4))
       return true
     } else {
       this.mid.warn(`Plugin ${name} is already enabled !`)
@@ -465,7 +468,7 @@ class PluginManager {
         plugins[name].enabled = false
       }
 
-      await utils.asyncWriteFile(path.join(this.mid.configPath, PLUGINS_CONFIG_FILE), JSON.stringify(plugins))
+      await utils.asyncWriteFile(path.join(this.mid.configPath, PLUGINS_CONFIG_FILE), JSON.stringify(plugins, null, 4))
       return true
     } else {
       this.mid.warn(`Plugin ${name} is already disabled !`)
@@ -487,25 +490,25 @@ class PluginManager {
   /**
    * Add a plugin module types
    *
-   * @param {string} key   Module type key
-   * @param {string} path   Relative path for modules directory
-   * @param {string} globPattern   Glob pattern, default is **\/*.js
-   * @param {string} ignore Ignore glob pattern or Array of glob pattern
+   * @param {string} key         Module type key
+   * @param {string} modulesPath Relative path for modules directory
+   * @param {string} globPattern Glob pattern, default is **\/*.js
+   * @param {string} ignore      Ignore glob pattern or Array of glob pattern
    */
-  addModuleType (key, path, globPattern = '**/*.js', ignore = null) {
+  addModuleType (key, modulesPath, globPattern = '**/*.js', ignore = null) {
     if (typeof key !== 'string') throw new Error('@midgar/midgar: Invalid key type !')
-    if (typeof path !== 'string') throw new Error('@midgar/midgar: Invalid path type !')
+    if (typeof modulesPath !== 'string') throw new Error('@midgar/midgar: Invalid modulesPath type !')
 
     // Clean
-    if (path.charAt(0) === '/') path = path.substr(1)
+    if (modulesPath.charAt(0) === '/') modulesPath = modulesPath.substr(1)
 
-    if (!path.length) throw new Error('@midgar/midgar: Invalid path !')
+    if (!modulesPath.length) throw new Error('@midgar/midgar: Invalid path !')
 
-    if (typeof globPattern !== 'string') throw new TypeError(`@midgar/midgar: Invalid glob type for modules ${key}.`)
-    if (ignore && typeof ignore !== 'string' && !Array.isArray(ignore)) throw new TypeError(`@midgar/midgar: Invalid ignore type for modules ${key}.`)
+    if (typeof globPattern !== 'string') throw new TypeError(`Invalid glob type for modules ${key}.`)
+    if (ignore && typeof ignore !== 'string' && !Array.isArray(ignore)) throw new TypeError(`Invalid ignore type for modules ${key}.`)
 
     this.moduleTypes[key] = {
-      path,
+      path: modulesPath,
       glob: globPattern,
       ignore
     }
@@ -514,12 +517,12 @@ class PluginManager {
   /**
    * Return a module type definition
    *
-   * @param {*} type Module type
+   * @param {string} type Module type
    *
    * @return {ModuleType}
    */
   getModuleType (type) {
-    if (!this.moduleTypes[type]) throw new Error(`@midgar/midgar: Unknow module type ${type}`)
+    if (!this.moduleTypes[type]) throw new Error(`Unknow module type ${type}`)
     return this.moduleTypes[type]
   }
 
@@ -533,7 +536,7 @@ class PluginManager {
   async importModules (type) {
     // Start timer
     utils.timer.start('midgar-import-modules-' + type)
-    this.mid.debug(`@midgar/midgar: import modules "${type}" start.`)
+    this.mid.debug(`import modules "${type}" start.`)
 
     const files = []
     // List plugins async
@@ -552,7 +555,7 @@ class PluginManager {
     })
 
     const time = utils.timer.getTime('midgar-import-modules-' + type)
-    this.mid.debug(`@midgar/midgar: "${type}" modules imported in ${time} ms.`)
+    this.mid.debug(`"${type}" modules imported in ${time} ms.`)
 
     return files
   }
@@ -572,19 +575,19 @@ class PluginManager {
 
     // Check path
     if (pluginModuleType.path !== undefined) {
-      if (typeof pluginModuleType.path !== 'string') throw new TypeError(`@midgar/midgar: Invalid path type for modules ${type} in config of plugin ${plugin}.`)
+      if (typeof pluginModuleType.path !== 'string') throw new TypeError(`Invalid path type for modules ${type} in config of plugin ${plugin}.`)
       moduleType.path = pluginModuleType.path
     }
 
     // Check glob
     if (pluginModuleType.glob !== undefined) {
-      if (typeof pluginModuleType.glob !== 'string') throw new TypeError(`@midgar/midgar: Invalid glob type for modules ${type} in config of plugin ${plugin}.`)
+      if (typeof pluginModuleType.glob !== 'string') throw new TypeError(`Invalid glob type for modules ${type} in config of plugin ${plugin}.`)
       moduleType.glob = pluginModuleType.glob
     }
 
     // Check ignore
     if (pluginModuleType.ignore !== undefined) {
-      if (typeof pluginModuleType.ignore !== 'string' && !Array.isArray(pluginModuleType.ignore)) throw new TypeError(`@midgar/midgar: Invalid ignore type for modules ${type} in config of plugin ${plugin}.`)
+      if (typeof pluginModuleType.ignore !== 'string' && !Array.isArray(pluginModuleType.ignore)) throw new TypeError(`Invalid ignore type for modules ${type} in config of plugin ${plugin}.`)
       moduleType.ignore = pluginModuleType.ignore
     }
 

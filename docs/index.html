@@ -40,7 +40,7 @@
 			<li class="dropdown">
 				<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="global.html#event:@midgar/midgar:afterInit">event:@midgar/midgar:afterInit</a></li><li><a href="global.html#event:@midgar/midgar:afterLoadPlugins">event:@midgar/midgar:afterLoadPlugins</a></li><li><a href="global.html#event:@midgar/midgar:stop">event:@midgar/midgar:stop</a></li>
+					<li><a href="global.html#event:@midgar/midgar:afterInitPlugins">event:@midgar/midgar:afterInitPlugins</a></li><li><a href="global.html#event:@midgar/midgar:stop">event:@midgar/midgar:stop</a></li>
 				</ul>
 			</li>
 			
@@ -102,28 +102,25 @@
     <section class="readme-section">
         <article><h2>En développement ne pas utiliser en production</h2>
 <p><a href="https://drone.midgar.io/Midgar/midgar"><img src="https://drone.midgar.io/api/badges/Midgar/midgar/status.svg" alt="Build Status"></a>
-<a href="https://sonar.midgar.io/dashboard?id=midgar-midgar"><img src="https://sonar.midgar.io/api/project_badges/measure?project=midgar-midgar&amp;metric=coverage" alt="Coverage"></a></p>
+<a href="https://sonar.midgar.io/dashboard?id=Midgar-midgar"><img src="https://sonar.midgar.io/api/project_badges/measure?project=Midgar-midgar&amp;metric=coverage" alt="Coverage"></a></p>
 <h1>Midgar</h1>
 <h2>Qu'est ce que Midgar</h2>
 <p>Midgar est un framework nodejs modulaire utilisant le pattern Model View-Controller Service (MVCS).
 Il se base sur un système de plugin pour permetre de réaliser rapidement des applications web complexes de manière claire et structuré.</p>
-<p>npm</p>
-<h2>Installation</h2>
-<pre class="prettyprint source lang-sh"><code>$ npm install -g @midgar/midgar
-</code></pre>
-<h2>Utilisation</h2>
+<h2>Démarrage</h2>
 <p>Le moyen le plus rapide de démarrer avec Midgar est d'utiliser le CLI pour générer la structure d'un projet.</p>
-<pre class="prettyprint source lang-bash"><code>$ midgar init ~/my-project/
-$ cd ~/my-project/
+<pre class="prettyprint source lang-bash"><code>$ npm install -g @midgar/midgar
+$ midgar init ~/mon-projet/
+$ cd ~/mon-projet/
 $ npm i
 </code></pre>
 <p>En soit Midgar ne fait que charger des plugins, sans plugin, il ne fait donc rien de concret !
-L'étape suivante est donc d'installer des plugins. L'installation des plugins se fait via npm ou yarn.
+L'étape suivante est donc d'installer des plugins ou d'en créer un. L'installation des plugins se fait via npm ou yarn.
 L'utilisation des scripts de npm permet l'activation automatique des plugins sur le projet.</p>
-<p>Vous pouvez voir la structure du project générer par la commande init <a href="https://github.com/midgarjs/midgar/tree/master/src/cli/.init-tpl">ici</a>.</p>
+<p>Vous pouvez voir la structure du projet générer par la commande init <a href="https://github.com/midgarjs/midgar/tree/master/templates/project">ici</a>.</p>
 <h2>Documentation</h2>
 <p><a href="https://midgarjs.github.io/midgar/">documentation Api</a>.</p>
-<h2>Plugins officiel</h2>
+<h2>Plugins</h2>
 <table>
 <thead>
 <tr>
@@ -158,48 +155,33 @@ L'utilisation des scripts de npm permet l'activation automatique des plugins sur
 </tr>
 </tbody>
 </table>
-<h2>Cli</h2>
-<p>Voici les commandes de base du cli</p>
-<h3>init:</h3>
-<pre class="prettyprint source lang-bash"><code>$ midgar run init ./mon-project
-</code></pre>
-<p>Initialise un nouveau projet midgar.</p>
-<h3>add:</h3>
-<pre class="prettyprint source lang-bash"><code>$ midgar add monplugin
-</code></pre>
-<p>Ajoute un plugin au fichier <strong>plugins.json</strong> contenu dans le dossier de configuration du projet.</p>
-<h3>rm:</h3>
-<pre class="prettyprint source lang-bash"><code>$ midgar rm @migar/service
-</code></pre>
-<p>Supprime le plugin @migar/service du fichier <strong>plugins.json</strong>.</p>
-<h3>enable:</h3>
-<pre class="prettyprint source lang-bash"><code>$ midgar enable @migar/service
-</code></pre>
-<p>Active un plugin présent dans le fichier plugins.json.
-Si le plugin n'est pas présen, il n'est pas ajouté et un avertisement est affiché.</p>
-<h3>disable:</h3>
-<pre class="prettyprint source lang-bash"><code>$ midgar disable @migar/service
-</code></pre>
-<p>Désactive le plugin @migar/service dans le fichier plugins.json.
-Si le plugin n'est pas présent, il n'est pas ajouté et un avertisement est affiché.</p>
-<h3>Paramètre optionnel:</h3>
-<pre class="prettyprint source lang-bash"><code>$ midgar add @migar/service --config ~/mon-projet/src/config
-</code></pre>
-<p>Vous pouvez ajouter le chemin de la configuration du projet au cli.
-Par defaut, le cli cherche un fichier .midrc contenant le chemin de la configuration.
-S'il ne trouve pas ce fichier il cherche dans ./config.</p>
-<p>Vous pouvez voir un exemple de fichier .midrc <a href="https://github.com/midgarjs/midgar/blob/master/src/cli/.init-tpl/.midrc">ici</a></p>
 <h2>Créer un plugin</h2>
+<p>Le CLI vous permet de générer la structure d'un plugin et de l'activer:</p>
+<pre class="prettyprint source lang-bash"><code>$ cd ~/mon-projet/
+$ midgar new @ns/blog
+$ npm update
+</code></pre>
 <h3>Fichier plugin</h3>
-<p>Voici un exemple de fichier plugin:</p>
+<p>Voici le fichier plugin généré par la command:</p>
 <pre class="prettyprint source lang-js"><code>import { Plugin } from '@midgar/midgar'
 
-export default class TestPlugin extends Plugin {
+/**
+ * BlogPlugin class
+ */
+export default  class BlogPlugin extends Plugin {
+  /**
+   * Init plugin
+   */
   init () {
-    this.mid.on('@midgar/midgar:afterLoadPlugins', async () => {
-      // Ceci est exécuté une fois que tous les plugins ont été chargés
-    })
+
   }
+}
+</code></pre>
+<p>La méthode init est appelé automatique au chargement des plugins. Elle sert notament a écrouter des évènements:</p>
+<pre class="prettyprint source lang-js"><code>init () {
+  this.mid.on('@midgar/midgar:afterInitPlugins', async () => {
+    // Ceci est exécuté une fois que tous les plugins ont été initialisé.
+  })
 }
 </code></pre>
 <p>Vous pouvez retouver la liste des évènements dans la <a href="https://midgarjs.github.io/midgar/">documentation</a>.</p>
@@ -211,7 +193,7 @@ export default class TestPlugin extends Plugin {
 <p>Ce fichier est charger avant le chargement des plugins et est injecté dans le membre <strong>.config</strong> de l'instance du plugin.</p>
 <h3>Modules</h3>
 <p>Le système de plugin comprend un importer de modules.
-Vous pouvez déclarrer un type de modules a importer dans la methode init de votre plugin:</p>
+Vous pouvez déclarrer un type de module a importer dans la methode init de votre plugin:</p>
 <pre class="prettyprint source lang-js"><code>import { Plugin } from '@midgar/midgar'
 
 export default class TestPlugin extends Plugin {
@@ -220,25 +202,25 @@ export default class TestPlugin extends Plugin {
   }
 }
 </code></pre>
-<p><em><strong>mon-type</strong></em> corréspond à l'identifiant du type de module.
-<em><strong>modossier</strong></em> corréspond au chemin par défaut du dossier contenant ce type de modules.</p>
+<p><em><strong>mon-type</strong></em> corréspond à l'identifiant du type de module.</p>
+<p><em><strong>modossier</strong></em> corréspond au chemin par défaut du dossier contenant ce type de modules.</p>
 <p>@see: https://midgarjs.github.io/midgar/PluginManager.html#addModuleType__anchor</p>
 <p>Pour importer les modules:</p>
 <pre class="prettyprint source lang-js"><code>import { Plugin } from '@midgar/midgar'
 
 export default class TestPlugin extends Plugin {
   init () {
-    this.mid.on('@midgar/midgar:afterLoadPlugins', async () => {
-      const files = await this.mid.pm.importModules('mon-type')
+    this.mid.on('@midgar/midgar:afterInitPlugins', async () => {
+      const files = await this.mid.pm.importModules('mon-type', '**/*.js')
       ...
     })
   }
 }
 </code></pre>
 <p>@see: https://midgarjs.github.io/midgar/PluginManager.html#importModules__anchor</p>
-<p>La méthode importModules importe tous les modules <strong>mon-typer</strong> pour tous les plugins.
-Le chemin du dossier <strong>mon-type</strong> est par défaut <strong>./mondossier/</strong> relativement par rapport au fichier plugin.</p>
-<p>La méthode importModules renvoit un tableau d'object:</p>
+<p>La méthode <strong>importModules</strong> importe tous les modules <strong>mon-type</strong> pour tous les plugins.</p>
+<p>Le chemin du dossier <strong>mon-type</strong> est par défaut <strong>./mondossier/</strong> relativement par rapport au fichier plugin.</p>
+<p>La méthode <strong>importModules</strong> renvoit un tableau d'object:</p>
 <pre class="prettyprint source lang-js"><code>[
   {
     path: '~/mon-projet/src/plugins/test-plugin/mondossier/fichier.js',
@@ -251,8 +233,18 @@ Le chemin du dossier <strong>mon-type</strong> est par défaut <strong>./mondoss
 </code></pre>
 <p>Le chemin du dossier <strong>mon-type</strong> peut etre configuré pour chaque plugin dans le fichier  <strong>plugin-config.js</strong>:</p>
 <pre class="prettyprint source lang-js"><code>export default {
-  modules: {
+  moduleTypes: {
     'mon-type': 'mon/nouveau/dossier',
+  }
+}
+</code></pre>
+<p>ou</p>
+<pre class="prettyprint source lang-js"><code>export default {
+  moduleTypes: {
+    'mon-type': {
+      path: 'mon/nouveau/dossier',
+      glob: '**/*.js',
+      ignore: '**/*.schema.ks'
   }
 }
 </code></pre>
@@ -294,7 +286,38 @@ export default class RewritePlugin extends ServicePlugin {
   }
 }
 </code></pre>
-<p>Lors de l'import des modules, le modules <strong>./rewrite/models/user.js</strong> sera chargé à la place du modules <strong>user.js</strong> contenu dans le dossier <strong>midgar-mongoose-models</strong> et pour le plugin <strong>@midgar/graphql-auth</strong></p></article>
+<p>Lors de l'import des modules, le modules <strong>./rewrite/models/user.js</strong> sera chargé à la place du modules <strong>user.js</strong> contenu dans le dossier <strong>midgar-mongoose-models</strong> et pour le plugin <strong>@midgar/graphql-auth</strong></p>
+<h2>Cli</h2>
+<p>Voici les commandes de base du cli</p>
+<h3>init:</h3>
+<pre class="prettyprint source lang-bash"><code>$ midgar run init ./mon-project
+</code></pre>
+<p>Initialise un nouveau projet midgar.</p>
+<h3>add:</h3>
+<pre class="prettyprint source lang-bash"><code>$ midgar add monplugin
+</code></pre>
+<p>Ajoute un plugin au fichier <strong>plugins.json</strong> contenu dans le dossier de configuration du projet.</p>
+<h3>rm:</h3>
+<pre class="prettyprint source lang-bash"><code>$ midgar rm @migar/service
+</code></pre>
+<p>Supprime le plugin @migar/service du fichier <strong>plugins.json</strong>.</p>
+<h3>enable:</h3>
+<pre class="prettyprint source lang-bash"><code>$ midgar enable @migar/service
+</code></pre>
+<p>Active un plugin présent dans le fichier plugins.json.
+Si le plugin n'est pas présen, il n'est pas ajouté et un avertisement est affiché.</p>
+<h3>disable:</h3>
+<pre class="prettyprint source lang-bash"><code>$ midgar disable @migar/service
+</code></pre>
+<p>Désactive le plugin @migar/service dans le fichier plugins.json.
+Si le plugin n'est pas présent, il n'est pas ajouté et un avertisement est affiché.</p>
+<h3>Paramètre optionnel:</h3>
+<pre class="prettyprint source lang-bash"><code>$ midgar add @migar/service --config ~/mon-projet/src/config
+</code></pre>
+<p>Vous pouvez ajouter le chemin de la configuration du projet au cli.
+Par defaut, le cli cherche un fichier .midrc contenant le chemin de la configuration.
+S'il ne trouve pas ce fichier il cherche dans ./config.</p>
+<p>Vous pouvez voir un exemple de fichier .midgarrc.js <a href="https://github.com/midgarjs/midgar/blob/master/templates/project/.midgarrc.js">ici</a></p></article>
     </section>
 
 
@@ -340,7 +363,7 @@ export default class RewritePlugin extends ServicePlugin {
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a>
 	
-		on 2020-01-16T18:43:13+00:00
+		on 2020-01-18T18:32:27+00:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>

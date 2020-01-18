@@ -1,12 +1,14 @@
 module.exports = {
     "env": {
         "es6": true,
-        "node": true
+        "node": true,
+        "mocha": true
     },
     "ignorePatterns": ["docs/**/*"],
     "extends": [
         "standard",
         "eslint:recommended",
+        "plugin:sonarjs/recommended"
     ],
     "globals": {
         "Atomics": "readonly",
@@ -19,4 +21,5 @@ module.exports = {
     "rules": {
     },
     "parser": "babel-eslint",
+    "plugins": ["sonarjs"]
 }

@@ -1,91 +1,66 @@
-import utils from '@midgar/utils'
 import path from 'path'
+import inquirer from 'inquirer'
+import utils from '@midgar/utils'
 
 const resolve = (p) => {
   return path.join(__dirname, p)
 }
 
-const tplPath = resolve('./.init-tpl')
-
-/**
- * Copy template directory
- * @param {string} projectPath Project init path
- * @param {string} templatePath Template path
- * @param {object} result Command result object
- * @return {object}
- * @private
- */
-async function initDir (projectPath, templatePath, result) {
-  const stats = await utils.asyncReaddir(templatePath)
-  await utils.asyncMap(stats, async (file) => {
-    const projectFilePath = path.join(projectPath, file)
-    const tplFilePath = path.join(templatePath, file)
-
-    const fileStats = await utils.asyncStat(tplFilePath)
-    if (fileStats.isFile()) {
-      const content = await utils.asyncReadFile(tplFilePath, 'utf8')
-      await utils.asyncWriteFile(projectFilePath, content, 'utf-8')
-      result.stdout.push('Create file: ' + projectFilePath)
-    } else if (fileStats.isDirectory()) {
-      await utils.asyncMkdir(projectFilePath)
-      result.stdout.push('Create directory: ' + projectFilePath)
-      await initDir(projectFilePath, tplFilePath, result)
-    }
-  })
-
-  return result
-}
+const projectTplPath = resolve('../../templates/project')
 
 /**
  * Init Midgar project into direction projectPath
+ *
  * @param {string} projectPath Init project path
  * @return {object} Cli restult object
+ * @returns {Promise<void>}
+ *
  * @private
  */
-async function init (projectPath) {
-  const result = {
-    stdout: []
-  }
+async function init (mid, projectPath) {
   // Check if the directory exist
-  const exist = await utils.asyncFileExists(projectPath)
-  if (!exist) {
-    // Try to create him if not exist
+  const exists = await utils.asyncFileExists(projectPath)
+
+  if (exists) {
+    // Check if the directory is empty
+    const stats = await utils.asyncReaddir(projectPath)
+    if (stats.length) throw new Error(`The directory ${projectPath} is not empty !`)
+  } else {
+    // Try to create dir if not exists
     try {
       await utils.asyncMkdir(projectPath, { recursive: true })
-      result.stdout.push('Create directory: ' + projectPath)
+      console.log(`Create directory: ${projectPath}.`)
     } catch (error) {
-      if (error.code === 'EACCES') {
-        throw new Error('Cannot create directory ' + projectPath + ' due to file permission')
-      } else {
-        throw new Error('Cannot create directory ' + projectPath)
-      }
+      if (error.code === 'EACCES') throw new Error(`Error: cannot create directory ${projectPath} due to file permission !`)
+      throw new Error(`Error: cannot create directory ${projectPath}.`)
     }
   }
 
   // Check if the directory is writable
   const isWrittable = await utils.asyncIsWritable(projectPath)
-  if (!isWrittable) {
-    throw new Error('The directory ' + projectPath + ' is not writable')
+  if (!isWrittable) throw new Error(`The directory ${projectPath} is not writable.`)
+  const question = {
+    type: 'input',
+    name: 'projectName',
+    message: 'Project name ?',
+    validate: async (value) => {
+      if (!value.match(/^(?=.{1,214}$)(?:@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/i)) return 'Please enter a valid name !'
+      return true
+    }
   }
 
-  // Check if the directory is empty
-  const stats = await utils.asyncReaddir(projectPath)
-  if (stats.length) {
-    throw new Error('The directory ' + projectPath + ' is not empty')
-  }
-
-  await initDir(projectPath, tplPath, result)
-  return result
+  const { projectName } = await inquirer.prompt([question])
+  await mid.cli.copyTemplate(projectPath, projectTplPath, { projectName })
 }
 
 export default [
   {
     command: 'init [path]',
-    description: 'Create init project',
-    action: async (mid, initPath) => {
+    description: 'Create new project',
+    action: (mid, initPath) => {
       initPath = initPath ? path.resolve(process.cwd(), initPath) : process.cwd()
 
-      return init(initPath)
+      return init(mid, initPath)
     }
   }
 ]

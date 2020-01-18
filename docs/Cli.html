@@ -40,7 +40,7 @@
 			<li class="dropdown">
 				<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="global.html#event:@midgar/midgar:afterInit">event:@midgar/midgar:afterInit</a></li><li><a href="global.html#event:@midgar/midgar:afterLoadPlugins">event:@midgar/midgar:afterLoadPlugins</a></li><li><a href="global.html#event:@midgar/midgar:stop">event:@midgar/midgar:stop</a></li>
+					<li><a href="global.html#event:@midgar/midgar:afterInitPlugins">event:@midgar/midgar:afterInitPlugins</a></li><li><a href="global.html#event:@midgar/midgar:stop">event:@midgar/midgar:stop</a></li>
 				</ul>
 			</li>
 			
@@ -100,24 +100,141 @@
         
 <hr>
 <dt>
-    <h4 class="name" id="Cli"><span class="type-signature"></span>new Cli()</h4>
+    <h4 class="name" id="Cli"><span class="type-signature"></span>new Cli(argv, cwd, stdin, stdout)</h4>
     
     
 </dt>
 <dd>
 
     
-    <div class="description">
-        Construct
-init vars, create program and Midgar instance
-    </div>
-    
 
     
 
     
 
     
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>argv</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Cli command arguments</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>cwd</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Current working directory path</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>stdin</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Stream</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Input stream</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>stdout</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Stream</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Output stream</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
     
 
     
@@ -194,8 +311,150 @@ init vars, create program and Midgar instance
         <dl>
             
 <hr>
+<dt class="name" id="argv">
+    <h4 id="argv"><span class="type-signature"></span>argv<span class="type-signature"> :Array</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Cli command arguments
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Array</span>
+
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="configPath">
+    <h4 id="configPath"><span class="type-signature"></span>configPath<span class="type-signature"> :string</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Midgar config path
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">string</span>
+
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<hr>
 <dt class="name" id="cwd">
-    <h4 id="cwd"><span class="type-signature"></span>cwd<span class="type-signature"></span></h4>
+    <h4 id="cwd"><span class="type-signature"></span>cwd<span class="type-signature"> :String</span></h4>
 
     
 </dt>
@@ -206,6 +465,361 @@ init vars, create program and Midgar instance
     </div>
     
 
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">String</span>
+
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="mid">
+    <h4 id="mid"><span class="type-signature"></span>mid<span class="type-signature"> :<a href="Midgar.html">Midgar</a></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Midgar instance
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type"><a href="Midgar.html">Midgar</a></span>
+
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="packagePath">
+    <h4 id="packagePath"><span class="type-signature"></span>packagePath<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Package.json of Midgar app
+    </div>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="program">
+    <h4 id="program"><span class="type-signature"></span>program<span class="type-signature"> :commander.Command</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Commander instance
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">commander.Command</span>
+
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="stdin">
+    <h4 id="stdin"><span class="type-signature"></span>stdin<span class="type-signature"> :Stream</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Input stream
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Stream</span>
+
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt class="name" id="stdout">
+    <h4 id="stdout"><span class="type-signature"></span>stdout<span class="type-signature"> :Stream</span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Output stream
+    </div>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Stream</span>
+
+
+
+            </li>
+        </ul>
     
 
     
@@ -310,7 +924,7 @@ init vars, create program and Midgar instance
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type"><a href="global.html#Command">Command</a></span>
 
 
 
@@ -819,7 +1433,7 @@ Wait for action result promise
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a>
 	
-		on 2020-01-16T18:43:13+00:00
+		on 2020-01-18T18:32:27+00:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>

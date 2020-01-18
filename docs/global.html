@@ -40,7 +40,7 @@
 			<li class="dropdown">
 				<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="global.html#event:@midgar/midgar:afterInit">event:@midgar/midgar:afterInit</a></li><li><a href="global.html#event:@midgar/midgar:afterLoadPlugins">event:@midgar/midgar:afterLoadPlugins</a></li><li><a href="global.html#event:@midgar/midgar:stop">event:@midgar/midgar:stop</a></li>
+					<li><a href="global.html#event:@midgar/midgar:afterInitPlugins">event:@midgar/midgar:afterInitPlugins</a></li><li><a href="global.html#event:@midgar/midgar:stop">event:@midgar/midgar:stop</a></li>
 				</ul>
 			</li>
 			
@@ -159,6 +159,342 @@
         <h3 class="subsection-title">Type Definitions</h3>
 
         <dl>
+                
+<hr>
+<dt class="name" id="Command">
+    <h4 id="Command">Command</h4>
+
+    
+</dt>
+<dd>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Object</span>
+
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+    
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    <dl>
+
+<table class="props table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>command</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Command pattern</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>description</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Command description</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;CommandOption></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Command options array</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>action</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Action function</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+</dl>
+
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+            
+                
+<hr>
+<dt class="name" id="Command">
+    <h4 id="Command">Command</h4>
+
+    
+</dt>
+<dd>
+    
+
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Object</span>
+
+
+
+            </li>
+        </ul>
+    
+
+    
+<dl class="details">
+    
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    <dl>
+
+<table class="props table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>flags</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Option flags string</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>description</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Option description</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+</dl>
+
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+            
                 
 <hr>
 <dt class="name" id="ModuleType">
@@ -329,37 +665,109 @@
     
 </dd>
 
-            </dl>
-    
-
-    
-        <h3 class="subsection-title">Events</h3>
-
-        <dl>
             
+                
 <hr>
-<dt>
-    <h4 class="name" id="event:@midgar/midgar:afterInit">@midgar/midgar:afterInit</h4>
-    
+<dt class="name" id="PluginConfig">
+    <h4 id="PluginConfig">PluginConfig</h4>
+
     
 </dt>
 <dd>
-
-    
-    <div class="description">
-        afterInit event.
-    </div>
     
 
     
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Object</span>
 
-    
 
-    
+
+            </li>
+        </ul>
     
 
     
 <dl class="details">
+    
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    <dl>
+
+<table class="props table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>modulesTypes</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Module types dictionnary</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>rewite</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Rewrite config</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+</dl>
+
     
 
 	
@@ -399,25 +807,19 @@
 
 
     
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
 </dd>
 
-        
+            </dl>
+    
+
+    
+        <h3 class="subsection-title">Events</h3>
+
+        <dl>
             
 <hr>
 <dt>
-    <h4 class="name" id="event:@midgar/midgar:afterLoadPlugins">@midgar/midgar:afterLoadPlugins</h4>
+    <h4 class="name" id="event:@midgar/midgar:afterInitPlugins">@midgar/midgar:afterInitPlugins</h4>
     
     
 </dt>
@@ -615,7 +1017,7 @@
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a>
 	
-		on 2020-01-16T18:43:13+00:00
+		on 2020-01-18T18:32:27+00:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>

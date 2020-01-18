@@ -9,7 +9,7 @@ node_modules/
 coverage/
 reports/
 docs/
-tests/
+test/
 .drone.yml
 .drone-secret
 .eslintrc.js

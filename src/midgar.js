@@ -109,12 +109,6 @@ class Midgar extends Emittery {
     this.pm = this._createPmInstance()
     await this.pm.init()
 
-    /**
-     * afterInit event.
-     * @event @midgar/midgar:afterInit
-     */
-    await this.emit('@midgar/midgar:afterInit')
-
     const time = utils.timer.getTime('midgar-init')
     this.debug(`@midgar:midgar: PluginManager init in ${time} ms.`)
   }
@@ -201,9 +195,6 @@ class Midgar extends Emittery {
    * @return {Promise<void>}
    */
   async exit () {
-    // Check load stat
-    if (this.pm === null) throw new Error('@midgar/midgar: Start Midgar before stop !')
-
     // Stop servers if there a runing
     await this.stop()
 

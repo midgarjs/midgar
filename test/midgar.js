@@ -56,7 +56,7 @@ describe('Midgar', function () {
     // Test invalid config directory
     mid = new Midgar()
     
-    await expect(mid.start(path.join(__dirname, 'fixtures/test'))).be.rejectedWith(Error, `@midgar/midgar: the file ${path.join(__dirname, 'fixtures/test', 'config.js')} doesn't exist !`)
+    await expect(mid.start(path.join(__dirname, 'fixtures/test'))).be.rejectedWith(Error, `the file ${path.join(__dirname, 'fixtures/test', 'config.js')} doesn't exist !`)
 
   })
 

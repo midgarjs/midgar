@@ -22,7 +22,8 @@ async function loadConfig (configDir, env) {
   const mainConfig = await loadConfigfile(path.join(configDir, CONFIG_FILE_NAME), true)
   assignRecursive(config, mainConfig)
 
-  const modeConfig = await loadConfigfile(path.join(configDir, CONFIG_FILE_NAME + '.' + env))
+  const prefix = env === 'developement' ? 'dev' : 'prod'
+  const modeConfig = await loadConfigfile(path.join(configDir, CONFIG_FILE_NAME + '.' + prefix))
   assignRecursive(config, modeConfig)
 
   return config
@@ -44,7 +45,7 @@ async function loadConfigfile (filePath, requireMode = false) {
     const { default: config } = await import(filePath)
     return config
   } else if (requireMode) {
-    throw new Error(`@midgar/midgar: the file ${filePath}.js doesn't exist !`)
+    throw new Error(`the file ${filePath}.js doesn't exist !`)
   }
 }
 

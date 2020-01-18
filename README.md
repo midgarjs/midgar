@@ -10,34 +10,28 @@
 Midgar est un framework nodejs modulaire utilisant le pattern Model View-Controller Service (MVCS).
 Il se base sur un système de plugin pour permetre de réaliser rapidement des applications web complexes de manière claire et structuré.
 
-npm
-## Installation
-
-```sh
-$ npm install -g @midgar/midgar
-```
-
-## Utilisation
+## Démarrage
 
 Le moyen le plus rapide de démarrer avec Midgar est d'utiliser le CLI pour générer la structure d'un projet.
 
 ```bash
-$ midgar init ~/my-project/
-$ cd ~/my-project/
+$ npm install -g @midgar/midgar
+$ midgar init ~/mon-projet/
+$ cd ~/mon-projet/
 $ npm i
 ```
 
 En soit Midgar ne fait que charger des plugins, sans plugin, il ne fait donc rien de concret !
-L'étape suivante est donc d'installer des plugins. L'installation des plugins se fait via npm ou yarn.
+L'étape suivante est donc d'installer des plugins ou d'en créer un. L'installation des plugins se fait via npm ou yarn.
 L'utilisation des scripts de npm permet l'activation automatique des plugins sur le projet.
 
-Vous pouvez voir la structure du project générer par la commande init [ici](https://github.com/midgarjs/midgar/tree/master/src/cli/.init-tpl).
+Vous pouvez voir la structure du projet générer par la commande init [ici](https://github.com/midgarjs/midgar/tree/master/templates/project).
 
 
 ## Documentation
 [documentation Api](https://midgarjs.github.io/midgar/).
 
-## Plugins officiel
+## Plugins
 
 | Nom | Description |
 |---------|-------------|
@@ -48,85 +42,43 @@ Vous pouvez voir la structure du project générer par la commande init [ici](ht
 | [mongo](https://github.com/midgarjs/mongo) | Service [Mongoose](https://mongoosejs.com/) avec chargement des models et migrations.  |
 | [graphql-server](https://github.com/midgarjs/graphql-server) | Service [Apollo server](https://www.apollographql.com/) avec chargement des schémas et resolvers. Resolvers avec injection de service. |
 
-
-## Cli
-
-Voici les commandes de base du cli
-
-
-### init:
-
-```bash
-$ midgar run init ./mon-project
-```
-Initialise un nouveau projet midgar.
-
-
-### add:
-
-```bash
-$ midgar add monplugin
-```
-Ajoute un plugin au fichier **plugins.json** contenu dans le dossier de configuration du projet.
-
-
-### rm:
-
-```bash
-$ midgar rm @migar/service
-```
-Supprime le plugin @migar/service du fichier **plugins.json**.
-
-
-### enable:
-
-```bash
-$ midgar enable @migar/service
-```
-Active un plugin présent dans le fichier plugins.json.
-Si le plugin n'est pas présen, il n'est pas ajouté et un avertisement est affiché.
-
-
-### disable:
-
-```bash
-$ midgar disable @migar/service
-```
-
-Désactive le plugin @migar/service dans le fichier plugins.json.
-Si le plugin n'est pas présent, il n'est pas ajouté et un avertisement est affiché.
-
-
-### Paramètre optionnel:
-
-```bash
-$ midgar add @migar/service --config ~/mon-projet/src/config
-```
-
-Vous pouvez ajouter le chemin de la configuration du projet au cli.
-Par defaut, le cli cherche un fichier .midrc contenant le chemin de la configuration.
-S'il ne trouve pas ce fichier il cherche dans ./config.
-
-Vous pouvez voir un exemple de fichier .midrc [ici](https://github.com/midgarjs/midgar/blob/master/src/cli/.init-tpl/.midrc)
-
-
 ## Créer un plugin
+Le CLI vous permet de générer la structure d'un plugin et de l'activer:
 
+```bash
+$ cd ~/mon-projet/
+$ midgar new @ns/blog
+$ npm update
+```
 ### Fichier plugin
 
-Voici un exemple de fichier plugin:
+Voici le fichier plugin généré par la command:
 
 ```js
 import { Plugin } from '@midgar/midgar'
 
-export default class TestPlugin extends Plugin {
+/**
+ * BlogPlugin class
+ */
+export default  class BlogPlugin extends Plugin {
+  /**
+   * Init plugin
+   */
   init () {
-    this.mid.on('@midgar/midgar:afterLoadPlugins', async () => {
-      // Ceci est exécuté une fois que tous les plugins ont été chargés
-    })
+
   }
 }
 ```
+La méthode init est appelée automatiquement au chargement des plugins. Elle sert notament à écrouter les évènements:
+
+```js
+init () {
+  this.mid.on('@midgar/midgar:afterInitPlugins', async () => {
+    // Ceci est exécuté une fois que tous les plugins ont été initialisé.
+  })
+}
+```
+
 Vous pouvez retouver la liste des évènements dans la [documentation](https://midgarjs.github.io/midgar/).
 
 
@@ -134,20 +86,29 @@ Vous pouvez retouver la liste des évènements dans la [documentation](https://m
 
 Un plugin est en premier lieu un package npm et doit etre forcement accompagné d'un fichier **package.json**. Le main du **package.json** doit pointer sur le fichier plugin.
 
-Pour fonctionner il doit aussi etre déclarré dans le fichier **plugins.json** contenu dans le dossier de configuration du projet. Les scripts postinstall et preuninstall peuvent être utiliser pour ajouter/supprimer automatiquement les plugins du fichier **plugins.json**.
+Pour fonctionner il doit aussi etre déclarré dans le fichier **plugins.json** contenu dans le dossier de configuration du projet. 
+Les scripts postinstall et preuninstall peuvent être utiliser pour ajouter/supprimer automatiquement les plugins du fichier **plugins.json**.
 
 
 ### Configuration du plugin
 
 Vous pouvez ajouter un fichier **plugin-config.js** dans le même dossier que le fichier plugin.
 
-Ce fichier est charger avant le chargement des plugins et est injecté dans le membre **.config** de l'instance du plugin.
+Ce fichier est chargé avant le chargement des plugins et est injecté dans la proprité **.config** de l'instance du plugin.
+Voici un exemple:
 
+```js
+export default {
+  moduleTypes: {
+    'midgar-mongo-model': 'models',
+  }
+}
+```
 
 ### Modules
 
 Le système de plugin comprend un importer de modules.
-Vous pouvez déclarrer un type de modules a importer dans la methode init de votre plugin:
+Vous pouvez déclarrer un type de module a importer dans la methode init de votre plugin:
 
 ```js
 import { Plugin } from '@midgar/midgar'
@@ -159,6 +120,7 @@ export default class TestPlugin extends Plugin {
 }
 ```
 ***mon-type*** corréspond à l'identifiant du type de module.
+
 ***modossier*** corréspond au chemin par défaut du dossier contenant ce type de modules.
 
 @see: https://midgarjs.github.io/midgar/PluginManager.html#addModuleType__anchor
@@ -170,8 +132,8 @@ import { Plugin } from '@midgar/midgar'
 
 export default class TestPlugin extends Plugin {
   init () {
-    this.mid.on('@midgar/midgar:afterLoadPlugins', async () => {
-      const files = await this.mid.pm.importModules('mon-type')
+    this.mid.on('@midgar/midgar:afterInitPlugins', async () => {
+      const files = await this.mid.pm.importModules('mon-type', '**/*.js')
       ...
     })
   }
@@ -179,10 +141,11 @@ export default class TestPlugin extends Plugin {
 ```
 @see: https://midgarjs.github.io/midgar/PluginManager.html#importModules__anchor
 
-La méthode importModules importe tous les modules **mon-typer** pour tous les plugins.
+La méthode **importModules** importe tous les modules **mon-type** pour tous les plugins.
+
 Le chemin du dossier **mon-type** est par défaut **./mondossier/** relativement par rapport au fichier plugin.
 
-La méthode importModules renvoit un tableau d'object:
+La méthode **importModules** renvoit un tableau d'object:
 
 ```js
 [
@@ -200,12 +163,22 @@ Le chemin du dossier **mon-type** peut etre configuré pour chaque plugin dans l
 
 ```js
 export default {
-  modules: {
+  moduleTypes: {
     'mon-type': 'mon/nouveau/dossier',
   }
 }
 ```
-
+ou
+```js
+export default {
+  moduleTypes: {
+    'mon-type': {
+      path: 'mon/nouveau/dossier',
+      glob: '**/*.js',
+      ignore: '**/*.schema.ks'
+  }
+}
+```
 
 ### Réecriture
 
@@ -261,3 +234,70 @@ export default {
 ```
 
 Lors de l'import des modules, le modules **./rewrite/models/user.js** sera chargé à la place du modules **user.js** contenu dans le dossier **midgar-mongoose-models** et pour le plugin **@midgar/graphql-auth**
+
+
+## Cli
+
+Voici les commandes de base du cli
+
+
+### init:
+
+```bash
+$ midgar init ./mon-projet
+```
+Crée un projet Midgar dans le dossier ./mon-projet.
+
+### new:
+
+```bash
+$ midgar new
+```
+Crée un nouveau plugin local.
+
+### add:
+
+```bash
+$ midgar add monplugin
+```
+Ajoute un plugin au fichier **plugins.json** contenu dans le dossier de configuration du projet.
+
+
+### rm:
+
+```bash
+$ midgar rm @migar/service
+```
+Supprime le plugin @migar/service du fichier **plugins.json**.
+
+
+### enable:
+
+```bash
+$ midgar enable @migar/service
+```
+Active un plugin présent dans le fichier plugins.json.
+Si le plugin n'est pas présen, il n'est pas ajouté et un avertisement est affiché.
+
+
+### disable:
+
+```bash
+$ midgar disable @migar/service
+```
+
+Désactive le plugin @migar/service dans le fichier plugins.json.
+Si le plugin n'est pas présent, il n'est pas ajouté et un avertisement est affiché.
+
+
+### Paramètre optionnel:
+
+```bash
+$ midgar add @migar/service --config ~/mon-projet/src/config
+```
+
+Vous pouvez ajouter le chemin de la configuration du projet au cli.
+Par defaut, le cli cherche un fichier .midrc contenant le chemin de la configuration.
+S'il ne trouve pas ce fichier il cherche dans ./config.
+
+Vous pouvez voir un exemple de fichier .midgarrc.js [ici](https://github.com/midgarjs/midgar/blob/master/templates/project/.midgarrc.js)
