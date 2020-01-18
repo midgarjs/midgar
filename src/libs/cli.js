@@ -110,7 +110,6 @@ class Cli {
    * and load plugins commands
    */
   async init () {
-
     // Parse options to get config dir path
     this.program.parseOptions(this.program.normalize(this.argv.slice(2)))
     // If option config is set the config path
@@ -152,7 +151,7 @@ class Cli {
    * @private
    */
   async _loadConfigAndPackagePath () {
-    const explorer = cosmiconfig('midgar', { searchPlaces: ['package.json']})
+    const explorer = cosmiconfig('midgar', { searchPlaces: ['package.json'] })
     const result = await explorer.search(this.cwd)
 
     // If config path is in the rc config
@@ -160,7 +159,7 @@ class Cli {
       const { filepath, config: midgarConfig } = result
       if (midgarConfig && midgarConfig.config) {
         if (typeof midgarConfig.config !== 'string') throw new TypeError('Invalid config path type !')
-        console.log('midgarConfig', path.resolve(this.cwd, midgarConfig.config ))
+        console.log('midgarConfig', path.resolve(this.cwd, midgarConfig.config))
         this.configPath = path.resolve(path.dirname(filepath), midgarConfig.config)
         this.packagePath = filepath
       }

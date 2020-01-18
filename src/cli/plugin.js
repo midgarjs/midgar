@@ -3,7 +3,6 @@ import inquirer from 'inquirer'
 import utils from '@midgar/utils'
 import camelCase from 'camelcase'
 
-
 const resolve = (p) => {
   return path.join(__dirname, p)
 }
@@ -71,7 +70,7 @@ async function newPlugin (mid, pluginName) {
  * @param {string} pluginPath Plugin path
  * @private
  */
-async function updatePackageJson(mid, pluginName, pluginPath) {
+async function updatePackageJson (mid, pluginName, pluginPath) {
   if (mid.cli.packagePath) {
     const { default: projectPkg } = await import(mid.cli.packagePath)
     if (!projectPkg.dependencies || !projectPkg.dependencies[pluginName]) {
@@ -103,7 +102,7 @@ function getPluginClassName (pluginName) {
   }
 
   // Set first letter upper
-  return camelCase(name, {pascalCase: true}) + 'Plugin'
+  return camelCase(name, { pascalCase: true }) + 'Plugin'
 }
 
 export {
