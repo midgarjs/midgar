@@ -69,7 +69,7 @@ export default  class BlogPlugin extends Plugin {
   }
 }
 ```
-La méthode init est appelée automatiquement au chargement des plugins. Elle sert notament à écrouter les évènements:
+La méthode init est appelée automatiquement au chargement des plugins. Elle sert notament à écouter les évènements:
 
 ```js
 init () {

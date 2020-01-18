@@ -13,6 +13,7 @@ import Cli from '../src/libs/cli'
 import { asyncReadFile, asyncWriteFile } from '@midgar/utils'
 import { PLUGINS_CONFIG_FILE } from '../src/libs/plugin-manager'
 import { getPluginClassName } from '../src/cli/plugin'
+import { util } from 'chai/lib/chai'
 
 const PLUGIN_NAME = '@test/test-plugin-2'
 const NEW_PLUGIN_NAME = 'my-plugin'
@@ -85,6 +86,13 @@ const pluginsConfigPath = path.resolve(__dirname, 'fixtures/config-plugins')
 const logs = []
 let consoleLog = null
 
+/**
+ * Test new plugin command
+ *
+ * @param {string} pluginName Plugin name
+ * @param {Cli}    cli        Cli instance
+ * @private
+ */
 async function testNewPlugin (pluginName, cli) {
   const files = [
     'package.json',
@@ -93,8 +101,7 @@ async function testNewPlugin (pluginName, cli) {
     'src/index.js',
   ]
 
-  const pluginsPath = cli.mid.pm.localPath
-  const pluginPath = path.join(pluginsPath, pluginName)
+  const pluginPath = path.join(cli.mid.pm.localPath, pluginName)
   files.forEach(file => {
     expect(path.join(pluginPath, file)).be.a.file()
   })
@@ -155,7 +162,7 @@ describe('Cli', function () {
    */
   it('init', async function () {
     // Call init cli command on tmp dir
-    const cli = new Cli(['', '', 'init', tmpDir], tmpDir)
+    let cli = new Cli(['', '', 'init', tmpDir], tmpDir)
 
     // Mok inquirer.prompt
     const originalPrompt = inquirer.prompt
@@ -192,6 +199,10 @@ describe('Cli', function () {
     expect(pkg.dependencies['@midgar/midgar']).not.be.undefined('Invalid package missing Midgar dependency !')
     expect(pkg.private).be.true('Invalid package private !')
 
+    // Call init cli command on tmp dir
+    cli = new Cli(['', '', 'init', tmpDir], tmpDir)
+    await cli.init()
+    await expect(cli.run()).be.rejectedWith(`The directory ${tmpDir} is not empty !`)
 
     inquirer.prompt = originalPrompt
   })
@@ -232,6 +243,13 @@ describe('Cli', function () {
     await cli.init()
     await cli.run()
     await testNewPlugin(NEW_OTHER_PLUGIN_NAME, cli)
+
+    // Test create existing plugin
+    cli = new Cli(['', '', 'new', NEW_OTHER_PLUGIN_NAME], tmpDir)
+    await cli.init()
+
+    const pluginPath = path.join(cli.mid.pm.localPath, NEW_OTHER_PLUGIN_NAME)
+    await expect(cli.run()).be.rejectedWith(`Directory ${pluginPath} already exists !`)
 
     inquirer.prompt = originalPrompt
   })
