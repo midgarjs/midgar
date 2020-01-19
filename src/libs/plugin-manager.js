@@ -128,7 +128,7 @@ class PluginManager {
    */
   _loadPluginsConfigs (plugins, pluginsConfig) {
     return utils.asyncMap(plugins, async name => {
-      let packagePath = name
+      let packagePath
       let local = false
 
       // Check if plugin path is defined in plugins.json
@@ -142,6 +142,11 @@ class PluginManager {
         local = true
         packagePath = path.join(this.localPath, name)
       }
+
+      if (!local) {
+        packagePath = path.dirname(await utils.asyncRequireResolve(path.join(name, PACKAGE_JSON)))
+      }
+
       let pkg
       const pkgPath = path.join(packagePath, PACKAGE_JSON)
       try {
