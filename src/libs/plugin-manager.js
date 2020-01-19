@@ -138,11 +138,13 @@ class PluginManager {
         local = true
       }
 
+      // If it a local plugin
       if (!local && pluginsConfig[name].local) {
         local = true
         packagePath = path.join(this.localPath, name)
       }
 
+      // If it a npm package
       if (!local) {
         packagePath = path.dirname(await utils.asyncRequireResolve(path.join(name, PACKAGE_JSON)))
       }
