@@ -536,14 +536,15 @@ class PluginManager {
   /**
    * Import files inside a directory of each plugins
    *
-   * @param {string}  type  Module type key
+   * @param {string}  type    Module type key
+   * @param {boolean} import_ Flag to import or not modules
    *
    * @return {Array}
    */
-  async importModules (type) {
+  async importModules (type, import_ = true) {
     // Start timer
     utils.timer.start('midgar-import-modules-' + type)
-    this.mid.debug(`import modules "${type}" start.`)
+    this.mid.debug(`@midgar/midgar: import modules "${type}" start.`)
 
     const files = []
     // List plugins async
@@ -556,13 +557,13 @@ class PluginManager {
       const exists = await utils.asyncFileExists(path.join(plugin.path, pluginModuleType.path))
       if (exists) {
         // Import files inside the direactory
-        const pluginFiles = await this._importModuleFiles(plugin, type, pluginModuleType)
+        const pluginFiles = await this._importModuleFiles(plugin, type, pluginModuleType, import_)
         files.push(...pluginFiles)
       }
     })
 
     const time = utils.timer.getTime('midgar-import-modules-' + type)
-    this.mid.debug(`"${type}" modules imported in ${time} ms.`)
+    this.mid.debug(`@midgar/midgar: ${type} modules imported in ${time} ms.`)
 
     return files
   }
@@ -570,14 +571,14 @@ class PluginManager {
   /**
    * Return a module type object for a plugin
    *
-   * @param {string}       plugin      Plugin name
-   * @param {string}       type        Module type
+   * @param {string} plugin Plugin name
+   * @param {string} type   Module type
    *
    * @return {ModuleType}
    * @private
    */
   _getPluginModuleType (plugin, type) {
-    const moduleType = this.getModuleType(type)
+    const moduleType = {...this.getModuleType(type)}
     const pluginModuleType = plugin.getModuleType(type)
 
     // Check path
@@ -604,14 +605,15 @@ class PluginManager {
   /**
    * Import module inside a plugin directory
    *
-   * @param {Plugin}        plugin           Plugin isntance
-   * @param {string}        type             Module type
+   * @param {Plugin}     plugin           Plugin isntance
+   * @param {string}     type             Module type
    * @param {ModuleType} pluginModuleType Modules root absolute path
+   * @param {boolean}    import_          Flag to import or not modules
    *
    * @raturn {Array}
    * @private
    */
-  async _importModuleFiles (plugin, type, pluginModuleType) {
+  async _importModuleFiles (plugin, type, pluginModuleType, import_ = true) {
     const modulesDir = path.join(plugin.path, pluginModuleType.path)
     // Get modules file path array
     const files = await this._getModuleFiles(modulesDir, pluginModuleType.glob, pluginModuleType.ignore)
@@ -627,15 +629,20 @@ class PluginManager {
           importPath = this.rewriteModules[type][plugin.name][file]
         }
 
-        // Import module file
-        const { default: defaultExport } = await import(importPath)
-
-        return {
+        const moduleFile = {
           path: importPath,
-          export: defaultExport,
           plugin: plugin.name,
           relativePath: file
         }
+
+        // If import flag import file
+        if (import_) {
+          // Import module file
+          const { default: defaultExport } = await import(importPath)
+          moduleFile.export = defaultExport
+        }
+
+        return moduleFile
       } catch (error) {
         this.mid.error(error)
       }

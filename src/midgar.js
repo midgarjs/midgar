@@ -239,7 +239,7 @@ class Midgar extends Emittery {
     const uncaughtExceptionHandler = (error) => {
       if (this.logger) {
         // log exception
-        this.logger.error('Uncaught Exception :(')
+        this.logger.error('@midgar/midgar: Uncaught Exception :(')
         this.logger.error(error)
       } else {
         console.error(error)
@@ -250,7 +250,7 @@ class Midgar extends Emittery {
     const uncaughtRejectionHandler = (error) => {
       if (this.logger) {
         // log exception
-        this.logger.error('Uncaught Rejection :(')
+        this.logger.error('@midgar/midgar: Uncaught Rejection :(')
         this.logger.error(error)
       } else {
         console.error(error)
