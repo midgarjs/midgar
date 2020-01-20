@@ -578,7 +578,7 @@ class PluginManager {
    * @private
    */
   _getPluginModuleType (plugin, type) {
-    const moduleType = {...this.getModuleType(type)}
+    const moduleType = { ...this.getModuleType(type) }
     const pluginModuleType = plugin.getModuleType(type)
 
     // Check path
