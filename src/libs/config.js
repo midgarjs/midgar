@@ -22,7 +22,7 @@ async function loadConfig (configDir, env) {
   const mainConfig = await loadConfigfile(path.join(configDir, CONFIG_FILE_NAME), true)
   assignRecursive(config, mainConfig)
 
-  const prefix = env === 'developement' ? 'dev' : 'prod'
+  const prefix = env === 'development' ? 'dev' : 'prod'
   const modeConfig = await loadConfigfile(path.join(configDir, CONFIG_FILE_NAME + '.' + prefix))
   assignRecursive(config, modeConfig)
 
