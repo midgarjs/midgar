@@ -61,10 +61,16 @@ class PluginManager {
     this.rewritedPlugins = {}
 
     /**
-     * Rewrite modules
+     * Rewrite modules dictionary
      * @type {object}
      */
     this.rewriteModules = {}
+
+    /**
+     * Rewrite files dictionary
+     * @type {object}
+     */
+    this.rewriteFiles = {}
 
     // plugin dependencies object
     this._pluginDependencies = null
@@ -107,6 +113,7 @@ class PluginManager {
 
     // Create plugin instances
     this.plugins = await this._createPluginInstances(pluginsConfigs)
+
     // Add rewrite plugin
     this._addRewritePluginInstances()
 
@@ -182,24 +189,43 @@ class PluginManager {
 
   /**
    * Check if plugin config have rewritePlugin entry
-   * Add rewrite entries in rewritePlugins Object
    *
    * @param {object} pluginsConfigs Dictionay of plugin config and package.json
    * @private
    */
   _processPluginsConfig (pluginsConfigs) {
-    for (const name of Object.keys(pluginsConfigs)) {
+    for (const name in pluginsConfigs) {
       const pluginConfig = pluginsConfigs[name].config
       if (pluginConfig && pluginConfig.rewrite) {
-        if (pluginConfig.rewrite.plugin) {
-          if (typeof pluginConfig.rewrite.plugin !== 'string') throw new TypeError(`Invalid rewrite plugin type in config of ${name} plugin !`)
-          this._processRewritePlugin(name, pluginsConfigs)
-        }
-
-        if (pluginConfig.rewrite.modules) {
-          this._processRewriteModules(name, pluginsConfigs[name])
-        }
+        this._processRewriteConfig(name, pluginsConfigs)
       }
+    }
+  }
+
+  /**
+   * Map rewrite config
+   * Add rewrite entries in rewritePlugins Object
+   *
+   * @param {string} name           Plugin name
+   * @param {object} pluginsConfigs Dictionay of plugin config and package.json
+   * @private
+   */
+  _processRewriteConfig (name, pluginsConfigs) {
+    const pluginConfig = pluginsConfigs[name].config
+    // Map rewrite plugins
+    if (pluginConfig.rewrite.plugin) {
+      if (typeof pluginConfig.rewrite.plugin !== 'string') throw new TypeError(`Invalid rewrite plugin type in config of ${name} plugin !`)
+      this._processRewritePlugin(name, pluginsConfigs)
+    }
+
+    // Map rewrite modules
+    if (pluginConfig.rewrite.modules) {
+      this._processRewriteModules(name, pluginsConfigs[name])
+    }
+
+    // Map rewrite files
+    if (pluginConfig.rewrite.files) {
+      this._processRewriteFiles(name, pluginsConfigs[name])
     }
   }
 
@@ -231,36 +257,71 @@ class PluginManager {
   _processRewriteModules (name, pluginConfigs) {
     const pluginPath = pluginConfigs.pluginPath
     const pluginConfig = pluginConfigs.config
-    // List plugin directories
-    for (const moduleType of Object.keys(pluginConfig.rewrite.modules)) {
+    // List module types
+    for (const moduleType in pluginConfig.rewrite.modules) {
       // List plugins
-      for (const rwName of Object.keys(pluginConfig.rewrite.modules[moduleType])) {
-        // List plugins
-        for (const filePath of Object.keys(pluginConfig.rewrite.modules[moduleType][rwName])) {
-          const rewritFilePath = pluginConfig.rewrite.modules[moduleType][rwName][filePath]
-          this._processrewriteModulesEntry(moduleType, name, rwName, filePath, rewritFilePath, pluginPath)
+      for (const rwName in pluginConfig.rewrite.modules[moduleType]) {
+        // List modules
+        for (const filePath in pluginConfig.rewrite.modules[moduleType][rwName]) {
+          const rewriteFilePath = pluginConfig.rewrite.modules[moduleType][rwName][filePath]
+          this._processRewriteModulesEntry(moduleType, name, rwName, filePath, rewriteFilePath, pluginPath)
         }
       }
     }
   }
 
   /**
-   * Create rewrite module doctionary
+   * Create rewrite module doctionary entry
    *
-   * @param {string} moduleType     Module type key
-   * @param {string} name           Rewriter plugin name
-   * @param {string} rwName         Rewrite plugin name
-   * @param {string} filePath       Rewrited module path
-   * @param {string} rewritFilePath Rewrite module path
-   * @param {string} pluginPath     Rewrite plugin path
+   * @param {string} moduleType      Module type key
+   * @param {string} name            Rewriter plugin name
+   * @param {string} rwName          Rewrite plugin name
+   * @param {string} filePath        Rewrited module path
+   * @param {string} rewriteFilePath Rewrite module path
+   * @param {string} pluginPath      Rewrite plugin path
    * @private
    */
-  _processrewriteModulesEntry (moduleType, name, rwName, filePath, rewritFilePath, pluginPath) {
+  _processRewriteModulesEntry (moduleType, name, rwName, filePath, rewriteFilePath, pluginPath) {
     if (!this.rewriteModules[moduleType]) this.rewriteModules[moduleType] = {}
     if (!this.rewriteModules[moduleType][rwName]) this.rewriteModules[moduleType][rwName] = {}
 
-    if (this.rewriteModules[moduleType][rwName][filePath] !== undefined) this.mid.warn('Plugin ' + name + ' rewite ' + rwName + ' ' + filePath + 'over ' + this.rewriteModules[moduleType][rwName][filePath] + ' !')
-    this.rewriteModules[moduleType][rwName][filePath] = path.resolve(pluginPath, rewritFilePath)
+    if (this.rewriteModules[moduleType][rwName][filePath] !== undefined) this.mid.warn(`Plugin ${name} rewite file ${this.rewriteModules[moduleType][rwName][filePath]} over plugin ${rwName} !`)
+    this.rewriteModules[moduleType][rwName][filePath] = path.resolve(pluginPath, rewriteFilePath)
+  }
+
+  /**
+   * Check rewrite files and map entries
+   *
+   * @param {string} name          Plugin name
+   * @param {object} pluginConfigs plugin config and package.json
+   * @private
+   */
+  _processRewriteFiles (name, pluginConfigs) {
+    const pluginPath = pluginConfigs.pluginPath
+    const pluginConfig = pluginConfigs.config
+    // List plugin name entries
+    for (const rwName in pluginConfig.rewrite.files) {
+      for (const filePath in pluginConfig.rewrite.files[rwName]) {
+        const rewriteFilePath = pluginConfig.rewrite.files[rwName][filePath]
+        this._processRewriteFileEntry(name, rwName, filePath, rewriteFilePath, pluginPath)
+      }
+    }
+  }
+
+  /**
+   * Create rewrite file doctionary entry
+   *
+   * @param {string} name            Rewriter plugin name
+   * @param {string} rwName          Rewrite plugin name
+   * @param {string} filePath        Rewrited module path
+   * @param {string} rewriteFilePath Rewrite module path
+   * @param {string} pluginPath      Rewrite plugin path
+   * @private
+   */
+  _processRewriteFileEntry (name, rwName, filePath, rewriteFilePath, pluginPath) {
+    if (!this.rewriteFiles[rwName]) this.rewriteFiles[rwName] = {}
+    if (this.rewriteFiles[rwName][filePath] !== undefined) this.mid.warn(`Plugin ${name} rewite file ${this.rewriteFiles[rwName][filePath]} over plugin ${rwName} !`)
+    this.rewriteFiles[rwName][filePath] = path.resolve(pluginPath, rewriteFilePath)
   }
 
   /**
@@ -491,6 +552,7 @@ class PluginManager {
    * @return {Plugin}
    */
   getPlugin (name) {
+    if (this.plugins[name] === undefined) throw new Error(`Invalid plugin name: ${name} !`)
     return this.plugins[name]
   }
 
@@ -668,6 +730,40 @@ class PluginManager {
         else resolve(files)
       })
     })
+  }
+
+  /**
+   * Return content of a plugin file
+   *
+   * @param {string} filePath Plugin file path like "plugin-name:path-to-file"
+   * @param {string} encoding Read file encoding: https://nodejs.org/api/fs.html#fs_fs_readfile_path_options_callback
+   *
+   * @return {Promise<string|Buffer>}
+   */
+  async readFile (filePath, encoding = 'utf8') {
+    filePath = this.getFilePath(filePath)
+    return utils.asyncReadFile(filePath, encoding)
+  }
+
+  /**
+   * Return absolute path of a plugin file
+   *
+   * @param {string} filePath Plugin file path like "plugin-name:path-to-file"
+   *
+   * @return {string} Absolute file path
+   */
+  getFilePath (filePath) {
+    const parts = filePath.split(':')
+    if (parts.length !== 2) throw new Error('Invalid file path !')
+    const plugin = this.getPlugin(parts[0])
+    filePath = parts[1]
+
+    if (!filePath.charAt(0).match(/[a-z]/i)) throw new Error('Invalid file path !')
+
+    if (this.rewriteFiles[plugin.name] !== undefined &&
+      this.rewriteFiles[plugin.name][filePath] !== undefined) return this.rewriteFiles[plugin.name][filePath]
+
+    return path.join(plugin.path, filePath)
   }
 
   /**

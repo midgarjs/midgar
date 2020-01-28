@@ -7,6 +7,11 @@ export default {
           'file-1.js': './rewrite/fooxxx/file-rw.js'
         }
       }
+    },
+    files: {
+      '@test/test-plugin-3': {
+        'files/test-rw.txt': './files/test.txt'
+      }
     }
   }
 }

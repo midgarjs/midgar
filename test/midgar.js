@@ -38,7 +38,7 @@ describe('Midgar', function () {
   })
 
   afterEach(async () => {
-    if (mid.httpServer !== null) await mid.stop()
+    await mid.stop()
     mid = null
     process.exit.restore()
   })

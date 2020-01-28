@@ -2,6 +2,7 @@ import mocha from 'mocha'
 import chai from 'chai'
 import dirtyChai from 'dirty-chai'
 import chaiArrays from 'chai-arrays'
+import chaiAsPromised from 'chai-as-promised'
 import path from 'path'
 
 import PM from '../src/libs/plugin-manager'
@@ -20,6 +21,7 @@ const FOO_PLUGIN_PATH = 'fixtures/plugins/test-plugin/foo'
 const expect = chai.expect
 chai.use(chaiArrays)
 chai.use(dirtyChai)
+chai.use(chaiAsPromised)
 
 let mid = null
 const initMidgar = async (ext = null) => {
@@ -139,6 +141,23 @@ describe('Plugin Manager', function () {
   })
 
   /**
+   * Test the readFile method
+   */
+  it('readFile', async () => {
+    await expect(mid.pm.readFile('test-plugin:./files/test.txt')).be.rejectedWith(Error, 'Invalid file path !')
+    await expect(mid.pm.readFile('test-plugin:/files/test.txt')).be.rejectedWith(Error, 'Invalid file path !')
+
+    let result = await mid.pm.readFile('test-plugin:files/test.txt')
+    expect(result).to.equal('test txt', 'Invalid readFile result !')
+
+    result = await mid.pm.readFile('@test/test-plugin-3:files/test.txt')
+    expect(result).to.equal('@test/test-plugin-3 test txt', 'Invalid readFile result !')
+
+    result = await mid.pm.readFile('@test/test-plugin-3:files/test-rw.txt')
+    expect(result).to.equal('test rewrite', 'Invalid readFile result !')
+  })
+
+  /**
    * Test the getSortedPlugins method
    */
   it('getSortedPlugins', async () => {
@@ -147,6 +166,9 @@ describe('Plugin Manager', function () {
     expect(result).to.eql(shouldSorted, 'Invalid getSortedPlugins result !')
   })
 
+  /**
+   * Test if a plugin is rewrited
+   */
   it('rewrite plugin', async () => {
     const testPlugin2 = await mid.pm.getPlugin('test-plugin-2')
     expect(testPlugin2).to.be.an.instanceof(TestRwPlugin, 'Plugin is not an instance of TestPlugin !')
@@ -154,6 +176,9 @@ describe('Plugin Manager', function () {
     expect(testPlugin2.bar).equal('testrw', 'Invalid rewrite plugin foo value !')
   })
 
+  /**
+   * Test if a module is rewrited
+   */
   it('rewrite modules', async () => {
     const fooxxxFiles = await mid.pm.importModules('fooxxx')
     let find = false
