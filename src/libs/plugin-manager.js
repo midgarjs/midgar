@@ -74,6 +74,12 @@ class PluginManager {
 
     // plugin dependencies object
     this._pluginDependencies = null
+
+    /**
+     * File path dictonary for caching
+     * @private
+     */
+    this._filePaths = {}
   }
 
   /**
@@ -179,9 +185,9 @@ class PluginManager {
         key: pkg.name,
         value: {
           package: pkg,
-          config: config,
-          packagePath: packagePath,
-          pluginPath: pluginPath
+          config,
+          packagePath,
+          pluginPath
         }
       }
     }, true)
@@ -196,10 +202,19 @@ class PluginManager {
   _processPluginsConfig (pluginsConfigs) {
     for (const name in pluginsConfigs) {
       const pluginConfig = pluginsConfigs[name].config
-      if (pluginConfig && pluginConfig.rewrite) {
-        this._processRewriteConfig(name, pluginsConfigs)
-      }
+      if (!pluginConfig) continue
+      if (pluginConfig.rewrite) this._processRewriteConfig(name, pluginsConfigs)
+      if (pluginConfig.config) this._mergeConfig(pluginConfig.config)
     }
+  }
+
+  /**
+   * Merge midgar config to plugin config
+   * @param {object} config 
+   * @private
+   */
+  _mergeConfig(config) {
+    this.mid.config = utils.assignRecursive(config, this.mid.config)
   }
 
   /**
@@ -753,17 +768,20 @@ class PluginManager {
    * @return {string} Absolute file path
    */
   getFilePath (filePath) {
-    const parts = filePath.split(':')
-    if (parts.length !== 2) throw new Error('Invalid file path !')
-    const plugin = this.getPlugin(parts[0])
-    filePath = parts[1]
+    if (this._filePaths[filePath] === undefined) {
+      const parts = filePath.split(':')
+      if (parts.length !== 2) throw new Error('Invalid file path !')
+      const plugin = this.getPlugin(parts[0])
+      filePath = parts[1]
+  
+      if (!filePath.charAt(0).match(/[a-z]/i)) throw new Error('Invalid file path !')
+  
+      if (this.rewriteFiles[plugin.name] !== undefined &&
+        this.rewriteFiles[plugin.name][filePath] !== undefined) this._filePaths[filePath] = this.rewriteFiles[plugin.name][filePath]
+      else this._filePaths[filePath] = path.join(plugin.path, filePath)
+    }
 
-    if (!filePath.charAt(0).match(/[a-z]/i)) throw new Error('Invalid file path !')
-
-    if (this.rewriteFiles[plugin.name] !== undefined &&
-      this.rewriteFiles[plugin.name][filePath] !== undefined) return this.rewriteFiles[plugin.name][filePath]
-
-    return path.join(plugin.path, filePath)
+    return this._filePaths[filePath]
   }
 
   /**
