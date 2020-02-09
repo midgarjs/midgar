@@ -4,5 +4,9 @@ export default {
       path: 'boo'
     }
   },
-  testConfig: 'ok'
+  testConfig: 'ok',
+  config: {
+    test: 'base',
+    test2: 'base'
+  }
 }

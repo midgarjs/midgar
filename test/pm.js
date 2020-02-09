@@ -62,6 +62,14 @@ describe('Plugin Manager', function () {
   })
 
   /**
+   * Test if the plugin config is load
+   */
+  it('Plugin config', async () => {
+    expect(mid.config.test).to.equal('base', 'Plugin config in not load !')
+    expect(mid.config.test2).to.equal('notbase', 'Plugin config in not load !')
+  })
+
+  /**
    * Test result importFiles with shouldResult
    *
    * @param {Array} result       Result array from readFiles call
@@ -190,19 +198,5 @@ describe('Plugin Manager', function () {
     }
 
     expect(find).to.be.true()
-  })
-})
-
-/**
- * Test the plugin
- */
-describe('Plugin', function () {
-  beforeEach(async () => {
-    mid = await initMidgar()
-  })
-
-  afterEach(async () => {
-    await mid.stop()
-    mid = null
   })
 })

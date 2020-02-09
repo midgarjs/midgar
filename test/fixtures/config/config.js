@@ -17,6 +17,7 @@ function getTmpDir (name) {
 }
 
 export default {
+  test2: 'notbase',
   log: {
     dir: getTmpDir('logs'),
     stdout: true,
