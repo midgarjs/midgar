@@ -62,7 +62,7 @@ describe('Plugin Manager', function () {
   })
 
   /**
-   * Test if the plugin config is load
+   * Test if the plugin config is set in midgar config
    */
   it('Plugin config', async () => {
     expect(mid.config.test).to.equal('base', 'Plugin config in not load !')
