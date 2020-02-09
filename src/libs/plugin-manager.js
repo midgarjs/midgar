@@ -210,10 +210,13 @@ class PluginManager {
 
   /**
    * Merge midgar config to plugin config
-   * @param {object} config 
+   * The goal is to let possibility to the plugin
+   * to define base configuration
+   *
+   * @param {object} config Config Object
    * @private
    */
-  _mergeConfig(config) {
+  _mergeConfig (config) {
     this.mid.config = utils.assignRecursive(config, this.mid.config)
   }
 
@@ -773,9 +776,9 @@ class PluginManager {
       if (parts.length !== 2) throw new Error('Invalid file path !')
       const plugin = this.getPlugin(parts[0])
       filePath = parts[1]
-  
+
       if (!filePath.charAt(0).match(/[a-z]/i)) throw new Error('Invalid file path !')
-  
+
       if (this.rewriteFiles[plugin.name] !== undefined &&
         this.rewriteFiles[plugin.name][filePath] !== undefined) this._filePaths[filePath] = this.rewriteFiles[plugin.name][filePath]
       else this._filePaths[filePath] = path.join(plugin.path, filePath)
