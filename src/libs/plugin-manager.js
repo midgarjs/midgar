@@ -696,7 +696,7 @@ class PluginManager {
   async _importModuleFiles (plugin, type, pluginModuleType, import_ = true) {
     const modulesDir = path.join(plugin.path, pluginModuleType.path)
     // Get modules file path array
-    const files = await this._getModuleFiles(modulesDir, pluginModuleType.glob, pluginModuleType.ignore)
+    const files = await this._getFilesPath(modulesDir, pluginModuleType.glob, pluginModuleType.ignore)
 
     // List files async
     return utils.asyncMap(files, async (file) => {
@@ -739,7 +739,7 @@ class PluginManager {
    * @return {Array}
    * @private
    */
-  _getModuleFiles (dirPath, pattern, ignore = null) {
+  _getFilesPath (dirPath, pattern, ignore = null) {
     return new Promise((resolve, reject) => {
       const options = { cwd: dirPath }
       if (ignore) options.ignore = ignore
@@ -761,6 +761,38 @@ class PluginManager {
   async readFile (filePath, encoding = 'utf8') {
     filePath = this.getFilePath(filePath)
     return utils.asyncReadFile(filePath, encoding)
+  }
+
+  /**
+   * Read plugin files from a glob pattern
+   *
+   * @param {string} globPattern Glob patter
+   *
+   * @returns {Array<File>}
+   */
+  async readFiles (globPattern) {
+    const files = []
+    // List plugins async
+    await utils.asyncMap(this.plugins, async (plugin) => {
+      // Get files path with glob pattern
+      let filesPath = await this._getFilesPath(plugin.path, globPattern)
+
+      // Add plugin namespace to files path
+      filesPath = filesPath.map(filePath => plugin.name + ':' + filePath)
+
+      // Read files async
+      await utils.asyncMap(filesPath, async (filePath) => {
+        const content = await this.readFile(filePath)
+
+        files.push({
+          plugin: plugin.name,
+          content,
+          path: filePath.split(':')[1]
+        })
+      })
+    })
+
+    return files
   }
 
   /**

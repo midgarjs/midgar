@@ -166,6 +166,32 @@ describe('Plugin Manager', function () {
   })
 
   /**
+   * Test the readFiles method
+   */
+  it('readFiles', async () => {
+    const shouldResult = [
+      {
+        plugin: 'test-plugin',
+        content: 'test txt',
+        path: 'files/test.txt'
+      },
+      {
+        plugin: '@test/test-plugin-3',
+        content: 'test rewrite',
+        path: 'files/test-rw.txt'
+      },
+      {
+        plugin: '@test/test-plugin-3',
+        content: '@test/test-plugin-3 test txt',
+        path: 'files/test.txt'
+      }
+    ]
+    
+    const files = await mid.pm.readFiles('files/*')
+    expect(files).to.be.eql(shouldResult, 'Invalid read files result !')
+  })
+
+  /**
    * Test the getSortedPlugins method
    */
   it('getSortedPlugins', async () => {
