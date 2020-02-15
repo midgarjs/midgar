@@ -76,10 +76,15 @@ class PluginManager {
     this._pluginDependencies = null
 
     /**
-     * File path dictonary for caching
+     * File path dictonary for memory caching
      * @private
      */
     this._filePaths = {}
+
+    /**
+     * File content dictonary for memory caching
+     */
+    this._files = {}
   }
 
   /**
@@ -759,8 +764,16 @@ class PluginManager {
    * @return {Promise<string|Buffer>}
    */
   async readFile (filePath, encoding = 'utf8') {
-    filePath = this.getFilePath(filePath)
-    return utils.asyncReadFile(filePath, encoding)
+    // Check if file content is in memory
+    if (this._files[filePath]) return this._files[filePath]
+
+    // Get absolute file path
+    const absolutePath = this.getFilePath(filePath)
+
+    // Read file
+    this._files[filePath] = await utils.asyncReadFile(absolutePath, encoding)
+
+    return this._files[filePath]
   }
 
   /**
