@@ -125,6 +125,8 @@ class PluginManager {
     // Create plugin instances
     this.plugins = await this._createPluginInstances(pluginsConfigs)
 
+    await this._initPlugins()
+
     // Add rewrite plugin
     this._addRewritePluginInstances()
 
@@ -414,11 +416,18 @@ class PluginManager {
     // Create plugin intance
     const plugin = new PluginClass(this.mid, { name, path: pluginPath, package: pkg, config })
 
-    // Init plugin
-    await plugin.init()
-
     return plugin
   }
+
+  /**
+   * Init plugin instance async
+   */
+  _initPlugins() {
+    return utils.asyncMap(Object.values(this.plugins), async plugin => {
+      return plugin.init()
+    })
+  }
+  
 
   /**
    * Import plugin-config.js file if exist
