@@ -1,8 +1,12 @@
 
 import path from 'path'
+import dotenv from 'dotenv'
 import { assignRecursive, asyncFileExists } from '@midgar/utils'
 
 const CONFIG_FILE_NAME = 'config'
+
+// Load .env file
+dotenv.config()
 
 /**
  * Load config files in a folder

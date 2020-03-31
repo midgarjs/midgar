@@ -125,6 +125,7 @@ class PluginManager {
     // Create plugin instances
     this.plugins = await this._createPluginInstances(pluginsConfigs)
 
+    // Call init plugin method
     await this._initPlugins()
 
     // Add rewrite plugin
