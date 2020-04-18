@@ -424,8 +424,14 @@ class PluginManager {
    * Init plugin instance async
    */
   _initPlugins () {
-    return utils.asyncMap(Object.values(this.plugins), async plugin => {
-      return plugin.init()
+    return utils.asyncMap(Object.keys(this.plugins), async name => {
+      const plugin = this.plugins[name]
+      try {
+        await plugin.init()
+      } catch (error) {
+        this.mid.error(error)
+        throw new Error(`Error on init ${name} plugin.`)
+      }
     })
   }
 
