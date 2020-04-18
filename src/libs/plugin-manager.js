@@ -204,7 +204,7 @@ class PluginManager {
 
     // If it a npm package
     if (!local) {
-      pluginPath = name // path.dirname(await utils.asyncRequireResolve(path.join(name, PACKAGE_JSON)))
+      pluginPath = path.dirname(await utils.asyncRequireResolve(path.join(name, PACKAGE_JSON)))
     }
 
     return pluginPath
