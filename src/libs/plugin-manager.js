@@ -99,6 +99,12 @@ class PluginManager {
 
     // Call init plugin method
     await this._initPlugins()
+
+    /**
+     * afterLoadPlugins event.
+     * @event @midgar/midgar:afterInitPlugins
+     */
+    await this.mid.emit('@midgar/midgar:afterInitPlugins')
   }
 
   /**
