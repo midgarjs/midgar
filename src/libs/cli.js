@@ -33,7 +33,7 @@ class Cli {
    * @param {Stream} stdin  Input stream
    * @param {Stream} stdout Output stream
    */
-  constructor (argv, cwd, stdin = process.stdin, stdout = process.stdout) {
+  constructor(argv, cwd, stdin = process.stdin, stdout = process.stdout) {
     /**
      * Midgar config path
      * @type {string}
@@ -111,7 +111,7 @@ class Cli {
    */
   async init () {
     // Parse options to get config dir path
-    this.program.parseOptions(this.program.normalize(this.argv.slice(2)))
+    this.program.parseOptions(this.argv.slice(2))
     // If option config is set the config path
     if (this.program.config && this.program.config.trim()) {
       this.configPath = this.program.config.trim()
@@ -159,7 +159,6 @@ class Cli {
       const { filepath, config: midgarConfig } = result
       if (midgarConfig && midgarConfig.config) {
         if (typeof midgarConfig.config !== 'string') throw new TypeError('Invalid config path type !')
-        console.log('midgarConfig', path.resolve(this.cwd, midgarConfig.config))
         this.configPath = path.resolve(path.dirname(filepath), midgarConfig.config)
         this.packagePath = filepath
       }

@@ -31,7 +31,7 @@ class PluginManager {
     this.mid = mid
 
     /**
-     * Plugins Dictionary
+     * Plugins instance Dictionary
      * @type {object}
      */
     this.plugins = {}
@@ -47,12 +47,6 @@ class PluginManager {
      * @type {object}
      */
     this.moduleTypes = {}
-
-    /**
-     * Rewrite plugin dictionary
-     * @type {object}
-     */
-    this.rewritePlugins = {}
 
     /**
      * Rewrited plugin dictionary
@@ -94,126 +88,201 @@ class PluginManager {
    * @return {Promise<void>}
    */
   async init () {
-    // Import plugins config
-    const { default: pluginsConfig } = await import(path.join(this.mid.configPath, PLUGINS_CONFIG_FILE))
-    const pluginNames = Object.keys(pluginsConfig)
-
-    // Remove disabled plugins
-    const enabledPlugins = pluginNames.filter(name => {
-      return this._isEnabledPlugin(name, pluginsConfig)
-    })
+    // Import plugins config (plugins.json)
+    const { default: pluginsLoadConfig } = await import(path.join(this.mid.configPath, PLUGINS_CONFIG_FILE))
 
     // Load plugins
-    await this.loadPlugins(enabledPlugins, pluginsConfig)
+    const loadedPlugins = await this.loadPlugins(pluginsLoadConfig)
+
+    // Créate plugin instances
+    this.plugins = await this._createPluginInstances(loadedPlugins)
+
+    // Call init plugin method
+    await this._initPlugins()
   }
 
   /**
    * Load plugins config and package.json and create plugin instances
    *
-   * @param {Array}  plugins       Array of plugin anabled plugins names
-   * @param {object} pluginsConfig Plugins config object (plugins.json)
+   * @param {object} pluginsLoadConfig Plugins config object (plugins.json)
    *
-   * @return {Promise<void>}
+   * @return {Promise<Object>}
    */
-  async loadPlugins (plugins, pluginsConfig) {
-    // Get plugins config and package
-    const pluginsConfigs = await this._loadPluginsConfigs(plugins, pluginsConfig)
+  async loadPlugins (pluginsLoadConfig) {
+    const pluginToLoad = Object.keys(pluginsLoadConfig)
+    const loadedPlugins = []
 
-    // Process plugin config
-    await this._processPluginsConfig(pluginsConfigs)
+    // List plugin to load until there is no plugin to load
+    while (pluginToLoad.length) {
+      const name = pluginToLoad[0]
+      if (!this._isEnabledPlugin(name, pluginsLoadConfig)) {
+        pluginToLoad.splice(0, 1)
+        continue
+      }
+      // Load plugin
+      loadedPlugins[name] = await this.loadPlugin(name, pluginsLoadConfig[name] || {})
+      pluginToLoad.splice(0, 1)
+      if (!loadedPlugins[name].dependencies) continue
 
-    // Create plugin instances
-    this.plugins = await this._createPluginInstances(pluginsConfigs)
+      // If plugin have dependencies add it to the load plugin array
+      for (const dependency of loadedPlugins[name].dependencies) {
+        if (loadedPlugins[dependency] === undefined && pluginToLoad.indexOf(dependency) === -1 && this._isEnabledPlugin(dependency, pluginsLoadConfig)) {
+          pluginToLoad.push(dependency)
+        }
+      }
+    }
 
-    // Call init plugin method
-    await this._initPlugins()
-
-    // Add rewrite plugin
-    this._addRewritePluginInstances()
-
-    /**
-     * afterLoadPlugins event.
-     * @event @midgar/midgar:afterInitPlugins
-     */
-    await this.mid.emit('@midgar/midgar:afterInitPlugins')
+    return loadedPlugins
   }
 
   /**
-   * Import package.json and plugin-config.js for each plugin
+   * Import plugin main file
    *
-   * @param {Array} plugins Plugin name array
-   * @param {object} pluginsConfig Plugins config object (plugins.json)
+   * @param {String} name              Plugin name
+   * @param {object} pluginsLoadConfig Plugins config object (plugins.json)
    *
-   * @return {Promise<object>}
+   * @return {Promise<Object>}
+   */
+  async loadPlugin (name, pluginLoadConfig) {
+    this.mid.debug(`@midgar/midgar: Load plugin ${name}.`)
+
+    // Get plugin path
+    const pluginPath = await this._getPluginPath(name, pluginLoadConfig)
+
+    // Import plugin package.json
+    const pkg = await this._importPluginPackage(name, pluginPath)
+    if (name !== pkg.name) this.mid.warn(`Plugin name in plugins config ( ${name} ) is not equal to the package name ( ${pkg.name} ) !`)
+
+    // Plugin main file name
+    const mainFile = pkg.main ? pkg.main : 'index.js'
+
+    // Import plugin main file
+    const { PluginClass, config, dependencies } = await this._importPlugiMainFile(pluginPath, mainFile)
+
+    // Root path of plugin files
+    const pluginFilesPath = path.parse(path.join(pluginPath, mainFile)).dir
+    if (config) {
+      // Process rewrite config
+      if (config.rewrite) await this._processRewriteConfig(name, config, pluginFilesPath)
+
+      // Merge midgar config
+      if (config.midgar) this._mergeConfig(config.midgar)
+    }
+
+    return { PluginClass, pkg, pluginPath: pluginFilesPath, config, dependencies }
+  }
+
+  /**
+   * Return plugin path
+   *
+   * @param {String} name              Plugin name
+   * @param {object} pluginsLoadConfig Plugins config object (plugins.json)
+   *
+   * @return <Promise<String>>
    * @private
    */
-  _loadPluginsConfigs (plugins, pluginsConfig) {
-    return utils.asyncMap(plugins, async name => {
-      let packagePath
-      let local = false
+  async _getPluginPath (name, pluginLoadConfig) {
+    let local = false
+    let pluginPath
+    if (typeof pluginLoadConfig !== 'boolean' && pluginLoadConfig.path !== undefined) {
+      // Set path relative to Midgar config directory
+      pluginPath = path.join(this.mid.configPath, pluginLoadConfig.path)
+      local = true
+    }
 
-      // Check if plugin path is defined in plugins.json
-      if (typeof pluginsConfig[name] !== 'boolean' && pluginsConfig[name].path !== undefined) {
-        // Set path relative to Midgar config directory
-        packagePath = path.join(this.mid.configPath, pluginsConfig[name].path)
-        local = true
+    // If it a local plugin
+    if (!local && pluginLoadConfig.local) {
+      local = true
+      pluginPath = path.join(this.localPath, name)
+    }
+
+    // If it a npm package
+    if (!local) {
+      pluginPath = name // path.dirname(await utils.asyncRequireResolve(path.join(name, PACKAGE_JSON)))
+    }
+
+    return pluginPath
+  }
+
+  /**
+   * Import plugin package
+   *
+   * @param {String} name       Plugin name
+   * @param {String} pluginPath Plugin path
+   *
+   * @return {Promise<Object>}
+   * @private
+   */
+  async _importPluginPackage (name, pluginPath) {
+    try {
+      // Import plugin package.json and plugin-config.js
+      return await import(path.join(pluginPath, PACKAGE_JSON))
+    } catch (error) {
+      if (error.code && error.code === 'MODULE_NOT_FOUND') throw new Error(`package.json not found for plugin ${name} at ${pluginPath} ) !`)
+      throw error
+    }
+  }
+
+  /**
+   * Import plugin main file
+   *
+   * @param {String} pluginPath   Plugin path
+   * @param {String} mainFilePath Main plugin file path
+   *
+   * @return {Promise<Object>}
+   * @private
+   */
+  async _importPlugiMainFile (pluginPath, mainFilePath) {
+    // Import plugin main file
+    const { default: PluginClass, dependencies, config } = await import(path.join(pluginPath, mainFilePath))
+    return { PluginClass, dependencies, config }
+  }
+
+  /**
+   * Create plugin instances
+   * Check if a plugin need to be rewrite
+   *
+   * @param {Object} loadedPlugins Loaded plugin dictionary
+   *
+   * @return {Promise<Object>}
+   * @private
+   */
+  _createPluginInstances (loadedPlugins) {
+    // Créate instance async
+    return utils.asyncMap(Object.keys(loadedPlugins), async (name) => {
+      const loadedPlugin = loadedPlugins[name]
+
+      let PluginClass = loadedPlugin.PluginClass
+      let config = loadedPlugin.config || {}
+      const pkg = loadedPlugin.pkg
+
+      // check if plugin is rewrited
+      if (this.rewritedPlugins[name]) {
+        const rewritePlugin = this.rewritedPlugins[name]
+        PluginClass = rewritePlugin.PluginClass
+        config = rewritePlugin.config || {}
       }
 
-      // If it a local plugin
-      if (!local && pluginsConfig[name].local) {
-        local = true
-        packagePath = path.join(this.localPath, name)
-      }
-
-      // If it a npm package
-      if (!local) {
-        packagePath = path.dirname(await utils.asyncRequireResolve(path.join(name, PACKAGE_JSON)))
-      }
-
-      let pkg
-      const pkgPath = path.join(packagePath, PACKAGE_JSON)
-      try {
-        // Import plugin package.json and plugin-config.js
-        pkg = await import(pkgPath)
-      } catch (error) {
-        if (error.code && error.code === 'MODULE_NOT_FOUND') throw new Error(`package.json not found for plugin ${name} at ${pkgPath} ) !`)
-        throw error
-      }
-
-      const mainFile = pkg.main ? pkg.main : 'index.js'
-
-      // Set main file directory as plugin directory
-      const pluginPath = path.parse(path.join(packagePath, mainFile)).dir
-
-      const config = await this._importPluginConfig(pluginPath)
-
-      if (name !== pkg.name) this.mid.warn(`Plugin name in plugins config ( ${name} ) is not equal to the package name ( ${pkg.name} ) !`)
-
-      return {
-        key: pkg.name,
-        value: {
-          package: pkg,
-          config,
-          packagePath,
-          pluginPath
-        }
-      }
+      return { key: name, value: this._createPluginInstance(name, PluginClass, loadedPlugin.pluginPath, config, pkg) }
     }, true)
   }
 
   /**
-   * Check if plugin config have rewritePlugin entry
+   * Create plugin instance and init plugin
    *
-   * @param {object} pluginsConfigs Dictionay of plugin config and package.json
+   * @param {String}      name        Plugin name
+   * @param {constructor} PluginClass Plugin class constructor
+   * @param {String}      pluginPath  Plugin path
+   * @param {Object}      config      Plugin config
+   * @param {Object}      pkg         Package.json object
+   *
+   * @return {Promise<Plugin>}
    * @private
    */
-  _processPluginsConfig (pluginsConfigs) {
-    for (const name in pluginsConfigs) {
-      const pluginConfig = pluginsConfigs[name].config
-      if (!pluginConfig) continue
-      if (pluginConfig.rewrite) this._processRewriteConfig(name, pluginsConfigs)
-      if (pluginConfig.config) this._mergeConfig(pluginConfig.config)
-    }
+  async _createPluginInstance (name, PluginClass, pluginPath, config, pkg) {
+    this.mid.debug(`@midgar:midgar: Create plugin instance: ${pluginPath}.`)
+    // Create plugin intance
+    return new PluginClass(this.mid, { name, path: pluginPath, package: pkg, config })
   }
 
   /**
@@ -236,22 +305,20 @@ class PluginManager {
    * @param {object} pluginsConfigs Dictionay of plugin config and package.json
    * @private
    */
-  _processRewriteConfig (name, pluginsConfigs) {
-    const pluginConfig = pluginsConfigs[name].config
+  async _processRewriteConfig (name, pluginConfig, pluginFilesPath) {
     // Map rewrite plugins
-    if (pluginConfig.rewrite.plugin) {
-      if (typeof pluginConfig.rewrite.plugin !== 'string') throw new TypeError(`Invalid rewrite plugin type in config of ${name} plugin !`)
-      this._processRewritePlugin(name, pluginsConfigs)
+    if (pluginConfig.rewrite.plugins) {
+      await this._processRewritePlugin(name, pluginConfig, pluginFilesPath)
     }
 
     // Map rewrite modules
     if (pluginConfig.rewrite.modules) {
-      this._processRewriteModules(name, pluginsConfigs[name])
+      this._processRewriteModules(name, pluginConfig, pluginFilesPath)
     }
 
     // Map rewrite files
     if (pluginConfig.rewrite.files) {
-      this._processRewriteFiles(name, pluginsConfigs[name])
+      this._processRewriteFiles(name, pluginConfig, pluginFilesPath)
     }
   }
 
@@ -259,18 +326,19 @@ class PluginManager {
    * Check rewrite plugin and map entries
    * @private
    */
-  _processRewritePlugin (name, pluginsConfigs) {
+  async _processRewritePlugin (name, pluginConfig, pluginFilesPath) {
     // Check if plugin is configured to rewrite another plugin
-    const rewritedPlugin = pluginsConfigs[name].config.rewrite.plugin
+    const rewritedPlugins = pluginConfig.rewrite.plugins
 
-    if (pluginsConfigs[rewritedPlugin] === undefined) throw new Error(`Unknow plugin ${rewritedPlugin} !`)
+    for (const rewritedPlugin in rewritedPlugins) {
+      const rewriteFilePath = rewritedPlugins[rewritedPlugin]
+      // Warn if the plugin is not already rewrite
+      if (this.rewritedPlugins[rewritedPlugin] !== undefined) this.mid.warn(`Plugin ${name} rewite ${rewritedPlugin} over ${this.rewritedPlugins[rewritedPlugin]} !`)
 
-    // Warn if the plugin is not already rewrite
-    if (this.rewritePlugins[rewritedPlugin] !== undefined) this.mid.warn(`Plugin ${name} rewite ${rewritedPlugin} over ${this.rewritePlugins[rewritedPlugin]} !`)
-
-    // Add rewrite plugin
-    this.rewritedPlugins[rewritedPlugin] = name
-    this.rewritePlugins[name] = rewritedPlugin
+      const { default: PluginClass, config } = await import(path.join(pluginFilesPath, rewriteFilePath))
+      // Add rewrite plugin
+      this.rewritedPlugins[rewritedPlugin] = { PluginClass, config }
+    }
   }
 
   /**
@@ -280,9 +348,7 @@ class PluginManager {
    * @param {object} pluginConfigs plugin config and package.json
    * @private
    */
-  _processRewriteModules (name, pluginConfigs) {
-    const pluginPath = pluginConfigs.pluginPath
-    const pluginConfig = pluginConfigs.config
+  _processRewriteModules (name, pluginConfig, pluginFilesPath) {
     // List module types
     for (const moduleType in pluginConfig.rewrite.modules) {
       // List plugins
@@ -290,7 +356,7 @@ class PluginManager {
         // List modules
         for (const filePath in pluginConfig.rewrite.modules[moduleType][rwName]) {
           const rewriteFilePath = pluginConfig.rewrite.modules[moduleType][rwName][filePath]
-          this._processRewriteModulesEntry(moduleType, name, rwName, filePath, rewriteFilePath, pluginPath)
+          this._processRewriteModulesEntry(moduleType, name, rwName, filePath, rewriteFilePath, pluginFilesPath)
         }
       }
     }
@@ -307,12 +373,12 @@ class PluginManager {
    * @param {string} pluginPath      Rewrite plugin path
    * @private
    */
-  _processRewriteModulesEntry (moduleType, name, rwName, filePath, rewriteFilePath, pluginPath) {
+  _processRewriteModulesEntry (moduleType, name, rwName, filePath, rewriteFilePath, pluginFilesPath) {
     if (!this.rewriteModules[moduleType]) this.rewriteModules[moduleType] = {}
     if (!this.rewriteModules[moduleType][rwName]) this.rewriteModules[moduleType][rwName] = {}
 
     if (this.rewriteModules[moduleType][rwName][filePath] !== undefined) this.mid.warn(`Plugin ${name} rewite file ${this.rewriteModules[moduleType][rwName][filePath]} over plugin ${rwName} !`)
-    this.rewriteModules[moduleType][rwName][filePath] = path.resolve(pluginPath, rewriteFilePath)
+    this.rewriteModules[moduleType][rwName][filePath] = path.resolve(pluginFilesPath, rewriteFilePath)
   }
 
   /**
@@ -322,14 +388,12 @@ class PluginManager {
    * @param {object} pluginConfigs plugin config and package.json
    * @private
    */
-  _processRewriteFiles (name, pluginConfigs) {
-    const pluginPath = pluginConfigs.pluginPath
-    const pluginConfig = pluginConfigs.config
+  _processRewriteFiles (name, pluginConfig, pluginFilesPath) {
     // List plugin name entries
     for (const rwName in pluginConfig.rewrite.files) {
       for (const filePath in pluginConfig.rewrite.files[rwName]) {
         const rewriteFilePath = pluginConfig.rewrite.files[rwName][filePath]
-        this._processRewriteFileEntry(name, rwName, filePath, rewriteFilePath, pluginPath)
+        this._processRewriteFileEntry(name, rwName, filePath, rewriteFilePath, pluginFilesPath)
       }
     }
   }
@@ -344,109 +408,19 @@ class PluginManager {
    * @param {string} pluginPath      Rewrite plugin path
    * @private
    */
-  _processRewriteFileEntry (name, rwName, filePath, rewriteFilePath, pluginPath) {
+  _processRewriteFileEntry (name, rwName, filePath, rewriteFilePath, pluginFilesPath) {
     if (!this.rewriteFiles[rwName]) this.rewriteFiles[rwName] = {}
     if (this.rewriteFiles[rwName][filePath] !== undefined) this.mid.warn(`Plugin ${name} rewite file ${this.rewriteFiles[rwName][filePath]} over plugin ${rwName} !`)
-    this.rewriteFiles[rwName][filePath] = path.resolve(pluginPath, rewriteFilePath)
-  }
-
-  /**
-   * Create plugin instances
-   * Check if a plugin need to be rewrite
-   *
-   * @param {object} pluginsConfig Object object config and package indexed by plugin name
-   *
-   * @return {Promise<Object>}
-   * @private
-   */
-  _createPluginInstances (pluginsConfigs) {
-    // Load plugins
-    return utils.asyncMap(pluginsConfigs, async (pluginConfigs, name) => {
-      const pkg = pluginConfigs.package
-      let mainFile = pkg.main ? pkg.main : 'index.js'
-      const pluginPath = path.parse(path.join(pluginConfigs.packagePath, mainFile)).dir
-      let pluginFilePath = path.join(pluginConfigs.packagePath, mainFile)
-
-      // Skip rewrite plugin
-      if (this.rewritePlugins[name]) return
-
-      // ceck if plugin is rewrited
-      if (this.rewritedPlugins[name]) {
-        // Config of plugin who rewrite
-        const rewritePlugin = this.rewritedPlugins[name]
-        // Config of plugin who rewrite
-        const reweriteConfigs = pluginsConfigs[rewritePlugin]
-        const _pkg = reweriteConfigs.package
-
-        if (reweriteConfigs.config) pluginConfigs.config = reweriteConfigs.config
-
-        mainFile = _pkg.main ? _pkg.main : 'index.js'
-        pluginFilePath = path.join(reweriteConfigs.packagePath, mainFile)
-      }
-
-      return { key: name, value: this._createPluginInstance(name, pluginPath, pluginFilePath, pkg, pluginConfigs.config) }
-    }, true)
-  }
-
-  /**
-   * Add rewrite plugin instance to plugins object
-   * @private
-   */
-  _addRewritePluginInstances () {
-    for (const name in this.rewritePlugins) {
-      this.plugins[name] = this.plugins[this.rewritePlugins[name]]
-    }
-  }
-
-  /**
-   * Import plugin file, create plugin instance and init plugin
-   *
-   * @param {string} name       Plugin name
-   * @param {string} pluginPath Plugin path
-   * @param {object} pkg        Plugin package.json
-   * @param {object} config     Plugin config from plugin-config.js
-   *
-   * @return {Promise<Plugin>}
-   * @private
-   */
-  async _createPluginInstance (name, pluginPath, pluginFilePath, pkg, config) {
-    this.mid.debug(`@midgar:midgar: Create plugin instance: ${pluginPath}.`)
-    // Import plugin main file
-    const { default: PluginClass } = await import(pluginFilePath)
-
-    // Create plugin intance
-    const plugin = new PluginClass(this.mid, { name, path: pluginPath, package: pkg, config })
-
-    return plugin
+    this.rewriteFiles[rwName][filePath] = path.resolve(pluginFilesPath, rewriteFilePath)
   }
 
   /**
    * Init plugin instance async
    */
-  _initPlugins() {
+  _initPlugins () {
     return utils.asyncMap(Object.values(this.plugins), async plugin => {
       return plugin.init()
     })
-  }
-  
-
-  /**
-   * Import plugin-config.js file if exist
-   *
-   * @param {string} pluginPath Plugin path
-   *
-   * @return {Promise<object>}
-   * @private
-   */
-  async _importPluginConfig (pluginPath) {
-    try {
-      const configPath = path.resolve(pluginPath, PLUGIN_CONFIG_FILE)
-      if (!await utils.asyncFileExists(configPath)) return {}
-      const { default: config } = await import(configPath)
-      return config
-    } catch (error) {
-      return {}
-    }
   }
 
   /**
@@ -517,9 +491,16 @@ class PluginManager {
    * @return {boolean}
    * @private
    */
-  _isEnabledPlugin (name, plugins) {
-    return (typeof plugins[name] === 'boolean' && plugins[name]) ||
-    (typeof plugins[name] === 'object' && (plugins[name].enabled === undefined || plugins[name].enabled === true))
+  _isEnabledPlugin (name, pluginsLoadConfig) {
+    if (typeof pluginsLoadConfig[name] === 'boolean' && pluginsLoadConfig[name] === false) {
+      return false
+    }
+
+    if (typeof pluginsLoadConfig[name] === 'object' && pluginsLoadConfig[name].enabled !== undefined && pluginsLoadConfig[name].enabled === false) {
+      return false
+    }
+
+    return true
   }
 
   /**

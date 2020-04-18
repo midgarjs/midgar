@@ -7,7 +7,8 @@ import path from 'path'
 
 import PM from '../src/libs/plugin-manager'
 import TestPlugin from './fixtures/plugins/test-plugin/index'
-import TestRwPlugin from './fixtures/plugins/test-plugin-rw/index'
+import RwTest2Plugin from './fixtures/plugins/test-plugin-rw/rewrite/test-plugin-2'
+import deepEqualInAnyOrder from 'deep-equal-in-any-order'
 
 /**
  * @type {Midgar}
@@ -22,6 +23,7 @@ const expect = chai.expect
 chai.use(chaiArrays)
 chai.use(dirtyChai)
 chai.use(chaiAsPromised)
+chai.use(deepEqualInAnyOrder)
 
 let mid = null
 const initMidgar = async (ext = null) => {
@@ -177,18 +179,18 @@ describe('Plugin Manager', function () {
       },
       {
         plugin: '@test/test-plugin-3',
-        content: 'test rewrite',
-        path: 'files/test-rw.txt'
+        content: '@test/test-plugin-3 test txt',
+        path: 'files/test.txt'
       },
       {
         plugin: '@test/test-plugin-3',
-        content: '@test/test-plugin-3 test txt',
-        path: 'files/test.txt'
+        content: 'test rewrite',
+        path: 'files/test-rw.txt'
       }
     ]
-    
+
     const files = await mid.pm.readFiles('files/*')
-    expect(files).to.be.eql(shouldResult, 'Invalid read files result !')
+    expect(files).to.deep.equalInAnyOrder(shouldResult, 'Invalid read files result !')
   })
 
   /**
@@ -205,7 +207,8 @@ describe('Plugin Manager', function () {
    */
   it('rewrite plugin', async () => {
     const testPlugin2 = await mid.pm.getPlugin('test-plugin-2')
-    expect(testPlugin2).to.be.an.instanceof(TestRwPlugin, 'Plugin is not an instance of TestPlugin !')
+
+    expect(testPlugin2).to.be.an.instanceof(RwTest2Plugin, 'Plugin is not an instance of RwTest2Plugin !')
     expect(testPlugin2.foo).equal('test', 'Invalid rewrite plugin foo value !')
     expect(testPlugin2.bar).equal('testrw', 'Invalid rewrite plugin foo value !')
   })

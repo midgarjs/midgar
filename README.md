@@ -235,6 +235,8 @@ export default {
 
 Lors de l'import des modules, le modules **./rewrite/models/user.js** sera chargé à la place du modules **user.js** contenu dans le dossier **midgar-mongoose-models** et pour le plugin **@midgar/graphql-auth**
 
+### Réécriture et plugin local
+La réecriture n'est pas supporté pour les plugins locaux. Les plugins locaux doivent etre uniquement utilisé pour le développement et les testes. Lorsque Midgar charge un plugin local, il utilise les fichiers du dossier local et non le dossier node_modules. Si un autre plugin import un module directement par son chemin, node importera le fichier dans le dossier node_modules.
 
 ## Cli
 

@@ -14,3 +14,4 @@ class Test2Plugin extends Plugin {
 }
 
 export default Test2Plugin
+export const dependencies = ['test-plugin']

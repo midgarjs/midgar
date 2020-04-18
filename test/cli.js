@@ -107,7 +107,7 @@ async function testNewPlugin (pluginName, cli) {
   })
 
   // Check plugin package.json
-  let { default: pkg } = await import(path.join(pluginPath, 'package.json'))
+  const { default: pkg } = await import(path.join(pluginPath, 'package.json'))
   expect(pkg.name).equal(pluginName, 'Invalid package name !')
   expect(pkg.main).equal('src/index.js', 'Invalid package main !')
   expect(pkg.scripts).not.be.undefined('Invalid package scripts !')
@@ -166,7 +166,7 @@ describe('Cli', function () {
 
     // Mok inquirer.prompt
     const originalPrompt = inquirer.prompt
-    inquirer.prompt = async () => { return { projectName: PROJECT_NAME }}
+    inquirer.prompt = async () => { return { projectName: PROJECT_NAME } }
 
     await cli.init()
     await cli.run()
@@ -222,7 +222,7 @@ describe('Cli', function () {
 
     // Mok inquirer.prompt
     const originalPrompt = inquirer.prompt
-    inquirer.prompt = async () => { return { pluginName: NEW_PLUGIN_NAME }}
+    inquirer.prompt = async () => { return { pluginName: NEW_PLUGIN_NAME } }
 
     await cli.init()
     await cli.run()
@@ -234,7 +234,7 @@ describe('Cli', function () {
     // Check project package.json
     let pkg = await import(path.join(tmpDir, 'package.json'))
     pkg = pkg.default
-    expect(pkg.name).equal(PROJECT_NAME, 'Invalid package name !') 
+    expect(pkg.name).equal(PROJECT_NAME, 'Invalid package name !')
     expect(pkg.dependencies).not.be.undefined('Invalid package dependencies !')
     expect(pkg.dependencies[NEW_PLUGIN_NAME]).not.be.undefined('Invalid package missing Midgar dependency !')
 
@@ -254,7 +254,7 @@ describe('Cli', function () {
     inquirer.prompt = originalPrompt
   })
 
-  
+
   /**
    * Test cli get config path from package.json file
    */
