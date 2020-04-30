@@ -24,12 +24,12 @@ class Plugin extends Emittery {
    * @param {Midgar}        mid     Midgar instance
    * @param {PluginOptions} options Options
    */
-  constructor (mid, options) {
+  constructor(mid, options) {
     super()
 
     /**
      * Midgar Instance
-     * @var {Midgar}
+     * @type {Midgar}
      */
     this.mid = mid
 
@@ -37,7 +37,7 @@ class Plugin extends Emittery {
 
     /**
      * Plugin name
-     * @var {string}
+     * @type {string}
      */
     this.name = options.name
 
@@ -45,33 +45,45 @@ class Plugin extends Emittery {
 
     /**
      * Plugin absolute path
-     * @var {string}
+     * @type {string}
      */
     this.path = options.path
 
     /**
      * Plugin config from plugin-config.js
-     * @var {PluginConfig}
+     * @type {PluginConfig}
      */
     this.config = options.config || {}
 
     /**
      * Module types from plugin-config.js
-     * @var {object}
+     * @type {object}
      */
     this.moduleTypes = this.config.moduleTypes || {}
 
     /**
      * Plugin Manager
-     * @var {PluginManager}
+     * @type {PluginManager}
      */
     this.pm = mid.pm
 
     /**
      * Package.json
-     * @var {object}
+     * @type {object}
      */
     this.package = options.package
+
+    /**
+     * Import module path
+     * @type {String}
+     */
+    this.importFilesPath = options.importFilesPath
+
+    /**
+     * Flag for local plugin
+     * @type {Boolean}
+     */
+    this.local = options.local
   }
 
   /**
@@ -79,7 +91,7 @@ class Plugin extends Emittery {
    *
    * @return {Promise<void>}
    */
-  async init () {}
+  async init() {}
 
   /**
    * Return plugin module type configuration
@@ -88,7 +100,7 @@ class Plugin extends Emittery {
    *
    * @return {ModuleType}
    */
-  getModuleType (type) {
+  getModuleType(type) {
     const moduleType = this.moduleTypes[type] !== undefined ? this.moduleTypes[type] : null
 
     const result = {}
@@ -99,7 +111,8 @@ class Plugin extends Emittery {
         }
       }
 
-      if (typeof moduleType !== 'object') throw new TypeError(`Invalid module type config in plugin ${this.name} for modules ${type} !`)
+      if (typeof moduleType !== 'object')
+        throw new TypeError(`Invalid module type config in plugin ${this.name} for modules ${type} !`)
       if (moduleType.glob !== undefined) result.glob = moduleType.glob
       if (moduleType.ignore !== undefined) result.ignore = moduleType.ignore
       if (moduleType.path !== undefined) result.path = moduleType.path
