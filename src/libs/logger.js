@@ -1,5 +1,4 @@
-
-import winston, { format } from 'winston'
+import winston, { format, error } from 'winston'
 import utils from '@midgar/utils'
 import 'winston-daily-rotate-file'
 
@@ -10,13 +9,13 @@ const { combine, timestamp } = format
  * @param {*} options
  * @private
  */
-function logFormat (json) {
+function logFormat(json) {
   // text format
-  const formatMessage = log => {
+  const formatMessage = (log) => {
     return log.timestamp + '  [' + log.level + ']' + log.message
   }
   // check if error or text
-  const msg = log => {
+  const msg = (log) => {
     if (log.stack) {
       return `${log.timestamp} ${log.stack}`
     } else if (utils.isObject(log.message) || Array.isArray(log.message)) {
@@ -33,13 +32,26 @@ function logFormat (json) {
     return combine(timestamp(), format.printf(msg))
   }
 }
-
+function addZero(x, n) {
+  while (x.toString().length < n) {
+    x = '0' + x
+  }
+  return x
+}
 /**
  * format stdout log
  * @private
  */
-function logStdoutFormat () {
-  const formatMessage = log => `${log.timestamp} [${log.level}] ${log.message}`
+function logStdoutFormat() {
+  const formatMessage = (log) => {
+    const date = new Date(log.timestamp)
+    const time = `${addZero(date.getHours(), 2)}:${addZero(date.getMinutes(), 2)}:${addZero(
+      date.getSeconds(),
+      2
+    )}  ${addZero(date.getMilliseconds(), 3)}`
+
+    return `${time} [${log.level}] ${log.message}`
+  }
   // check if error or text
   const msg = (log) => {
     if (log.stack) {
@@ -60,24 +72,29 @@ function logStdoutFormat () {
  * @class
  */
 class Logger {
-  constructor (options) {
-    this.options = Object.assign({
-      stdout: false,
-      files: [{
-        filename: 'midgar-%DATE%.log',
-        datePattern: 'YYYY-MM-DD-HH',
-        zippedArchive: true,
-        maxSize: '20m',
-        maxFiles: '14d'
-      }]
-    }, options)
+  constructor(options) {
+    this.options = Object.assign(
+      {
+        stdout: false,
+        files: [
+          {
+            filename: 'midgar-%DATE%.log',
+            datePattern: 'YYYY-MM-DD-HH',
+            zippedArchive: true,
+            maxSize: '20m',
+            maxFiles: '14d'
+          }
+        ]
+      },
+      options
+    )
   }
 
   /**
    * Init logger
    */
-  async init () {
-    const transports = this.options.files.map(file => {
+  async init() {
+    const transports = this.options.files.map((file) => {
       return this._getFileTransport(file)
     })
 
@@ -90,9 +107,11 @@ class Logger {
 
     // stdout
     if (this.options.stdout) {
-      this.winston.add(new winston.transports.Console({
-        format: logStdoutFormat()
-      }))
+      this.winston.add(
+        new winston.transports.Console({
+          format: logStdoutFormat()
+        })
+      )
     }
 
     /**
@@ -128,10 +147,10 @@ class Logger {
    * Create a DailyRotateFile transport instance
    * @private
    */
-  _getFileTransport (file) {
+  _getFileTransport(file) {
     file.dirname = this.options.dir
     file.format = logFormat(this.options.json)
-    return new (winston.transports.DailyRotateFile)(file)
+    return new winston.transports.DailyRotateFile(file)
   }
 
   /**
@@ -139,46 +158,44 @@ class Logger {
    * @param {*} level
    * @param {*} msg
    */
-  async log (level, msg) {
-    const log = { level: level }
-    if (msg instanceof Error) {
-      log.stack = msg.stack
-      log.message = msg.message
-    } else {
-      log.message = msg
+  async log(level, ...msgs) {
+    for (const msg of msgs) {
+      const log = { level: level }
+      if (msg instanceof Error) {
+        log.stack = msg.stack
+        log.message = msg.message
+      } else {
+        log.message = msg
+      }
+      this.winston.log(log)
     }
-    this.winston.log(log)
   }
 
   /**
    * log an error message or an Error
    * @param {*} msg
    */
-  async error (msg) {
-    this.log('error', msg)
+  async error(...msgs) {
+    this.log(...['error', ...msgs])
+  }
+  async warn(...msgs) {
+    this.log(...['warn', ...msgs])
+  }
+  async info(...msgs) {
+    this.log(...['info', ...msgs])
+  }
+  async verbose(...msgs) {
+    this.log(...['verbose', ...msgs])
+  }
+  async debug(...msgs) {
+    this.log(...['debug', ...msgs])
   }
 
-  async warn (msg) {
-    this.log('warn', msg)
+  async silly(...msgs) {
+    this.log(...['silly', ...msgs])
   }
 
-  async info (msg) {
-    this.log('info', msg)
-  }
-
-  async verbose (msg) {
-    this.log('verbose', msg)
-  }
-
-  async debug (msg) {
-    this.log('debug', msg)
-  }
-
-  async silly (msg) {
-    this.log('silly', msg)
-  }
-
-  async _waitWinston (wait, interval) {
+  async _waitWinston(wait, interval) {
     wait -= interval
     if (this.winston.transports.length && wait > 0) {
       // console.log(this.winston.transports.length)
@@ -188,11 +205,11 @@ class Logger {
     }
   }
 
-  _wait (ms) {
-    return new Promise(resolve => setTimeout(resolve, ms))
+  _wait(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
-  async exit () {
+  async exit() {
     // wait time in mili second
     const wait = 5000
     const interval = 200
