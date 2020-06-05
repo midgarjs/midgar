@@ -202,6 +202,9 @@ class PluginManager {
   async _getPluginPath(name, pluginLoadConfig) {
     // Relative local plugin
     if (typeof pluginLoadConfig !== 'boolean' && pluginLoadConfig.path !== undefined) {
+      if (path.isAbsolute(pluginLoadConfig.path)) {
+        return pluginLoadConfig.path
+      }
       return path.join(this.mid.configPath, pluginLoadConfig.path)
     }
 
