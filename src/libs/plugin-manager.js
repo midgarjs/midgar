@@ -869,7 +869,7 @@ class PluginManager {
   getFilePath(filePath) {
     if (this._filePaths[filePath] === undefined) {
       const parts = filePath.split(':')
-      if (parts.length !== 2) throw new Error('Invalid file path !')
+      if (parts.length !== 2) throw new Error(`Invalid file path ${filePath} !`)
       const plugin = this.getPlugin(parts[0])
       filePath = parts[1]
 
