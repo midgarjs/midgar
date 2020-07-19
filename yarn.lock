@@ -199,10 +199,10 @@
   resolved "https://registry.yarnpkg.com/@istanbuljs/schema/-/schema-0.1.2.tgz#26520bf09abe4a5644cd5414e37125a8954241dd"
   integrity sha512-tsAQNx32a8CoFhjhijUIhI4kccIAgmGhy8LZMZgGfmXcpMbPRUqn5LWmgRttILi6yeGmBJd2xsPkFMs0PzgPCw==
 
-"@midgar/utils@^1.0.0-alpha.1.5":
-  version "1.0.0-alpha.1.5"
-  resolved "https://registry.yarnpkg.com/@midgar/utils/-/utils-1.0.0-alpha.1.5.tgz#7f231d8c0f654681a1551af5879dee5a80f6d09b"
-  integrity sha512-yfqSknVuD/mKHYM+ryX05MoOm2JJu9EBHxZkYzi0aNNKbfzI4kRLxWKnLpDGwXfqelUTu/N4uBhJJ7c3MEXR0w==
+"@midgar/utils@^1.0.0":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@midgar/utils/-/utils-1.0.1.tgz#43c7cdd85cc9125c4e111dff38173be7afc67252"
+  integrity sha512-AQEZOPBm7JvY18w600I0tOrJfGqDxBxJqLg/MGpd7dOKgiWUli96m1ywbOyIQy3EaTxHXuPPqRQ8JhmLg+aPdQ==
 
 "@sinonjs/commons@^1", "@sinonjs/commons@^1.6.0", "@sinonjs/commons@^1.7.0", "@sinonjs/commons@^1.7.2":
   version "1.7.2"
@@ -1887,9 +1887,9 @@ lodash.templatesettings@^4.0.0:
     lodash._reinterpolate "^3.0.0"
 
 lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15:
-  version "4.17.15"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
-  integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
+  version "4.17.19"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.19.tgz#e48ddedbe30b3321783c5b4301fbd353bc1e4a4b"
+  integrity sha512-JNvd8XER9GQX0v2qJgsaN/mzFCNA5BRe/j8JN9d+tWyGLSodKQHKFicdwNYzWwI3wjRnaKPsGj1XkBjx/F96DQ==
 
 log-symbols@3.0.0:
   version "3.0.0"
