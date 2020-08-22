@@ -61,6 +61,9 @@ describe('Plugin Manager', function () {
     expect(testPlugin).to.be.an.instanceof(TestPlugin, 'Plugin is not an instance of TestPlugin !')
     expect(testPlugin.isInit).to.be.true('Plugin is not init !')
     expect(testPlugin.config.testConfig).equal('ok', 'Plugin config in not load !')
+
+    expect(testPlugin.name).equal('test-plugin', 'Invalid test plugin short name !')
+    expect(testPlugin.shortName).equal('test', 'Invalid test plugin short name !')
   })
 
   /**
@@ -77,7 +80,7 @@ describe('Plugin Manager', function () {
    * @param {Array} result       Result array from readFiles call
    * @param {Array} shouldResult Result we should have
    */
-  function testImportFilesResult (result, shouldResult, dirPath) {
+  function testImportFilesResult(result, shouldResult, dirPath) {
     expect(result).be.array()
     expect(result.length).equal(shouldResult.length)
 

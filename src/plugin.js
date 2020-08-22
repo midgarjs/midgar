@@ -41,6 +41,12 @@ class Plugin extends Emittery {
      */
     this.name = options.name
 
+    /**
+     * Plugin short name
+     * @type {string}
+     */
+    this.shortName = options.shortName || options.name
+
     if (!options.path) throw new Error(`@midgar:midgar: Plugin "${this.name}" have no path !`)
 
     /**

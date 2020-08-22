@@ -3,8 +3,7 @@ import Test2Plugin from '../test-plugin-2'
 /**
  * Test plugin
  */
-class TestRwPlugin extends Test2Plugin {
-}
+class TestRwPlugin extends Test2Plugin {}
 
 export default TestRwPlugin
 

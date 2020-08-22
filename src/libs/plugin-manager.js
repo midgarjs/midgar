@@ -31,10 +31,16 @@ class PluginManager {
     this.mid = mid
 
     /**
-     * Plugins instance Dictionary
+     * Plugins instance Dictionary by plugin name
      * @type {object}
      */
     this.plugins = {}
+
+    /**
+     * Plugins instance Dictionary by plugin short name
+     * @type {object}
+     */
+    this.pluginsByShortName = {}
 
     /**
      * local plugins directory path
@@ -97,6 +103,11 @@ class PluginManager {
     // Créate plugin instances
     this.plugins = await this._createPluginInstances(loadedPlugins)
 
+    // Crée plugins dictionnary by short name
+    for (const key in this.plugins) {
+      this.pluginsByShortName[this.plugins[key].shortName] = this.plugins[key]
+    }
+
     // Call init plugin method
     await this._initPlugins()
 
@@ -117,7 +128,7 @@ class PluginManager {
   async loadPlugins(pluginsLoadConfig) {
     const pluginToLoad = Object.keys(pluginsLoadConfig)
     const loadedPlugins = []
-
+    console.log('pluginToLoad', pluginToLoad)
     // List plugin to load until there is no plugin to load
     while (pluginToLoad.length) {
       const name = pluginToLoad[0]
@@ -174,7 +185,12 @@ class PluginManager {
     const mainFile = pkg.main ? pkg.main : 'index.js'
 
     // Import plugin main file
-    const { PluginClass, config, dependencies } = await this._importPlugiMainFile(name, pluginPath, mainFile, local)
+    const { PluginClass, config, dependencies, shortName } = await this._importPluginMainFile(
+      name,
+      pluginPath,
+      mainFile,
+      local
+    )
 
     // Root path of plugin files
     const pluginFilesPath = path.parse(path.join(pluginPath, mainFile)).dir
@@ -187,7 +203,7 @@ class PluginManager {
       if (config.midgar) this._mergeConfig(config.midgar)
     }
 
-    return { PluginClass, pkg, pluginPath: pluginFilesPath, config, dependencies, importFilesPath, local }
+    return { PluginClass, pkg, pluginPath: pluginFilesPath, shortName, config, dependencies, importFilesPath, local }
   }
 
   /**
@@ -251,11 +267,11 @@ class PluginManager {
    * @return {Promise<Object>}
    * @private
    */
-  async _importPlugiMainFile(name, pluginPath, mainFilePath, local) {
+  async _importPluginMainFile(name, pluginPath, mainFilePath, local) {
     const filePath = local ? path.join(pluginPath, mainFilePath) : path.join(name, mainFilePath)
     this.mid.debug(`@midgar:midgar: import plugin file ${filePath}.`)
-    const { default: PluginClass, dependencies, config } = await import(filePath)
-    return { PluginClass, dependencies, config }
+    const { default: PluginClass, dependencies, config, shortName } = await import(filePath)
+    return { PluginClass, dependencies, config, shortName }
   }
 
   /**
@@ -307,6 +323,7 @@ class PluginManager {
     this.mid.debug(`@midgar:midgar: Create plugin instance ${name}.`)
     // Create plugin intance
     return new PluginClass(this.mid, {
+      shortName: loadedPlugin.shortName,
       name,
       path: loadedPlugin.pluginPath,
       package: pkg,
@@ -440,7 +457,7 @@ class PluginManager {
    * @param {string} rwName          Rewrite plugin name
    * @param {string} filePath        Rewrited module path
    * @param {string} rewriteFilePath Rewrite module path
-   * @param {string} pluginPath      Rewrite plugin path
+   * @param {string} pluginFilesPath Plugin files path
    * @private
    */
   _processRewriteFileEntry(name, rwName, filePath, rewriteFilePath, pluginFilesPath) {
@@ -617,6 +634,18 @@ class PluginManager {
   }
 
   /**
+   * Return a plugin instance by short name
+   *
+   * @param {string} name Plugin short name
+   *
+   * @return {Plugin}
+   */
+  getPluginByShortName(name) {
+    if (this.pluginsByShortName[name] === undefined) throw new Error(`Invalid plugin short name: ${name} !`)
+    return this.pluginsByShortName[name]
+  }
+
+  /**
    * Add a plugin module types
    *
    * @param {string} key         Module type key
@@ -690,6 +719,60 @@ class PluginManager {
     this.mid.debug(`@midgar/midgar: ${type} modules imported in ${time} ms.`)
 
     return files
+  }
+
+  /**
+   *
+   * @param {*} pluginShortName
+   * @param {*} type
+   * @param {*} modulePath
+   */
+  async importModule(pluginShortName, type, modulePath, sufix = null) {
+    const plugin = this.getPluginByShortName(pluginShortName)
+
+    const pluginModuleType = this._getPluginModuleType(plugin, type)
+    return this._importModuleFile(plugin, type, pluginModuleType, modulePath, sufix)
+  }
+
+  /**
+   *
+   * @private
+   */
+  async _importModuleFile(plugin, type, pluginModuleType, modulePath, sufix) {
+    try {
+      let importPath = !plugin.local
+        ? path.join(plugin.name, plugin.importFilesPath, pluginModuleType.path, modulePath)
+        : path.join(plugin.path, pluginModuleType.path, modulePath)
+
+      // Check if module is rewrited
+      if (
+        this.rewriteModules[type] !== undefined &&
+        this.rewriteModules[type][plugin.shortName] !== undefined &&
+        this.rewriteModules[type][plugin.shortName][modulePath] !== undefined
+      ) {
+        importPath = this.rewriteModules[type][plugin.shortName][file]
+      }
+
+      if (sufix) importPath += '.' + sufix
+
+      const moduleFile = {
+        path: importPath,
+        plugin: plugin.name,
+        relativePath: modulePath
+      }
+
+      utils.timer.start('midgar-import-module-file-' + importPath)
+      // Import module file
+      const { default: defaultExport } = await import(importPath)
+      moduleFile.export = defaultExport
+
+      const time = utils.timer.getTime('midgar-import-module-file-' + importPath)
+      this.mid.debug(`@midgar/midgar: ${importPath} module imported in ${time} ms.`)
+      return moduleFile
+    } catch (error) {
+      this.mid.error(error)
+      return null
+    }
   }
 
   /**

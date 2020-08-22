@@ -4,7 +4,7 @@ import Plugin from '../../../../src/plugin'
  * Test plugin
  */
 class Test extends Plugin {
-  constructor (...args) {
+  constructor(...args) {
     super(...args)
     this.isInit = false
   }
@@ -12,7 +12,7 @@ class Test extends Plugin {
   /**
    * Init plugin
    */
-  async init () {
+  async init() {
     // Add test plugin dir
     this.pm.addModuleType('test', 'foo')
     this.pm.addModuleType('boo', './basefolder')
@@ -22,6 +22,7 @@ class Test extends Plugin {
 
 export default Test
 export const dependencies = ['@test/test-plugin-3']
+export const shortName = 'test'
 export const config = {
   moduleTypes: {
     boo: {
