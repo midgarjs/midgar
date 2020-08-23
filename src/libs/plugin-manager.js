@@ -128,7 +128,6 @@ class PluginManager {
   async loadPlugins(pluginsLoadConfig) {
     const pluginToLoad = Object.keys(pluginsLoadConfig)
     const loadedPlugins = []
-    console.log('pluginToLoad', pluginToLoad)
     // List plugin to load until there is no plugin to load
     while (pluginToLoad.length) {
       const name = pluginToLoad[0]
@@ -686,14 +685,14 @@ class PluginManager {
   }
 
   /**
-   * Import files inside a directory of each plugins
+   * Import modules of a type for each plugins
    *
-   * @param {string}  type    Module type key
-   * @param {boolean} import_ Flag to import or not modules
+   * @param {string}  type          Module type key
+   * @param {boolean} importModules Flag to import or not modules
    *
-   * @return {Array}
+   * @return {Promise<Array<Module>>}
    */
-  async importModules(type, import_ = true) {
+  async importModules(type, importModules = true) {
     // Start timer
     utils.timer.start('midgar-import-modules-' + type)
     this.mid.debug(`@midgar/midgar: import modules "${type}" start.`)
@@ -710,7 +709,7 @@ class PluginManager {
       //  const exists = await utils.asyncFileExists(path.join(plugin.path, pluginModuleType.path))
       //if (exists) {
       // Import files inside the direactory
-      const pluginFiles = await this._importModuleFiles(plugin, type, pluginModuleType, import_)
+      const pluginFiles = await this._importModuleFiles(plugin, type, pluginModuleType, importModules)
       files.push(...pluginFiles)
       // }
     }
@@ -722,19 +721,33 @@ class PluginManager {
   }
 
   /**
+   * Import a module fot a type and for a plugin
    *
-   * @param {*} pluginShortName
-   * @param {*} type
-   * @param {*} modulePath
+   * @param {String} moduleName Module name like plugin:relatice-path
+   * @param {String} type       Module type
+   * @param {String} modulePath Module relative path
+   * @param {String} sufix      Module sufix
+   *
+   * @return {Promise<Module>}
    */
-  async importModule(pluginShortName, type, modulePath, sufix = null) {
-    const plugin = this.getPluginByShortName(pluginShortName)
+  async importModule(moduleName, type, sufix = null) {
+    const parts = moduleName.split(':')
+    if (parts.length !== 2) throw new Error(`Invalid module name ${moduleName} !`)
+    const plugin = this.getPluginByShortName(parts[0])
+    const modulePath = parts[1]
 
     const pluginModuleType = this._getPluginModuleType(plugin, type)
     return this._importModuleFile(plugin, type, pluginModuleType, modulePath, sufix)
   }
 
   /**
+   * Import a module file
+   *
+   * @param {Plugin}     plugin           Plugin instance
+   * @param {String}     type             Module type
+   * @param {ModuleType} pluginModuleType Module type définition
+   * @param {String}     modulePath       Module relative path
+   * @param {String}     sufix            Module sufix
    *
    * @private
    */
@@ -753,8 +766,10 @@ class PluginManager {
         importPath = this.rewriteModules[type][plugin.shortName][file]
       }
 
+      // Add the file sufix
       if (sufix) importPath += '.' + sufix
 
+      // Module object to return
       const moduleFile = {
         path: importPath,
         plugin: plugin.name,
@@ -823,7 +838,7 @@ class PluginManager {
    * @raturn {Array}
    * @private
    */
-  async _importModuleFiles(plugin, type, pluginModuleType, import_ = true) {
+  async _importModuleFiles(plugin, type, pluginModuleType, importModule = true) {
     const modulesDir = path.join(plugin.path, pluginModuleType.path)
     // Get modules file path array
     const files = await this._getFilesPath(modulesDir, pluginModuleType.glob, pluginModuleType.ignore)
@@ -851,7 +866,7 @@ class PluginManager {
 
         utils.timer.start('midgar-import-module-file-' + importPath)
         // If import flag import file
-        if (import_) {
+        if (importModule) {
           // Import module file
           const { default: defaultExport } = await import(importPath)
           moduleFile.export = defaultExport
@@ -892,22 +907,22 @@ class PluginManager {
   /**
    * Return content of a plugin file
    *
-   * @param {string} filePath Plugin file path like "plugin-name:path-to-file"
+   * @param {string} fileName Plugin file name like "plugin-short-name:path-to-file"
    * @param {string} encoding Read file encoding: https://nodejs.org/api/fs.html#fs_fs_readfile_path_options_callback
    *
    * @return {Promise<string|Buffer>}
    */
-  async readFile(filePath, encoding = 'utf8') {
+  async readFile(fileName, encoding = 'utf8') {
     // Check if file content is in memory
-    if (this._files[filePath]) return this._files[filePath]
+    if (this._files[fileName]) return this._files[fileName]
 
     // Get absolute file path
-    const absolutePath = this.getFilePath(filePath)
+    const absolutePath = this.getFilePath(fileName)
 
     // Read file
-    this._files[filePath] = await utils.asyncReadFile(absolutePath, encoding)
+    this._files[fileName] = await utils.asyncReadFile(absolutePath, encoding)
 
-    return this._files[filePath]
+    return this._files[fileName]
   }
 
   /**
