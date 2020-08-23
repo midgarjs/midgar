@@ -771,6 +771,7 @@ class PluginManager {
 
       // Module object to return
       const moduleFile = {
+        name: plugin.shortName + ':' + modulePath,
         path: importPath,
         plugin: plugin.name,
         relativePath: modulePath
