@@ -752,43 +752,38 @@ class PluginManager {
    * @private
    */
   async _importModuleFile(plugin, type, pluginModuleType, modulePath, sufix) {
-    try {
-      let importPath = !plugin.local
-        ? path.join(plugin.name, plugin.importFilesPath, pluginModuleType.path, modulePath)
-        : path.join(plugin.path, pluginModuleType.path, modulePath)
+    let importPath = !plugin.local
+      ? path.join(plugin.name, plugin.importFilesPath, pluginModuleType.path, modulePath)
+      : path.join(plugin.path, pluginModuleType.path, modulePath)
 
-      // Check if module is rewrited
-      if (
-        this.rewriteModules[type] !== undefined &&
-        this.rewriteModules[type][plugin.shortName] !== undefined &&
-        this.rewriteModules[type][plugin.shortName][modulePath] !== undefined
-      ) {
-        importPath = this.rewriteModules[type][plugin.shortName][file]
-      }
-
-      // Add the file sufix
-      if (sufix) importPath += '.' + sufix
-
-      // Module object to return
-      const moduleFile = {
-        name: plugin.shortName + ':' + modulePath,
-        path: importPath,
-        plugin: plugin.name,
-        relativePath: modulePath
-      }
-
-      utils.timer.start('midgar-import-module-file-' + importPath)
-      // Import module file
-      const { default: defaultExport } = await import(importPath)
-      moduleFile.export = defaultExport
-
-      const time = utils.timer.getTime('midgar-import-module-file-' + importPath)
-      this.mid.debug(`@midgar/midgar: ${importPath} module imported in ${time} ms.`)
-      return moduleFile
-    } catch (error) {
-      this.mid.error(error)
-      return null
+    // Check if module is rewrited
+    if (
+      this.rewriteModules[type] !== undefined &&
+      this.rewriteModules[type][plugin.shortName] !== undefined &&
+      this.rewriteModules[type][plugin.shortName][modulePath] !== undefined
+    ) {
+      importPath = this.rewriteModules[type][plugin.shortName][file]
     }
+
+    // Add the file sufix
+    if (sufix) importPath += '.' + sufix
+
+    // Module object to return
+    const moduleFile = {
+      name: plugin.shortName + ':' + modulePath,
+      path: importPath,
+      plugin: plugin.name,
+      relativePath: modulePath
+    }
+
+    utils.timer.start('midgar-import-module-file-' + importPath)
+    // Import module file
+    const { default: defaultExport } = await import(importPath)
+    moduleFile.export = defaultExport
+
+    const time = utils.timer.getTime('midgar-import-module-file-' + importPath)
+    this.mid.debug(`@midgar/midgar: ${importPath} module imported in ${time} ms.`)
+    return moduleFile
   }
 
   /**
