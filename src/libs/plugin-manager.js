@@ -279,6 +279,7 @@ class PluginManager {
    */
   async _createPluginInstances(loadedPlugins) {
     for (const name of Object.keys(loadedPlugins)) {
+      if (this.plugins[name]) continue
       await this._createPluginInstance(name, loadedPlugins)
     }
   }
@@ -314,6 +315,7 @@ class PluginManager {
             `Invalid plugin dependency ${dependency} in plugin ${name}, ${dependency} already depend on ${name} !`
           )
         }
+        if (this.plugins[dependency]) continue
         await this._createPluginInstance(dependency, loadedPlugins, [...parents])
       }
     }
