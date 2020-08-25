@@ -90,6 +90,12 @@ class Plugin extends Emittery {
      * @type {Boolean}
      */
     this.local = options.local
+
+    /**
+     * Dependencies plugin name
+     * @type {Array<String>}
+     */
+    this.dependencies = options.dependencies || []
   }
 
   /**

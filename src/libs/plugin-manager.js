@@ -114,7 +114,7 @@ class PluginManager {
   }
 
   /**
-   * Load plugins config and package.json and create plugin instances
+   * Load plugins files
    *
    * @param {object} pluginsLoadConfig Plugins config object (plugins.json)
    *
@@ -330,9 +330,11 @@ class PluginManager {
       package: pkg,
       config,
       local: loadedPlugin.local,
-      importFilesPath: loadedPlugin.importFilesPath
+      importFilesPath: loadedPlugin.importFilesPath,
+      dependencies: loadedPlugin.dependencies || []
     })
 
+    // Index plugins by shortName
     this.pluginsByShortName[this.plugins[name].shortName] = this.plugins[name]
 
     await this.plugins[name].init()
@@ -992,141 +994,28 @@ class PluginManager {
   getSortedPlugins(plugins = null) {
     if (plugins == null) {
       plugins = Object.keys(this.plugins)
+    } else {
+      plugins = [...plugins]
     }
-
-    // Get plugins dependencies
-    const pluginsDependencies = this._getPluginsDependencies()
-    // Clone dependencies object
-    const dependencies = this._cloneDep(pluginsDependencies)
-
-    // Clone plugins array
-    plugins = Array.from(plugins)
-
     // Result array
     const sortedPlugins = []
 
-    // stop if no plugin is added in the result array
-    // or there are no more plugins
-    while (plugins.length) {
-      this._sortPlugins(plugins, sortedPlugins, dependencies)
-    }
+    this._addPluginDependencies(plugins, sortedPlugins)
 
     return sortedPlugins
   }
 
-  /**
-   * @param {*} plugins
-   * @param {*} sortedPlugins
-   * @param {*} dependencies
-   * @private
-   */
-  _sortPlugins(plugins, sortedPlugins, dependencies) {
-    // list plugins
-    for (let i = 0; i < plugins.length; i++) {
-      const pluginName = plugins[i]
+  _addPluginDependencies(plugins, sortedPlugins) {
+    for (const name of plugins) {
+      if (sortedPlugins.includes(name)) continue
+      const dependencies = this.plugins[name].dependencies
 
-      // Get plugin dependencies
-      const pluginDependencies = dependencies[pluginName]
-
-      // If plugin have dependencies
-      if (pluginDependencies && pluginDependencies.length) {
-        // If result is empty continue while his dependencies is added to sortedPlugins
-        if (!sortedPlugins.length) continue
-
-        if (this._haveAllDep(sortedPlugins, pluginDependencies)) {
-          sortedPlugins.push(pluginName)
-          plugins.splice(plugins.indexOf(pluginName), 1)
-          i--
-        }
-      } else {
-        // if no dependcies add the plugin
-        sortedPlugins.push(pluginName)
-        plugins.splice(plugins.indexOf(pluginName), 1)
-        i--
+      for (const dependency of dependencies) {
+        this._addPluginDependencies([dependency], sortedPlugins)
       }
+
+      sortedPlugins.push(name)
     }
-  }
-
-  /**
-   * Clone dependency Object
-   *
-   * @param {object} deps
-   * @return {object}
-   * @private
-   */
-  _cloneDep(deps) {
-    const o = {}
-    for (const k in deps) {
-      o[k] = Array.from(deps[k])
-    }
-    return o
-  }
-
-  /**
-   * Check if all dependencues in pluginDependencies are in the array sortedPlugins
-   *
-   * @param {Array} sortedPlugins      Plugin names
-   * @param {Array} pluginDependencies Plugin dependencies names
-   * @return {boolean}
-   * @private
-   */
-  _haveAllDep(sortedPlugins, pluginDependencies) {
-    let haveAllDep = true
-    for (let i = 0; i < pluginDependencies.length; i++) {
-      if (sortedPlugins.indexOf(pluginDependencies[i]) === -1) {
-        haveAllDep = false
-      }
-    }
-
-    return haveAllDep
-  }
-
-  /**
-   * return an object with plugins dependencies
-   *
-   * @return {object}
-   * @private
-   */
-  _getPluginsDependencies() {
-    if (this._pluginDependencies == null) {
-      this._pluginDependencies = {}
-
-      // List all register plugin
-      for (const name in this.plugins) {
-        const plugin = this.plugins[name]
-        // Add plugin dependencies
-        this._pluginDependencies[name] = this._getPluginDependencies(plugin)
-      }
-    }
-
-    return this._pluginDependencies
-  }
-
-  /**
-   * Return get all depencies of plugin and return midgar plugin name
-   *
-   * @param {Plugin} plugin Plugin instance
-   * @returns {Array}
-   * @private
-   */
-  _getPluginDependencies(plugin) {
-    const pluginDependencies = []
-
-    // Get plugin dependencies from package.json
-    const pkg = plugin.package
-
-    // If plugin have dependencies
-    if (pkg.dependencies) {
-      // List dependencies in object pkg.dependencies
-      for (const depName in pkg.dependencies) {
-        // If the dependency is a register midgar plugin
-        if (this.plugins[depName] !== undefined) {
-          pluginDependencies.push(depName)
-        }
-      }
-    }
-
-    return pluginDependencies
   }
 }
 
