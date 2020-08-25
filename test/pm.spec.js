@@ -1,4 +1,3 @@
-import mocha from 'mocha'
 import chai from 'chai'
 import dirtyChai from 'dirty-chai'
 import chaiArrays from 'chai-arrays'
@@ -14,9 +13,6 @@ import deepEqualInAnyOrder from 'deep-equal-in-any-order'
  * @type {Midgar}
  */
 import Midgar from '../src/midgar'
-
-// fix for TypeError: describe is not a function with mocha-teamcity-reporter
-const { describe, it } = mocha
 
 const FOO_PLUGIN_PATH = 'fixtures/plugins/test-plugin/foo'
 const expect = chai.expect

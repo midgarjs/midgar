@@ -1,4 +1,3 @@
-import { describe, it } from 'mocha'
 import chai from 'chai'
 import dirtyChai from 'dirty-chai'
 import chaiFs from 'chai-fs'
@@ -31,7 +30,7 @@ chai.use(chaiAsPromised)
  * @param {Sting} rmPath Path
  * @private
  */
-function rimraf (rmPath) {
+function rimraf(rmPath) {
   return new Promise((resolve, reject) => {
     _rimraf(rmPath, resolve)
   })
@@ -41,7 +40,7 @@ function rimraf (rmPath) {
  * Create random dir in tmp os directory and return it
  * @private
  */
-function getTmpDir () {
+function getTmpDir() {
   return path.join(os.tmpdir(), uid.sync(8))
 }
 
@@ -93,16 +92,11 @@ let consoleLog = null
  * @param {Cli}    cli        Cli instance
  * @private
  */
-async function testNewPlugin (pluginName, cli) {
-  const files = [
-    'package.json',
-    '.gitignore',
-    '.eslintrc.js',
-    'src/index.js',
-  ]
+async function testNewPlugin(pluginName, cli) {
+  const files = ['package.json', '.gitignore', '.eslintrc.js', 'src/index.js']
 
   const pluginPath = path.join(cli.mid.pm.localPath, pluginName)
-  files.forEach(file => {
+  files.forEach((file) => {
     expect(path.join(pluginPath, file)).be.a.file()
   })
 
@@ -149,7 +143,9 @@ describe('Cli', function () {
     const cwd = path.resolve(__dirname)
     let cli = new Cli(argv, cwd)
     await cli.init()
-    await expect(cli.run()).be.rejectedWith('Invalid command: invalidcmd\n--config option is not set, see --help for a list of available commands.')
+    await expect(cli.run()).be.rejectedWith(
+      'Invalid command: invalidcmd\n--config option is not set, see --help for a list of available commands.'
+    )
 
     argv = ['', '', '--config', pluginsConfigPath, 'invalidcmd']
     cli = new Cli(argv, cwd)
@@ -166,7 +162,9 @@ describe('Cli', function () {
 
     // Mok inquirer.prompt
     const originalPrompt = inquirer.prompt
-    inquirer.prompt = async () => { return { projectName: PROJECT_NAME } }
+    inquirer.prompt = async () => {
+      return { projectName: PROJECT_NAME }
+    }
 
     await cli.init()
     await cli.run()
@@ -186,7 +184,7 @@ describe('Cli', function () {
       'src/config/config.dev.js'
     ]
 
-    files.forEach(file => {
+    files.forEach((file) => {
       expect(path.join(tmpDir, file)).be.a.file()
     })
 
@@ -222,7 +220,9 @@ describe('Cli', function () {
 
     // Mok inquirer.prompt
     const originalPrompt = inquirer.prompt
-    inquirer.prompt = async () => { return { pluginName: NEW_PLUGIN_NAME } }
+    inquirer.prompt = async () => {
+      return { pluginName: NEW_PLUGIN_NAME }
+    }
 
     await cli.init()
     await cli.run()
@@ -253,7 +253,6 @@ describe('Cli', function () {
 
     inquirer.prompt = originalPrompt
   })
-
 
   /**
    * Test cli get config path from package.json file

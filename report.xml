@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="0.6620" tests="23" failures="0">
+  <testsuite name="Root Suite" timestamp="2020-08-25T18:06:41" tests="0" time="0.0000" failures="0">
+  </testsuite>
+  <testsuite name="Cli" timestamp="2020-08-25T18:06:41" tests="8" file="/workspace/midgar/midgar/test/cli.spec.js" time="0.3500" failures="0">
+    <testcase name="Cli Invalid command" time="0.1050" classname="Invalid command">
+    </testcase>
+    <testcase name="Cli init" time="0.0390" classname="init">
+    </testcase>
+    <testcase name="Cli new" time="0.1660" classname="new">
+    </testcase>
+    <testcase name="Cli package config" time="0.0070" classname="package config">
+    </testcase>
+    <testcase name="Cli add" time="0.0050" classname="add">
+    </testcase>
+    <testcase name="Cli disable" time="0.0190" classname="disable">
+    </testcase>
+    <testcase name="Cli enable" time="0.0040" classname="enable">
+    </testcase>
+    <testcase name="Cli rm" time="0.0050" classname="rm">
+    </testcase>
+  </testsuite>
+  <testsuite name="Midgar" timestamp="2020-08-25T18:06:41" tests="6" file="/workspace/midgar/midgar/test/midgar.spec.js" time="0.2670" failures="0">
+    <testcase name="Midgar Invalid call order" time="0.0010" classname="Invalid call order">
+    </testcase>
+    <testcase name="Midgar Invalid config path" time="0.0000" classname="Invalid config path">
+    </testcase>
+    <testcase name="Midgar Config" time="0.0300" classname="Config">
+    </testcase>
+    <testcase name="Midgar Logger" time="0.0110" classname="Logger">
+    </testcase>
+    <testcase name="Midgar Custom logger" time="0.0100" classname="Custom logger">
+    </testcase>
+    <testcase name="Midgar exit" time="0.2150" classname="exit">
+    </testcase>
+  </testsuite>
+  <testsuite name="Plugin Manager" timestamp="2020-08-25T18:06:41" tests="9" file="/workspace/midgar/midgar/test/pm.spec.js" time="0.0450" failures="0">
+    <testcase name="Plugin Manager init" time="0.0000" classname="init">
+    </testcase>
+    <testcase name="Plugin Manager Plugin load" time="0.0010" classname="Plugin load">
+    </testcase>
+    <testcase name="Plugin Manager Plugin config" time="0.0010" classname="Plugin config">
+    </testcase>
+    <testcase name="Plugin Manager importModules" time="0.0310" classname="importModules">
+    </testcase>
+    <testcase name="Plugin Manager readFile" time="0.0020" classname="readFile">
+    </testcase>
+    <testcase name="Plugin Manager readFiles" time="0.0040" classname="readFiles">
+    </testcase>
+    <testcase name="Plugin Manager getSortedPlugins" time="0.0000" classname="getSortedPlugins">
+    </testcase>
+    <testcase name="Plugin Manager rewrite plugin" time="0.0000" classname="rewrite plugin">
+    </testcase>
+    <testcase name="Plugin Manager rewrite modules" time="0.0060" classname="rewrite modules">
+    </testcase>
+  </testsuite>
+</testsuites>

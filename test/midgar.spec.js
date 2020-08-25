@@ -1,4 +1,3 @@
-import mocha from 'mocha'
 import chai from 'chai'
 import dirtyChai from 'dirty-chai'
 import chaiArrays from 'chai-arrays'
@@ -13,9 +12,6 @@ import CustomLogger from './fixtures/config-cl/custom-logger'
  * @type {Midgar}
  */
 import Midgar from '../src/midgar'
-
-// fix for TypeError: describe is not a function with mocha-teamcity-reporter
-const { describe, it } = mocha
 
 const expect = chai.expect
 chai.use(chaiArrays)
@@ -49,15 +45,16 @@ describe('Midgar', function () {
     await expect(mid.initPluginManager()).be.rejectedWith(Error, '@midgar/midgar: Load config before init pm !')
     mid.loadConfig(path.join(__dirname, 'fixtures/config'))
     await expect(mid.initPluginManager()).be.rejectedWith(Error, '@midgar/midgar: Load config before init pm !')
-
   })
 
   it('Invalid config path', async () => {
     // Test invalid config directory
     mid = new Midgar()
-    
-    await expect(mid.start(path.join(__dirname, 'fixtures/test'))).be.rejectedWith(Error, `the file ${path.join(__dirname, 'fixtures/test', 'config.js')} doesn't exist !`)
 
+    await expect(mid.start(path.join(__dirname, 'fixtures/test'))).be.rejectedWith(
+      Error,
+      `the file ${path.join(__dirname, 'fixtures/test', 'config.js')} doesn't exist !`
+    )
   })
 
   it('Config', async () => {
@@ -84,14 +81,7 @@ describe('Midgar', function () {
     expect(mid.logger).not.equal(null, 'logger is null')
     expect(mid.logger).to.be.an.instanceof(CustomLogger, 'logger is not an instance of CustomLogger')
 
-    const types = [
-      'error',
-      'warn',
-      'info',
-      'verbose',
-      'debug',
-      'silly'
-    ]
+    const types = ['error', 'warn', 'info', 'verbose', 'debug', 'silly']
 
     for (const type of types) {
       await mid[type]('test ' + type)
