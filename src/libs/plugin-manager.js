@@ -101,15 +101,10 @@ class PluginManager {
     const loadedPlugins = await this.loadPlugins(pluginsLoadConfig)
 
     // Créate plugin instances
-    this.plugins = await this._createPluginInstances(loadedPlugins)
-
-    // Crée plugins dictionnary by short name
-    for (const key in this.plugins) {
-      this.pluginsByShortName[this.plugins[key].shortName] = this.plugins[key]
-    }
+    await this._createPluginInstances(loadedPlugins)
 
     // Call init plugin method
-    await this._initPlugins()
+    // await this._initPlugins()
 
     /**
      * afterLoadPlugins event.
@@ -282,46 +277,51 @@ class PluginManager {
    * @return {Promise<Object>}
    * @private
    */
-  _createPluginInstances(loadedPlugins) {
-    // Créate instance async
-    return utils.asyncMap(
-      Object.keys(loadedPlugins),
-      async (name) => {
-        const loadedPlugin = loadedPlugins[name]
-
-        let PluginClass = loadedPlugin.PluginClass
-        let config = loadedPlugin.config || {}
-        const pkg = loadedPlugin.pkg
-
-        // check if plugin is rewrited
-        if (this.rewritedPlugins[name]) {
-          const rewritePlugin = this.rewritedPlugins[name]
-          PluginClass = rewritePlugin.PluginClass
-          config = rewritePlugin.config || {}
-        }
-
-        return { key: name, value: this._createPluginInstance(name, PluginClass, loadedPlugin, config, pkg) }
-      },
-      true
-    )
+  async _createPluginInstances(loadedPlugins) {
+    for (const name of Object.keys(loadedPlugins)) {
+      await this._createPluginInstance(name, loadedPlugins)
+    }
   }
 
   /**
    * Create plugin instance and init plugin
    *
    * @param {String}      name        Plugin name
-   * @param {constructor} PluginClass Plugin class constructor
    * @param {String}      pluginPath  Plugin path
-   * @param {Object}      config      Plugin config
-   * @param {Object}      pkg         Package.json object
    *
    * @return {Promise<Plugin>}
    * @private
    */
-  async _createPluginInstance(name, PluginClass, loadedPlugin, config, pkg) {
+  async _createPluginInstance(name, loadedPlugins, parents = []) {
+    const loadedPlugin = loadedPlugins[name]
+    let PluginClass = loadedPlugin.PluginClass
+    let config = loadedPlugin.config || {}
+    const pkg = loadedPlugin.pkg
+
+    // check if plugin is rewrited
+    if (this.rewritedPlugins[name]) {
+      const rewritePlugin = this.rewritedPlugins[name]
+      PluginClass = rewritePlugin.PluginClass
+      config = rewritePlugin.config || {}
+    }
+
+    if (loadedPlugin.dependencies) {
+      parents.push(name)
+
+      for (const dependency of loadedPlugin.dependencies) {
+        if (parents.indexOf(dependency) !== -1) {
+          throw new Error(
+            `Invalid plugin dependency ${dependency} in plugin ${name}, ${dependency} already depend on ${name} !`
+          )
+        }
+        await this._createPluginInstance(dependency, loadedPlugins, [...parents])
+      }
+    }
+
     this.mid.debug(`@midgar:midgar: Create plugin instance ${name}.`)
+
     // Create plugin intance
-    return new PluginClass(this.mid, {
+    this.plugins[name] = new PluginClass(this.mid, {
       shortName: loadedPlugin.shortName,
       name,
       path: loadedPlugin.pluginPath,
@@ -330,6 +330,10 @@ class PluginManager {
       local: loadedPlugin.local,
       importFilesPath: loadedPlugin.importFilesPath
     })
+
+    this.pluginsByShortName[this.plugins[name].shortName] = this.plugins[name]
+
+    await this.plugins[name].init()
   }
 
   /**

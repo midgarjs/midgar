@@ -201,7 +201,7 @@ describe('Plugin Manager', function () {
    */
   it('getSortedPlugins', async () => {
     const result = await mid.pm.getSortedPlugins()
-    const shouldSorted = ['@test/test-plugin-3', 'test-outside-plugin', 'test-plugin', 'test-plugin-2', 'test-plugin-rw']
+    const shouldSorted = ['@test/test-plugin-3', 'test-plugin', 'test-plugin-2', 'test-plugin-rw', 'test-outside-plugin']
     expect(result).to.eql(shouldSorted, 'Invalid getSortedPlugins result !')
   })
 
