@@ -1,4 +1,3 @@
-
 import Emittery from 'emittery'
 
 import utils from '@midgar/utils'
@@ -12,7 +11,7 @@ import PluginManager from './libs/plugin-manager'
  * @class
  */
 class Midgar extends Emittery {
-  constructor () {
+  constructor() {
     super()
 
     /**
@@ -53,7 +52,7 @@ class Midgar extends Emittery {
    *
    * @return {Promise<void>}
    */
-  async start (configPath) {
+  async start(configPath) {
     await this.loadConfig(configPath)
     await this.initLogger()
     await this.initPluginManager()
@@ -64,7 +63,7 @@ class Midgar extends Emittery {
    *
    * @return {Promise<void>}
    */
-  async loadConfig (dirPath) {
+  async loadConfig(dirPath) {
     // set the config dir
     this.configPath = dirPath
 
@@ -75,8 +74,10 @@ class Midgar extends Emittery {
 
     this.config.log.level = this.config.log && this.config.log.level ? this.config.log.level : 'warn'
 
-    if (this.config.pluginsLocalPath === undefined) throw new Error('@midgar/midgar: Missing pluginsLocalPath in Midgar config !')
-    if (typeof this.config.pluginsLocalPath !== 'string') throw new TypeError('@midgar/midgar: Invalid pluginsLocalPath type in Midgar config !')
+    if (this.config.pluginsLocalPath === undefined)
+      throw new Error('@midgar/midgar: Missing pluginsLocalPath in Midgar config !')
+    if (typeof this.config.pluginsLocalPath !== 'string')
+      throw new TypeError('@midgar/midgar: Invalid pluginsLocalPath type in Midgar config !')
   }
 
   /**
@@ -84,7 +85,7 @@ class Midgar extends Emittery {
    *
    * @return {Promise<void>}
    */
-  async initLogger () {
+  async initLogger() {
     // Check config is loaded
     if (this.config === null) throw new Error('@midgar/midgar: Load config before init logger !')
 
@@ -97,7 +98,7 @@ class Midgar extends Emittery {
    *
    * @return {Promise<void>}
    */
-  async initPluginManager () {
+  async initPluginManager() {
     // Check load stat
     if (this.config === null) throw new Error('@midgar/midgar: Load config before init pm !')
     if (this.logger === null) throw new Error('@midgar/midgar: Init logger before init pm !')
@@ -119,7 +120,7 @@ class Midgar extends Emittery {
    * @return {PluginManager}
    * @protected
    */
-  _createPmInstance () {
+  _createPmInstance() {
     return new PluginManager(this)
   }
 
@@ -131,7 +132,7 @@ class Midgar extends Emittery {
    *
    * @return {Promise<boolean>}
    */
-  addPlugin (name) {
+  addPlugin(name) {
     // Instance pm if not exist for plugin cli command
     const pm = this.pm ? this.pm : this._createPmInstance()
     return pm.addPlugin(name)
@@ -145,7 +146,7 @@ class Midgar extends Emittery {
    *
    * @return {Promise<boolean>}
    */
-  async removePlugin (name) {
+  async removePlugin(name) {
     // Instance pm if not exist for plugin cli command
     const pm = this.pm ? this.pm : this._createPmInstance()
     return pm.removePlugin(name)
@@ -159,7 +160,7 @@ class Midgar extends Emittery {
    *
    * @return {Promise<boolean>}
    */
-  async enablePlugin (name) {
+  async enablePlugin(name) {
     // Instance pm if not exist for plugin cli command
     const pm = this.pm ? this.pm : this._createPmInstance()
     return pm.enablePlugin(name)
@@ -173,7 +174,7 @@ class Midgar extends Emittery {
    *
    * @return {Promise<boolean>}
    */
-  async disablePlugin (name) {
+  async disablePlugin(name) {
     // Instance pm if not exist for plugin cli command
     const pm = this.pm ? this.pm : this._createPmInstance()
     return pm.disablePlugin(name)
@@ -184,7 +185,7 @@ class Midgar extends Emittery {
    *
    * @return {string}
    */
-  getNodeEnv () {
+  getNodeEnv() {
     return process.env.NODE_ENV
   }
 
@@ -194,7 +195,7 @@ class Midgar extends Emittery {
    *
    * @return {Promise<void>}
    */
-  async exit () {
+  async exit() {
     // Stop servers if there a runing
     await this.stop()
 
@@ -212,51 +213,55 @@ class Midgar extends Emittery {
    *
    * @return {Promise<void>}
    */
-  async stop () {
+  stop() {
     /**
      * stop event.
      * @event @midgar/midgar:stop
      */
-    await this.emit('@midgar/midgar:stop')
+    return this.emit('@midgar/midgar:stop')
   }
 
   /**
    * listen process exit signal signal and graceful exit
    * @private
    */
-  _watchProcessExit () {
-    process.stdin.resume()// prevent program close instantly
+  _watchProcessExit() {
+    process.stdin.resume() // prevent program close instantly
 
     // exit handler
     const exitHandler = () => {
       // flag exit to prevent multiple exit signals
-      if (!this._exit) { this._exit = true } else { return }
+      if (!this._exit) {
+        this._exit = true
+      } else {
+        return
+      }
       // start exit sequence
       this.exit()
     }
 
     // Catch uncaught Exceptions
-    const uncaughtExceptionHandler = (error) => {
+    const uncaughtExceptionHandler = async (error) => {
       if (this.logger) {
         // log exception
-        this.logger.error('@midgar/midgar: Uncaught Exception :(')
-        this.logger.error(error)
+        await this.logger.error('@midgar/midgar: Uncaught Exception :(')
+        await this.logger.error(error)
       } else {
         console.error(error)
       }
-      process.exit()
+      this.exit()
     }
     // Catch uncaught Exceptions
-    const uncaughtRejectionHandler = (error) => {
+    const uncaughtRejectionHandler = async (error) => {
       if (this.logger) {
         // log exception
-        this.logger.error('@midgar/midgar: Uncaught Rejection :(')
-        this.logger.error(error)
+        await this.logger.error('@midgar/midgar: Uncaught Rejection :(')
+        await this.logger.error(error)
       } else {
         console.error(error)
       }
 
-      process.exit()
+      this.exit()
     }
 
     // app is closing like process.exit()
@@ -275,48 +280,48 @@ class Midgar extends Emittery {
    * Log an error  message
    * @param  {...any} args
    */
-  error (...args) {
-    this.logger.error(...args)
+  error(...args) {
+    return this.logger.error(...args)
   }
 
   /**
    * Log a warning message
    * @param  {...any} args
    */
-  warn (...args) {
-    this.logger.warn(...args)
+  warn(...args) {
+    return this.logger.warn(...args)
   }
 
   /**
    * Log an info  message
    * @param  {...any} args
    */
-  info (...args) {
-    this.logger.info(...args)
+  info(...args) {
+    return this.logger.info(...args)
   }
 
   /**
    * Log a verbose message
    * @param  {...any} args
    */
-  verbose (...args) {
-    this.logger.verbose(...args)
+  verbose(...args) {
+    return this.logger.verbose(...args)
   }
 
   /**
    * Log a debug message
    * @param  {...any} args
    */
-  debug (...args) {
-    this.logger.debug(...args)
+  debug(...args) {
+    return this.logger.debug(...args)
   }
 
   /**
    * Log a silly message
    * @param  {...any} args
    */
-  silly (...args) {
-    this.logger.silly(...args)
+  silly(...args) {
+    return this.logger.silly(...args)
   }
 }
 

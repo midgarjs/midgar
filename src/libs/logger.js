@@ -176,23 +176,23 @@ class Logger {
    * @param {*} msg
    */
   async error(...msgs) {
-    this.log(...['error', ...msgs])
+    return this.log(...['error', ...msgs])
   }
   async warn(...msgs) {
-    this.log(...['warn', ...msgs])
+    return this.log(...['warn', ...msgs])
   }
   async info(...msgs) {
     this.log(...['info', ...msgs])
   }
   async verbose(...msgs) {
-    this.log(...['verbose', ...msgs])
+    return this.log(...['verbose', ...msgs])
   }
   async debug(...msgs) {
-    this.log(...['debug', ...msgs])
+    return this.log(...['debug', ...msgs])
   }
 
   async silly(...msgs) {
-    this.log(...['silly', ...msgs])
+    return this.log(...['silly', ...msgs])
   }
 
   async _waitWinston(wait, interval) {
