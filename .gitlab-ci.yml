@@ -22,10 +22,10 @@ test:
   stage: test
   script: npm run test
   artifacts:
-    paths:
-      - coverage/
+    when: always
     reports:
-      junit: report.xml
+      junit:
+        - junit.xml
 publish:
   stage: publish
   dependencies:

@@ -11,7 +11,11 @@
         "collectCoverageFrom": [
             "./src/**/*.js"
         ],
-        "coverageDirectory": "coverage"
+        "coverageDirectory": "coverage",
+        "reporters": [
+            "default",
+            "jest-junit"
+        ]
     },
     "scripts": {
         "build-docs": "jsdoc -c ./jsdoc.js -t ./node_modules/ink-docstrap/template ./README.md -r ./src/",
