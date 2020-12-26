@@ -20,7 +20,7 @@ build:
       - docs/
 test:
   stage: test
-  script: npm run coverage:ci
+  script: npm run test
   artifacts:
     paths:
       - coverage/

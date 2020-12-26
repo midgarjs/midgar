@@ -1,11 +1,9 @@
-import Midgar from './midgar.js'
-import Plugin from './plugin.js'
-import Cli from './libs/cli'
+const App = require('./app')
+const utils = require('./libs/utils')
+const Plugin = require('./plugin')
 
-export {
-  Midgar,
-  Plugin,
-  Cli
+module.exports = {
+    App,
+    Plugin,
+    utils
 }
-
-export default Midgar

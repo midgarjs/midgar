@@ -1,7 +1,7 @@
 
-import path from 'path'
-import dotenv from 'dotenv'
-import { assignRecursive, asyncFileExists } from '@midgar/utils'
+const path = require('path')
+const dotenv = require('dotenv')
+const { merge, asyncFileExists } = require('./utils')
 
 const CONFIG_FILE_NAME = 'config'
 
@@ -22,15 +22,23 @@ dotenv.config()
  * @private
  */
 async function loadConfig (configDir, env) {
-  const config = {}
-  const mainConfig = await loadConfigfile(path.join(configDir, CONFIG_FILE_NAME), true)
-  assignRecursive(config, mainConfig)
+    const config = {}
+    const mainConfig = await loadConfigfile(path.join(configDir, CONFIG_FILE_NAME), true)
+    merge(config, mainConfig)
 
-  const prefix = env === 'development' ? 'dev' : 'prod'
-  const modeConfig = await loadConfigfile(path.join(configDir, CONFIG_FILE_NAME + '.' + prefix))
-  assignRecursive(config, modeConfig)
+    let prefix
+    if (env === 'development') {
+        prefix = 'dev'
+    } else if (env === 'production') {
+        prefix = 'prod'
+    } else {
+        prefix = env
+    }
 
-  return config
+    const modeConfig = await loadConfigfile(path.join(configDir, CONFIG_FILE_NAME + '.' + prefix))
+    merge(config, modeConfig)
+
+    return config
 }
 
 /**
@@ -44,18 +52,16 @@ async function loadConfig (configDir, env) {
  * @private
  */
 async function loadConfigfile (filePath, requireMode = false) {
-  const exist = await asyncFileExists(filePath + '.js')
-  if (exist) {
-    const { default: config } = await import(filePath)
-    return config
-  } else if (requireMode) {
-    throw new Error(`the file ${filePath}.js doesn't exist !`)
-  }
+    const exist = await asyncFileExists(filePath + '.js')
+    if (exist) {
+        return require(filePath)
+    } else if (requireMode) {
+        throw new Error(`the file ${filePath}.js doesn't exist !`)
+    }
 }
 
-export {
-  CONFIG_FILE_NAME,
-  loadConfig
+module.exports = {
+    CONFIG_FILE_NAME,
+    loadConfig
 }
 
-export default loadConfig
