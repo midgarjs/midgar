@@ -1,10 +1,11 @@
 const path = require('path')
-const { timer, isObject, asyncGlob } = require('./utils')
+const { isObject, asyncGlob } = require('./utils')
+
 /**
- * @typedef {Object} ModuleDef
- * @property {string}      name   Module name
- * @property {constructor} module Module class
- * @property {Array<string>} dependencies Dependencies module names
+ * @typedef {Object} ServiceDef
+ * @property {string}        name         Service name
+ * @property {constructor}   service      Service class
+ * @property {Array<string>} dependencies Dependencies service names
  */
 
 
@@ -13,246 +14,194 @@ const { timer, isObject, asyncGlob } = require('./utils')
  * Dependency injection container
  */
 module.exports = class Container {
+  /**
+   * @param {App} app App instance 
+   */
+  constructor (app) {
     /**
-     * @param {App} app App instance 
+     * App Instance
+     * @type {App}
      */
-    constructor (app) {
-        /**
-         * App Instance
-         * @type {App}
-         */
-        this.app = app
-
-        /**
-         * Module définitions dictionnary
-         */
-        this._moduleDefs = {}
-
-        /**
-         * Module instances définition
-         */
-        this._moduleInstances = {}
-    }
+    this.app = app
 
     /**
-     * Add a module définition
-     * 
-     * @param {string}    type              Module type 
-     * @param {ModuleDef} moduleDef         Module définition
-     * @param {string}    dependenciesType  Default dependency type for DI
-     * 
-     * @returns {void}
+     * Service définitions dictionnary
      */
-    addModule (type, moduleDef, dependenciesType = null) {
-        if (!dependenciesType) dependenciesType = type
-
-        moduleDef = { dependenciesType, ...moduleDef }
-        try {
-            this._checkModuleDef(moduleDef)
-        } catch (error) {
-            const moduleDefString = JSON.stringify(moduleDef, null, '  ')
-            throw new Error(`${error.message}\n${moduleDefString}`)
-        }
-
-
-        if (this._moduleDefs[type] === undefined) {
-            this._moduleDefs[type] = {}
-        }
-
-        this._moduleDefs[type][moduleDef.name] = moduleDef
-    }
+    this._serviceDefs = {}
 
     /**
-     * Check a module definition and throw an Error
-     * if somthing wrong
-     * 
-     * @param {ModuleDef} moduleDef Module définition
-     * 
-     * @private
+     * Service instances dictionnary
      */
-    _checkModuleDef (moduleDef) {
-        if (typeof moduleDef !== 'object') throw new TypeError(`Invalid module définition type !`)
-        if (moduleDef.module === undefined) throw new Error(`No module propertie in module définition !`)
-        if (moduleDef.name === undefined) throw new Error(`No name propertie in module définition !`)
+    this._instances = {}
+  }
 
-        if (typeof moduleDef.name !== 'string') throw new TypeError(`Invalid module name type !`)
-        if (typeof moduleDef.dependenciesType !== 'string') throw new Error(`Invalid dependenciesType type in module définition !`)
-
-
-        if (typeof moduleDef.module !== 'function')
-            throw new TypeError(`Invalid module type !`)
-
-        if (moduleDef.dependencies === undefined) return
-
-        if (!Array.isArray(moduleDef.dependencies))
-            throw new TypeError(`Invalid dependencies type !`)
-
-        for (const dependency of moduleDef.dependencies) {
-            if (isObject(dependency)) {
-                if (dependency.name === undefined) throw new Error(`No name propertie in module dependency !`)
-                if (typeof dependency.name !== 'string') throw new TypeError(`Invalid name type in module dependency !`)
-                if (dependency.type === undefined) throw new Error(`No type propertie in module dependency !`)
-                if (typeof dependency.type !== 'string') throw new TypeError(`Invalid type type in module dependency !`)
-            } else if (typeof dependency !== 'string') {
-                throw new TypeError(`Invalid module dependency type !`)
-            }
-        }
+  /**
+   * Add a service définition
+   * 
+   * @param {string}     type       Service type 
+   * @param {ServiceDef} serviceDef Service définition
+   * 
+   * @returns {void}
+   */
+  addService (serviceDef) {
+    try {
+      this._checkServiceDef(serviceDef)
+    } catch (error) {
+      const serviceDefString = JSON.stringify(serviceDef, null, '  ')
+      throw new Error(`${error.message}\n${serviceDefString}`)
     }
 
-    /**
-     * Add a directory of module
-     * 
-     * Load all module in the dirPath with the glob pattern
-     * 
-     * @param {String} type                    Module type
-     * @param {String} dirPath                 Directory path
-     * @param {String} pattern                 Glob pattern
-     * @param {string} defaultDependenciesType Default dependency type for DI
-     * 
-     * @returns {Promise<void>}
-     */
-    async addModuleDir (type, dirPath, pattern, dependenciesType = null) {
-        if (dependenciesType === null) dependenciesType = type
-        const moduleFiles = await asyncGlob(dirPath, pattern)
+    this._serviceDefs[serviceDef.name] = serviceDef
+  }
 
-        for (const fileName of moduleFiles) {
-            const moduleDef = require(path.join(dirPath, fileName))
-            this.addModule(type, moduleDef, dependenciesType)
-        }
+  /**
+   * Check a service definition and throw an Error
+   * if somthing wrong
+   * 
+   * @param {ServiceDef} serviceDef Service définition
+   * 
+   * @private
+   */
+  _checkServiceDef (serviceDef) {
+    if (typeof serviceDef !== 'object') throw new TypeError(`Invalid service définition type !`)
+    if (serviceDef.service === undefined) throw new Error(`No service propertie in service définition !`)
+    if (serviceDef.name === undefined) throw new Error(`No name propertie in service définition !`)
+
+    if (typeof serviceDef.name !== 'string') throw new TypeError(`Invalid service name type !`)
+
+
+    if (typeof serviceDef.service !== 'function')
+      throw new TypeError(`Invalid service type !`)
+
+    if (serviceDef.dependencies === undefined) return
+
+    if (!Array.isArray(serviceDef.dependencies))
+      throw new TypeError(`Invalid dependencies type !`)
+
+    for (const dependency of serviceDef.dependencies) {
+      if (typeof dependency !== 'string')
+        throw new TypeError(`Invalid service dependency type !`)
+    }
+  }
+
+  /**
+   * Add a directory of service
+   * 
+   * Load all service in the dirPath with the glob pattern
+   * 
+   * @param {String} dirPath                 Directory path
+   * @param {String} pattern                 Glob pattern
+   * 
+   * @returns {Promise<void>}
+   */
+  async addServiceDir (dirPath, pattern) {
+    const serviceFiles = await asyncGlob(dirPath, pattern)
+
+    for (const fileName of serviceFiles) {
+      const serviceDef = require(path.join(dirPath, fileName))
+      this.addService(serviceDef)
+    }
+  }
+
+  /**
+   * Return an instance of a service
+   * 
+   * @param {string} name Service name
+   * 
+   * @returns {any}
+   */
+  getService (name) {
+    return this._getService(name)
+  }
+
+  /**
+   * Return an instance of a service
+   * 
+   * @param {string} name    Service name
+   * @param {array}  parents Array of parents services
+   * 
+   * @private
+   * @returns {any}
+   */
+  _getService (name, parents = []) {
+    if (this._instances[name] === undefined) {
+      this._instances[name] = this._createServiceInstance(name, parents)
     }
 
-    /**
-     * Instanciate all module
-     * 
-     * @param {String} type Module type
-     * 
-     * @returns {void}
-     */
-    intanciateModules (type) {
-        if (this._moduleDefs[type] !== undefined) {
-            for (const name in this._moduleDefs[type]) {
-                this.getModule(type, name)
-            }
-        }
+    return this._instances[name]
+  }
+
+  /**
+   * Create an instance of a service
+   * 
+   * @param {string} name    Service name
+   * @param {array}  parents Array of parents services
+   * 
+   * @private
+   * @returns {any}
+   */
+  _createServiceInstance (name, parents = []) {
+    if (this._serviceDefs[name] === undefined)
+      throw new Error(`Container: unknow service ${name}.`)
+
+    parents.push(name)
+
+    const serviceDef = this._serviceDefs[name]
+    let instance
+    let dependencies = []
+    if (serviceDef.dependencies && serviceDef.dependencies.length) {
+      dependencies = this._getServiceDependencies(serviceDef, parents)
     }
 
-    /**
-     * Return module instances
-     * 
-     * @param {string} type Module type
-     */
-    getInstances (type) {
-        return this._moduleInstances[type] ? this._moduleInstances[type] : []
+    const args = [this.app]
+
+    args.push(...dependencies)
+
+    this.app.debug(`Container: create service instance ${name}.`)
+
+    // If the service is a class
+    if (/^class\s/.test(Function.prototype.toString.call(serviceDef.service))) {
+      const Class = serviceDef.service
+      instance = new Class(...args)
+    } else {
+      instance = serviceDef.service(...args)
     }
 
-    /**
-     * Return an instance of a module
-     * 
-     * @param {string} type Module type
-     * @param {string} name Module name
-     * 
-     * @returns {any}
-     */
-    getModule (type, name) {
-        return this._getModule(type, name)
+    return instance
+  }
+
+  /**
+   * Retrun an array of dependencies instance
+   * 
+   * @param {string} serviceDef Parent service name
+   * @param {array}  parents    Array of parents services
+   * 
+   * @private
+   * @returns {Array<any>}
+   */
+  _getServiceDependencies (serviceDef, parents) {
+    const depependencies = []
+    for (const dependency of serviceDef.dependencies) {
+
+      let type = serviceDef.dependenciesType
+      let name
+      if (isObject(dependency)) {
+        type = dependency.type
+        name = dependency.name
+      } else if (typeof dependency === 'string') {
+        name = dependency
+      }
+
+      if (parents.indexOf(name) !== -1) {
+        throw new Error(
+          `Circular dependency in service ${serviceDef.name}, ${name} already depend on ${serviceDef.name} (${[...parents, name].join('->')})!`
+        )
+      }
+
+      depependencies.push(this._getService(name, JSON.parse(JSON.stringify(parents))))
     }
 
-    /**
-     * Return an instance of a module
-     * 
-     * @param {string} type    Module type
-     * @param {string} name    Module name
-     * @param {array}  parents Array of parents modules
-     * 
-     * @private
-     * @returns {any}
-     */
-    _getModule (type, name, parents = []) {
-        if (this._moduleInstances[type] === undefined) this._moduleInstances[type] = {}
-        if (this._moduleInstances[type][name] === undefined) {
-            this._moduleInstances[type][name] = this._createModuleInstance(type, name, parents)
-        }
-
-        return this._moduleInstances[type][name]
-    }
-
-    /**
-     * Create an instance of a module
-     * 
-     * @param {string} type    Module type
-     * @param {string} name    Module name
-     * @param {array}  parents Array of parents modules
-     * 
-     * @private
-     * @returns {any}
-     */
-    _createModuleInstance (type, name, parents = []) {
-        if (this._moduleDefs[type] === undefined || this._moduleDefs[type][name] === undefined) {
-            throw new Error(`Unknow module ${name} of type ${type}.`)
-        }
-
-        const timeKey = `module-${type}-${name}-init`
-        timer.start(timeKey)
-
-        parents.push(type + ':' + name)
-
-        const moduleDef = this._moduleDefs[type][name]
-        let instance
-        let dependencies = []
-        if (moduleDef.dependencies && moduleDef.dependencies.length) {
-            dependencies = this._getModuleDependencies(type, moduleDef, parents)
-        }
-
-        const args = [this.app]
-
-        args.push(...dependencies)
-        // If the service is a class
-        if (/^class\s/.test(Function.prototype.toString.call(moduleDef.module))) {
-            const Class = moduleDef.module
-            instance = new Class(...args)
-        } else {
-            instance = moduleDef.module(...args)
-        }
-
-        const time = timer.getTime(timeKey)
-        this.app.debug(`Create module ${type} instance ${name} in ${time} ms.`)
-
-        return instance
-    }
-
-    /**
-     * Retrun an array of dependencies instance
-     * 
-     * @param {string} moduleType Parent module type
-     * @param {string} moduleDef  Parent module name
-     * @param {array}  parents    Array of parents modules
-     * 
-     * @private
-     * @returns {Array<any>}
-     */
-    _getModuleDependencies (moduleType, moduleDef, parents) {
-        const depependencies = []
-        for (const dependency of moduleDef.dependencies) {
-
-            let type = moduleDef.dependenciesType
-            let name
-            if (isObject(dependency)) {
-                type = dependency.type
-                name = dependency.name
-            } else if (typeof dependency === 'string') {
-                name = dependency
-            }
-
-            if (parents.indexOf(type + ':' + name) !== -1) {
-                throw new Error(
-                    `Circular dependency in module ${moduleType}:${moduleDef.name}, ${type}:${name} already depend on ${moduleType}:${moduleDef.name} (${parents.join('->')})!`
-                )
-            }
-
-            depependencies.push(this._getModule(type, name, JSON.parse(JSON.stringify(parents))))
-        }
-
-        return depependencies
-    }
+    return depependencies
+  }
 }
 
