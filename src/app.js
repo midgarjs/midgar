@@ -150,6 +150,18 @@ class App extends Emittery {
     }
 
     /**
+     * Add a directory of service
+     * 
+     * @param {String} dirPath Directory path
+     * @param {String} pattern Glob pattern
+     * 
+     * @returns {Promise<void>}
+     */
+    async addServiceDir (dirPath, pattern) {
+        this.container.addServiceDir(dirPath, pattern)
+    }
+
+    /**
      * Return a service instance
      * 
      * @param {string} name Service name

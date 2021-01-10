@@ -76,7 +76,7 @@ module.exports = class Container {
     if (serviceDef.dependencies === undefined) return
 
     if (!Array.isArray(serviceDef.dependencies))
-      throw new TypeError(`Invalid dependencies type !`)
+      throw new TypeError(`Invalid service dependencies type !`)
 
     for (const dependency of serviceDef.dependencies) {
       if (typeof dependency !== 'string')
@@ -89,8 +89,8 @@ module.exports = class Container {
    * 
    * Load all service in the dirPath with the glob pattern
    * 
-   * @param {String} dirPath                 Directory path
-   * @param {String} pattern                 Glob pattern
+   * @param {String} dirPath Directory path
+   * @param {String} pattern Glob pattern
    * 
    * @returns {Promise<void>}
    */
@@ -183,7 +183,6 @@ module.exports = class Container {
     const depependencies = []
     for (const dependency of serviceDef.dependencies) {
 
-      let type = serviceDef.dependenciesType
       let name
       if (isObject(dependency)) {
         type = dependency.type
