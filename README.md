@@ -1,5 +1,3 @@
-## Alpha stage
-
 # Midgar
 
 ## Qu'est ce que Midgar

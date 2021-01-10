@@ -55,7 +55,7 @@ describe('App', function () {
         const initPluginsSpy = jest.spyOn(app.pm, 'initPlugins');
 
         const afterInitPluginFn = jest.fn();
-        app.on('afterInitPlugins', afterInitPluginFn)
+        app.on('after-init-plugins', afterInitPluginFn)
 
         const startFn = jest.fn();
         app.on('start', startFn)

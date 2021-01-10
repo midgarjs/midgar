@@ -71,7 +71,7 @@ class App extends Emittery {
      */
     async start () {
         await this.pm.initPlugins()
-        await this.emit('afterInitPlugins')
+        await this.emit('after-init-plugins')
         await this.emit('start')
     }
 
