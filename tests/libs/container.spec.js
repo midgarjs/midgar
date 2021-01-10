@@ -1,10 +1,9 @@
 const path = require('path')
 
-const { Plugin } = require('../../src')
 const App = require('../../src/app')
 
-const testModulenDef = require('../fixtures/modules/test.module')
-const test2ModulenDef = require('../fixtures/modules/test2.module')
+const testServiceDef = require('../fixtures/services/test.service')
+const test2ServiceDef = require('../fixtures/services/test2.service')
 
 /**
  * Test the config
@@ -21,87 +20,79 @@ describe('Lib container', function () {
     afterEach(async () => {
         await app.stop()
     })
+
     /**
-     * Test unknow npm dependency error case
+     * Test addService
      */
-    it('Container addModule', async (done) => {
-        const type = 'test-type'
+    it('Container addService', async (done) => {
         const name = 'test'
-        class TestModule {
+        class TestService {
         }
 
-        expect(() => app.container.addModule(type, { name, module: TestModule, dependencies: [{ name: 'test2', type }, 'test3'] })).not.toThrow(Error)
-        expect(() => app.container.addModule(type, { name, module: () => { } })).not.toThrow(Error)
+        expect(() => app.container.addService({ name, service: () => { } })).not.toThrow(Error)
 
         // Invalid module definition
-        expect(() => app.container.addModule(type, '{}')).toThrow(Error)
-        expect(() => app.container.addModule(type, {})).toThrow(Error)
-        expect(() => app.container.addModule(type, { name })).toThrow(Error)
-        expect(() => app.container.addModule(type, { module: TestModule })).toThrow(Error)
-        expect(() => app.container.addModule(type, { name: () => { }, module: TestModule })).toThrow(Error)
-        expect(() => app.container.addModule(type, { name, module: 'x' })).toThrow(Error)
-        expect(() => app.container.addModule(type, { name, module: TestModule, dependenciesType: 1 })).toThrow(Error)
-        expect(() => app.container.addModule(type, { name, module: TestModule, dependencies: 1 })).toThrow(Error)
-        expect(() => app.container.addModule(type, { name, module: TestModule, dependencies: [1] })).toThrow(Error)
-        expect(() => app.container.addModule(type, { name, module: TestModule, dependencies: [{}] })).toThrow(Error)
-        expect(() => app.container.addModule(type, { name, module: TestModule, dependencies: [{ name: 1, type: 'test' }] })).toThrow(Error)
-        expect(() => app.container.addModule(type, { name, module: TestModule, dependencies: [{ name: 'test' }] })).toThrow(Error)
-        expect(() => app.container.addModule(type, { name, module: TestModule, dependencies: [{ name: 'test', type: 1 }] })).toThrow(Error)
+        expect(() => app.container.addService('{}')).toThrow(Error)
+        expect(() => app.container.addService({})).toThrow(Error)
+        expect(() => app.container.addService({ name })).toThrow(Error)
+        expect(() => app.container.addService({ service: TestService })).toThrow(Error)
+        expect(() => app.container.addService({ name: () => { }, service: TestService })).toThrow(Error)
+        expect(() => app.container.addService({ name, service: 'x' })).toThrow(Error)
+        expect(() => app.container.addService({ name, service: TestService, dependencies: 1 })).toThrow(Error)
+        expect(() => app.container.addService({ name, service: TestService, dependencies: [1] })).toThrow(Error)
+        expect(() => app.container.addService({ name, service: TestService, dependencies: [{}] })).toThrow(Error)
 
         done()
     })
 
     /**
-     * Test getModule method
+     * Test getService method
      */
-    it('Container getModule', async (done) => {
-        const type = 'test-type'
-        class TestModule {
+    it('Container getService', async (done) => {
+        class TestService {
             constructor (app) {
                 this.app = app
             }
         }
 
-        app.container.addModule(type, {
-            module: TestModule,
+        app.container.addService({
+            service: TestService,
             name: 'test'
         })
 
-        class Test2Module {
-            constructor (app, testModule, testFnModule) {
+        class Test2Service {
+            constructor (app, testService, testFnService) {
                 this.app = app
-                this.testModule = testModule
-                this.testFnModule = testFnModule
+                this.testService = testService
+                this.testFnService = testFnService
             }
         }
-        app.container.addModule(type, {
-            module: () => 'test-function-value',
+        app.container.addService({
+            service: () => 'test-function-value',
             name: 'test-function',
         })
 
-        app.container.addModule(type, {
-            module: Test2Module,
+        app.container.addService({
+            service: Test2Service,
             name: 'test2',
-            dependencies: ['test', { type, name: 'test-function' }]
+            dependencies: ['test', 'test-function']
         })
 
-        const testModule = app.container.getModule(type, 'test')
+        const testService = app.container.getService('test')
 
-        expect(testModule).toBeInstanceOf(TestModule)
-        expect(testModule.app).toBeInstanceOf(App)
+        expect(testService).toBeInstanceOf(TestService)
+        expect(testService.app).toBeInstanceOf(App)
 
-        const test2Module = app.container.getModule(type, 'test2')
-        expect(test2Module).toBeInstanceOf(Test2Module)
-        expect(test2Module.app).toBeInstanceOf(App)
-        expect(test2Module.testModule).toBeInstanceOf(TestModule)
-        expect(test2Module.testFnModule).toEqual('test-function-value')
+        const test2Service = app.container.getService('test2')
+        expect(test2Service).toBeInstanceOf(Test2Service)
+        expect(test2Service.app).toBeInstanceOf(App)
+        expect(test2Service.testService).toBeInstanceOf(TestService)
+        expect(test2Service.testFnService).toEqual('test-function-value')
 
-        expect(() => app.container.getModule(type, 'testx')).toThrow(Error)
-        expect(() => app.container.getModule('xxx', 'test')).toThrow(Error)
+        expect(() => app.container.getService('testx')).toThrow(Error)
 
         done()
     })
-
 
     /**
      * Test circular dependency
@@ -109,68 +100,35 @@ describe('Lib container', function () {
     it('Container circular dependency', async (done) => {
         const type = 'test-type'
 
-        app.container.addModule(type, {
-            module: () => { },
+        app.container.addService({
+            service: () => { },
             name: 'test',
             dependencies: ['test2'],
         })
 
-        app.container.addModule(type, {
-            module: () => { },
+        app.container.addService({
+            service: () => { },
             name: 'test2',
             dependencies: ['test3'],
         })
 
-        app.container.addModule(type, {
-            module: () => { },
+        app.container.addService({
+            service: () => { },
             name: 'test3',
             dependencies: ['test'],
         })
-        expect(() => app.container.getModule(type, 'test')).toThrow(Error)
+        expect(() => app.container.getService('test')).toThrow(Error)
         done()
     })
 
     /**
-     * Test addModuleDir method
+     * Test addServiceDir method
      */
-    it('Container addModuleDir', async (done) => {
-        const type = 'test-type'
+    it('Container addServiceDir', async (done) => {
+        await app.container.addServiceDir(path.resolve(__dirname, '../fixtures/services'), '*.service.js')
 
-        await app.container.addModuleDir(type, path.resolve(__dirname, '../fixtures/modules'), '*.module.js')
-
-        expect(app.container.getModule(type, 'test')).toBeInstanceOf(testModulenDef.module)
-        expect(app.container.getModule(type, 'test2')).toBeInstanceOf(test2ModulenDef.module)
-        done()
-    })
-
-
-    /**
-     * Test intanciateModules method
-     */
-    it('Container intanciateModules', async (done) => {
-        const type = 'test-type'
-        class TestModule {
-        }
-
-        app.container.addModule(type, {
-            module: TestModule,
-            name: 'test'
-        })
-
-        class Test2Module {
-        }
-
-        app.container.addModule(type, {
-            module: Test2Module,
-            name: 'test2'
-        })
-        app.container.intanciateModules(type)
-        const instances = app.container.getInstances(type)
-        expect(Object.keys(instances).length).toEqual(2)
-
-        expect(instances['test']).toBeInstanceOf(TestModule)
-        expect(instances['test2']).toBeInstanceOf(Test2Module)
-
+        expect(app.container.getService('test')).toBeInstanceOf(testServiceDef.service)
+        expect(app.container.getService('test2')).toBeInstanceOf(test2ServiceDef.service)
         done()
     })
 })

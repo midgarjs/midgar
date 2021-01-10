@@ -92,7 +92,6 @@ class App extends Emittery {
         this.config.log.level = this.config.log && this.config.log.level ? this.config.log.level : 'warn'
     }
 
-
     /**
      * Add a plugin definition
      * 
@@ -122,11 +121,57 @@ class App extends Emittery {
      * 
      * @param {string} name Plugin name
      * 
-     * @returns {PluginManager}
+     * @returns {Plugin}
      */
     getPlugin (name) {
         return this.pm.getPlugin(name)
     }
+
+    /**
+     * Add a service definition
+     * 
+     * @param {ServiceDef} serviceDef Service definition
+     * 
+     * @returns {void}
+     */
+    addService (serviceDef) {
+        this.container.addService(serviceDef)
+    }
+
+    /**
+     * Add an array of service definition
+     * 
+     * @param {Array<ServiceDef>} serviceDefs Service definitions
+     * 
+     * @returns {void}
+     */
+    addServices (serviceDefs) {
+        this.container.addServices(serviceDefs)
+    }
+
+    /**
+     * Add a directory of service
+     * 
+     * @param {String} dirPath Directory path
+     * @param {String} pattern Glob pattern
+     * 
+     * @returns {Promise<void>}
+     */
+    async addServiceDir (dirPath, pattern) {
+        this.container.addServiceDir(dirPath, pattern)
+    }
+
+    /**
+     * Return a service instance
+     * 
+     * @param {string} name Service name
+     * 
+     * @returns {any}
+     */
+    getService (name) {
+        return this.container.getService(name)
+    }
+
 
     /**
      * Return the node env code
@@ -156,19 +201,15 @@ class App extends Emittery {
      * @return {Promise<void>}
      */
     async exit (code = 0) {
-        console.log('EXIT', code)
         // Stop app
         await this.stop()
-        console.log('STOP', code)
 
         if (this.logger && !this._hasExitLogger) {
             this._hasExitLogger = true
             await this.logger.exit()
         }
 
-        console.log('logger STOP', code)
         // exit process
-        console.log('/EXIT', code)
         process.exit(code)
     }
 
@@ -179,14 +220,12 @@ class App extends Emittery {
         if (!this._exit) {
             this._exit = true
             // start exit sequence
-            console.log('_exitHandler exit')
             return this.exit()
         }
     }
 
     // Catch uncaught Exceptions
     uncaughtExceptionHandler (error) {
-        console.log('uncaughtExceptionHandler', this._hasExitLogger)
         if (this.logger && !this._hasExitLogger) {
             // log exception
             this.logger.error('App: Uncaught Exception :(')
@@ -200,7 +239,6 @@ class App extends Emittery {
 
     // Catch uncaught Exceptions
     uncaughtRejectionHandler (error) {
-        console.log('uncaughtRejectionHandler', this._hasExitLogger)
         if (this.logger && !this._hasExitLogger) {
             // log exception
             this.logger.error('App: Uncaught Rejection :(')

@@ -14,7 +14,6 @@ describe('App', function () {
     let app = null;
     beforeEach(() => {
         app = new App()
-        console.log('NEW APP')
     });
 
     afterEach(() => {
@@ -48,6 +47,9 @@ describe('App', function () {
         expect(app.pm).toBeInstanceOf(PluginManager)
     })
 
+    /**
+     * Test start app
+     */
     it('App start', async () => {
         await app.init(path.join(__dirname, './fixtures/config'))
         const initPluginsSpy = jest.spyOn(app.pm, 'initPlugins');
@@ -66,7 +68,7 @@ describe('App', function () {
     })
 
     /**
-     * Test
+     * Test add plugin
      */
     it('App addPlugin', async () => {
         await app.init(path.join(__dirname, './fixtures/config'))
@@ -84,7 +86,9 @@ describe('App', function () {
         expect(addedPluginDef).toHaveProperty('test', true)
     })
 
-
+    /**
+     * Test get plugin
+     */
     it('App getPlugin', async () => {
         await app.init(path.join(__dirname, './fixtures/config'))
 
@@ -97,6 +101,44 @@ describe('App', function () {
         expect(plugin).toHaveProperty('test', 'test-plugin')
     })
 
+    /**
+     * Test add service
+     */
+    it('App addService', async () => {
+        await app.init(path.join(__dirname, './fixtures/config'))
+
+        let addedServiceDef = null
+        jest.spyOn(app.container, 'addService').mockImplementationOnce((serviceDef) => {
+            addedServiceDef = serviceDef
+        })
+
+        app.addService({
+            test: true
+        })
+
+        expect(addedServiceDef).not.toBeNull()
+        expect(addedServiceDef).toHaveProperty('test', true)
+    })
+
+
+    /**
+     * Test get service
+     */
+    it('App getService', async () => {
+        await app.init(path.join(__dirname, './fixtures/config'))
+
+        jest.spyOn(app.container, 'getService').mockImplementationOnce((name) => {
+            return { test: name }
+        })
+
+        const service = app.getService('test-service')
+
+        expect(service).toHaveProperty('test', 'test-service')
+    })
+
+    /**
+     * Test getNodeEnv()
+     */
     it('App getNodeEnv', async () => {
         delete process.env.NODE_ENV
         expect(app.getNodeEnv()).toEqual('production')
@@ -105,6 +147,9 @@ describe('App', function () {
         process.env.NODE_ENV = 'production'
     })
 
+    /**
+     * Test exit
+     */
     it('App exit', async () => {
         await app.init(path.join(__dirname, './fixtures/config'))
 
@@ -119,24 +164,24 @@ describe('App', function () {
         expect(process.exit).toHaveBeenCalled();
     })
 
+    /**
+     * Test exit handler
+     */
     it('App exit handler', async () => {
         await app.init(path.join(__dirname, './fixtures/config'))
 
-        console.log('App exit handler')
         jest.spyOn(app, 'exit').mockImplementationOnce(() => {
-            console.log('Exit')
         })
 
-        console.log('SIGUSR1 SIGUSR1 SIGUSR1 SIGUSR1')
         await app.exitHandler()
 
         expect(app.exit).toHaveBeenCalled();
-        console.log('/App exit handler')
-
     })
 
+    /**
+     * Test uncaughtException
+     */
     it('App uncaughtException', async (done) => {
-        console.log('App uncaughtException')
         await app.init(path.join(__dirname, './fixtures/config'))
 
         jest.spyOn(app, 'exit').mockImplementationOnce(() => { })
@@ -144,28 +189,29 @@ describe('App', function () {
         await app.uncaughtExceptionHandler(new Error('Uncaught Exception'))
 
         expect(app.exit).toHaveBeenCalled();
-        console.log('/App uncaughtException')
-
         done()
     })
 
+    /**
+     * Test unhandledRejection
+     */
     it('App unhandledRejection', async (done) => {
         await app.init(path.join(__dirname, './fixtures/config'))
 
-        console.log('App unhandledRejection')
         jest.spyOn(app, 'exit').mockImplementationOnce(() => { })
 
         await app.uncaughtRejectionHandler(new Error('Uncaught Rejection'))
 
         expect(app.exit).toHaveBeenCalled();
-        console.log('App /unhandledRejection')
 
         done()
     })
 
 
+    /**
+     * Test stop
+     */
     it('App stop', async (done) => {
-
         await app.init(path.join(__dirname, './fixtures/config'))
         await app.start()
 
@@ -176,6 +222,9 @@ describe('App', function () {
         done()
     })
 
+    /**
+     * Test log methods
+     */
     it('App log', async (done) => {
         await app.init(path.join(__dirname, './fixtures/config'))
         const methods = ['error', 'warn', 'info', 'verbose', 'debug', 'silly']

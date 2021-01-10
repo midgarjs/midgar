@@ -1,5 +1,5 @@
 module.exports = {
     name: 'test',
-    module: class TestModule {
+    service: class TestService {
     }
 }

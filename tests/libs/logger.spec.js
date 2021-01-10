@@ -41,12 +41,10 @@ describe('Lib logger', function () {
             ]
         })
 
-        console.log('test messageeeeeee')
         const level = 'info'
         const msg = 'test message'
         await logger.log(level, msg)
 
-        console.log('/test messageeeeeee')
         // Exit to wait write and close file
         await logger.exit()
 
