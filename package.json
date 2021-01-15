@@ -1,6 +1,6 @@
 {
     "name": "@midgar/midgar",
-    "version": "1.0.0-aplha.3.2",
+    "version": "1.0.0-aplha.3.3",
     "description": "node js framework",
     "main": "./src/index.js",
     "jest": {

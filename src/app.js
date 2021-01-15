@@ -158,7 +158,7 @@ class App extends Emittery {
      * @returns {Promise<void>}
      */
     async addServiceDir (dirPath, pattern) {
-        this.container.addServiceDir(dirPath, pattern)
+        return this.container.addServiceDir(dirPath, pattern)
     }
 
     /**
